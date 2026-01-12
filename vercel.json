@@ -1,5 +1,15 @@
 {
-  "framework": "angular",
+  "builds": [
+    {
+      "src": "DevotionTracker/package.json",
+      "use": "@vercel/angular",
+      "options": {
+        "projectName": "DevotionTracker",
+        "project": "DevotionTracker",
+        "distDir": "dist/devotion-tracker"
+      }
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
