@@ -1,0 +1,56 @@
+00:08:23.213 
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+00:08:32.511 
+00:08:32.511 
+added 948 packages, and audited 949 packages in 14s
+00:08:32.512 
+00:08:32.512 
+164 packages are looking for funding
+00:08:32.512 
+  run `npm fund` for details
+00:08:32.513 
+00:08:32.513 
+found 0 vulnerabilities
+00:08:33.471 
+❯ Building...
+00:08:34.707 
+✔ Building...
+00:08:34.710 
+Application bundle generation failed. [1.236 seconds]
+00:08:34.710 
+00:08:34.711 
+✘ [ERROR] TS6053: File '/vercel/path0/src/main.ngtypecheck.ts' not found.
+00:08:34.712 
+  The file is in the program because:
+00:08:34.712 
+    Root file specified for compilation [plugin angular-compiler]
+00:08:34.712 
+00:08:34.712 
+00:08:34.713 
+✘ [ERROR] TS6053: File '/vercel/path0/src/main.ts' not found.
+00:08:34.713 
+  The file is in the program because:
+00:08:34.713 
+    Root file specified for compilation [plugin angular-compiler]
+00:08:34.713 
+00:08:34.713 
+00:08:34.713 
+✘ [ERROR] Could not resolve "/vercel/path0/src/main.ts"
+00:08:34.714 
+00:08:34.714 
+00:08:34.714 
+✘ [ERROR] Could not resolve "src/styles.scss"
+00:08:34.714 
+00:08:34.714 
+    angular:styles/global:styles:2:8:
+00:08:34.714 
+      2 │ @import 'src/styles.scss';
+00:08:34.715 
+        ╵         ~~~~~~~~~~~~~~~~~
+00:08:34.715 
+00:08:34.715 
+  You can mark the path "src/styles.scss" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+00:08:34.715 
+00:08:34.715 
+00:08:34.888 
+Error: Command "ng build" exited with 1
