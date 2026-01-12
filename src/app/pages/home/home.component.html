@@ -1,0 +1,30 @@
+<div class="header">
+  <h1>Welcome, {{ profile()?.full_name || 'friend' }}!</h1>
+  <p>Let's record your devotion for today.</p>
+</div>
+
+<mat-card class="check-in-card">
+  <mat-card-content [formGroup]="checkInForm">
+    <div class="question">
+      <p>Did you pray today?</p>
+      <mat-radio-group formControlName="prayed">
+        <mat-radio-button [value]="true">Yes</mat-radio-button>
+        <mat-radio-button [value]="false">No</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <div class="question">
+      <p>Did you read the bible today?</p>
+      <mat-radio-group formControlName="read_bible">
+        <mat-radio-button [value]="true">Yes</mat-radio-button>
+        <mat-radio-button [value]="false">No</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+@if (checkInForm.get('read_bible')?.value === true) {
+  <app-todays-devotion></app-todays-devotion>
+}
+
+<app-earlier-devotions></app-earlier-devotions>

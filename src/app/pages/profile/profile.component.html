@@ -1,0 +1,39 @@
+<div class="profile-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Your Profile</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if(loading) {
+        <div class="spinner-container">
+          <mat-spinner></mat-spinner>
+        </div>
+      }
+      <div [style.visibility]="loading ? 'hidden' : 'visible'">
+        <p>Please complete your profile.</p>
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+          <fieldset [disabled]="loading">
+            <mat-form-field appearance="fill">
+              <mat-label>Username</mat-label>
+              <input matInput formControlName="username">
+            </mat-form-field>
+    
+            <mat-form-field appearance="fill">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="full_name">
+            </mat-form-field>
+    
+            <mat-form-field appearance="fill">
+              <mat-label>Age</mat-label>
+              <input matInput formControlName="age" type="number">
+            </mat-form-field>
+    
+            <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
+              Save Profile
+            </button>
+          </fieldset>
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

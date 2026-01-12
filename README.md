@@ -1,59 +1,64 @@
-# DevotionTracker
+# Devotion Tracker
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+A web application for church members to track their daily devotions, including prayer and bible reading.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- Email & Password Authentication (Sign Up, Sign In)
+- User Profiles (Name, Age)
+- Daily Check-ins for Prayer and Bible Reading
+- Detailed Devotion Note Entry
+- History of Past Devotions
+- Secure Backend with Supabase
+
+## Tech Stack
+
+- **Frontend:** Angular, Angular Material
+- **Backend:** Supabase (Authentication & PostgreSQL Database)
+
+## Getting Started
+
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+
+### Prerequisites
+
+- [Node.js and npm](https://nodejs.org/en/)
+- [Angular CLI](https://angular.dev/tools/cli): `npm install -g @angular/cli`
+
+### Installation and Setup
+
+1.  **Clone the repository**
+    ```bash
+    git clone <repository-url>
+    cd DevotionTracker
+    ```
+
+2.  **Set up Supabase**
+    - Go to [supabase.com](https://supabase.com), create a new project.
+    - In your Supabase project dashboard, go to **Settings > API**.
+    - Find your **Project URL** and `anon` **public** key.
+    - Update the `src/app/environments/environment.ts` file with your URL and key.
+    - Go to the **SQL Editor** in your Supabase dashboard.
+    - Copy the entire content of `schema.sql` from the project root and run it to create your database tables and policies.
+    - **(Optional for Testing)** To allow users to sign in immediately after signing up, you can disable email confirmation. Go to **Authentication > Providers** and turn off "Confirm email".
+
+3.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+4.  **Run the Development Server**
+    ```bash
+    npm start
+    ```
+    The application will be available at `http://localhost:4200/`.
+
+## Build for Production
+
+To create a production-ready build of the application, run:
 
 ```bash
-ng serve
+npm run build
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+The build artifacts will be stored in the `dist/` directory.

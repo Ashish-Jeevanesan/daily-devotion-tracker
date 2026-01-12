@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>Add Your Devotion Notes</h1>
+<div mat-dialog-content>
+  <p>What did you read and reflect on from the bible today?</p>
+  <mat-form-field appearance="outline">
+    <mat-label>Devotion Notes</mat-label>
+    <textarea matInput [formControl]="notes" rows="10" placeholder="e.g., John 3:16 - God's love is unconditional..."></textarea>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!notes.valid">Save</button>
+</div>

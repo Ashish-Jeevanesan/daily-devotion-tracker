@@ -1,0 +1,30 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Today's Devotion Notes</mat-card-title>
+    @if(todaysDevotion()) {
+      <button mat-icon-button (click)="openDevotionDialog()" aria-label="Edit devotion notes">
+        <mat-icon>edit</mat-icon>
+      </button>
+    }
+  </mat-card-header>
+  <mat-card-content>
+    @if(loading) {
+      <div class="spinner-container">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+    } @else {
+      @if (todaysDevotion()) {
+        <div class="devotion-display">
+          <p>{{ todaysDevotion()?.notes }}</p>
+        </div>
+      } @else {
+        <div class="add-button-container">
+          <p>You haven't added your devotion notes for today.</p>
+          <button mat-raised-button color="primary" (click)="openDevotionDialog()">
+            Add Devotion Notes
+          </button>
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>

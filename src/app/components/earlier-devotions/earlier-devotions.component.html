@@ -1,0 +1,18 @@
+<h2>Earlier Devotions</h2>
+
+@if (earlierDevotions().length > 0) {
+  <div class="devotion-list">
+    @for (devotion of earlierDevotions(); track devotion.id) {
+      <mat-card class="devotion-card">
+        <mat-card-header>
+          <mat-card-title>{{ devotion.created_at | date: 'longDate' }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ devotion.notes }}</p>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+} @else {
+  <p>No earlier devotions found.</p>
+}
