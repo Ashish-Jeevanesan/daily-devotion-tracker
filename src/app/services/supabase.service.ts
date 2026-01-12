@@ -17,8 +17,7 @@ export class SupabaseService {
           storage: window.localStorage,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true,
-          multiTab: false // Disable multi-tab synchronization
+          detectSessionInUrl: true
         },
       }
     );

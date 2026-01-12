@@ -2,7 +2,6 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Devotion, DevotionService } from '../../services/devotion.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { DatePipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DevotionEntryDialogComponent } from '../devotion-entry-dialog/devotion-entry-dialog.component';
@@ -13,7 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     MatCardModule,
     MatButtonModule,
-    DatePipe,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatIconModule
