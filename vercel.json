@@ -1,13 +1,4 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/angular",
-      "config": {
-        "browserTarget": "DevotionTracker:build"
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
