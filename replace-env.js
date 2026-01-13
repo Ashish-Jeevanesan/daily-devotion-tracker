@@ -4,7 +4,7 @@ const path = require('path');
 console.log('NG_APP_SUPABASE_URL:', process.env.NG_APP_SUPABASE_URL);
 console.log('NG_APP_SUPABASE_ANON_KEY:', process.env.NG_APP_SUPABASE_ANON_KEY);
 
-const distPath = path.join(__dirname, 'dist/devotion-tracker');
+const distPath = path.join(__dirname, 'dist/devotion-tracker/browser');
 
 function replaceInFile(file) {
   const filePath = path.join(distPath, file);
