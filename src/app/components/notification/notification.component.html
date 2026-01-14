@@ -1,0 +1,11 @@
+<div class="notification-overlay">
+  <div class="notification-container" [ngClass]="{ 'success': type === 'success', 'error': type === 'error' }">
+    <div class="notification-header">
+      <h3 class="notification-title">{{ type === 'success' ? 'Success' : 'Error' }}</h3>
+      <button class="close-button" (click)="onClose()">×</button>
+    </div>
+    <div class="notification-body">
+      <p>{{ message }}</p>
+    </div>
+  </div>
+</div>

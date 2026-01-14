@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <span>{{ title }}</span>
+  <span routerLink="/">{{ title }}</span>
   <button class="theme-toggle" (click)="toggleTheme()">
     Toggle Theme
   </button>
@@ -13,5 +13,11 @@
 </mat-toolbar>
 
 <main class="content">
+
   <router-outlet />
+
 </main>
+
+
+
+<app-notification-outlet></app-notification-outlet>

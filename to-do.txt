@@ -1,0 +1,5 @@
+-- Add dark mode ** Done ** 
+-- Add feature to Copy the devotion 
+-- Notification feature neeeds to be planned.
+-- Add Forgot Password option to reset Password
+-- Add a popup to show when sign in is done to check mail for confirmation. ** Done ** 

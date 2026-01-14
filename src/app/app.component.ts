@@ -6,9 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
 
+import { NotificationOutletComponent } from './components/notification-outlet/notification-outlet.component';
+
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule],
+  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule, NotificationOutletComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

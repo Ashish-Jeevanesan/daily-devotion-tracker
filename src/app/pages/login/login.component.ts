@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { NotificationService } from '../../services/notification.service';
+
 @Component({
   selector: 'app-login',
   imports: [
@@ -32,7 +34,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -42,23 +45,26 @@ export class LoginComponent {
     this.signUpForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      fullName: ['', Validators.required],
-      age: ['', [Validators.required, Validators.min(1)]]
     });
   }
 
-  async signIn() {
+  signIn() {
     this.errorMessage = null;
     if (this.signInForm.valid) {
       this.loading = true;
-      try {
-        await this.authService.signIn(this.signInForm.value.email, this.signInForm.value.password);
-        this.router.navigate(['/']);
-      } catch (error: any) {
-        this.errorMessage = error.message;
-      } finally {
-        this.loading = false;
-      }
+      this.authService.signIn(this.signInForm.value.email, this.signInForm.value.password)
+        .then(result => {
+          if (result.error) {
+            this.notificationService.show(result.error.message, 'error');
+          }
+          // The redirection logic is now handled in AuthService
+        })
+        .catch(error => {
+          this.notificationService.show(error.message, 'error');
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     }
   }
 
@@ -67,10 +73,11 @@ export class LoginComponent {
     if (this.signUpForm.valid) {
       this.loading = true;
       try {
-        await this.authService.signUp(this.signUpForm.value.email, this.signUpForm.value.password, this.signUpForm.value.fullName, this.signUpForm.value.age);
-        this.router.navigate(['/profile']);
+        await this.authService.signUp(this.signUpForm.value.email, this.signUpForm.value.password);
+        this.notificationService.show('Sign up successful! Please check your email for verification.', 'success');
       } catch (error: any) {
         this.errorMessage = error.message;
+        this.notificationService.show(error.message, 'error');
       } finally {
         this.loading = false;
       }
