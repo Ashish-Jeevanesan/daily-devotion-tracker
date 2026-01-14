@@ -42,6 +42,8 @@ export class LoginComponent {
     this.signUpForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      fullName: ['', Validators.required],
+      age: ['', [Validators.required, Validators.min(1)]]
     });
   }
 
@@ -65,7 +67,7 @@ export class LoginComponent {
     if (this.signUpForm.valid) {
       this.loading = true;
       try {
-        await this.authService.signUp(this.signUpForm.value.email, this.signUpForm.value.password);
+        await this.authService.signUp(this.signUpForm.value.email, this.signUpForm.value.password, this.signUpForm.value.fullName, this.signUpForm.value.age);
         this.router.navigate(['/profile']);
       } catch (error: any) {
         this.errorMessage = error.message;

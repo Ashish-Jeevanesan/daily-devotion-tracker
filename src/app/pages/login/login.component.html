@@ -34,6 +34,14 @@
                   <mat-label>Password</mat-label>
                   <input matInput formControlName="password" type="password">
                 </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Full Name</mat-label>
+                  <input matInput formControlName="fullName" type="text">
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>Age</mat-label>
+                  <input matInput formControlName="age" type="number">
+                </mat-form-field>
                 <button mat-raised-button color="primary" type="submit" [disabled]="signUpForm.invalid || loading">Sign Up</button>
               </fieldset>
             </form>

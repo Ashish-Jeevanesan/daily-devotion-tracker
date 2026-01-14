@@ -1,5 +1,8 @@
-<mat-toolbar color="primary">
+<mat-toolbar>
   <span>{{ title }}</span>
+  <button class="theme-toggle" (click)="toggleTheme()">
+    Toggle Theme
+  </button>
   <span class="spacer"></span>
   @if (isLoggedIn()) {
     <button mat-icon-button routerLink="/profile" aria-label="User Profile">

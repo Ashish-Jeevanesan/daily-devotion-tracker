@@ -1,29 +1,37 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from './services/auth.service';
-import { AsyncPipe } from '@angular/common';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   title = 'DevotionTracker';
 
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   currentUser = this.authService.currentUser;
   isLoggedIn = computed(() => !!this.currentUser());
 
-  constructor() {}
+  constructor(private readonly themeService: ThemeService) {}
 
+  ngOnInit(): void {
+    this.themeService.initTheme();
+  }
+  
   async signOut() {
     await this.authService.signOut();
     this.router.navigate(['/login']);
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 }

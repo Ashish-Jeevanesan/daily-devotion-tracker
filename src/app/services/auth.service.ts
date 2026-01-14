@@ -20,13 +20,23 @@ export class AuthService {
     });
   }
 
-  async signUp(email: string, password: string) {
+  async signUp(email: string, password: string, fullName: string, age: number) {
     const { data, error } = await this.supabaseService.supabase.auth.signUp({
       email: email,
       password: password,
     });
     if (error) {
       throw new Error(error.message);
+    }
+    if (data.user) {
+      const { error: profileError } = await this.supabaseService.supabase
+        .from('profiles')
+        .insert([
+          { id: data.user.id, full_name: fullName, age: age },
+        ]);
+      if (profileError) {
+        throw new Error(profileError.message);
+      }
     }
     return data.user;
   }
