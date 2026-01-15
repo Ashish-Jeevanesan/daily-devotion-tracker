@@ -1,78 +1,66 @@
-# Project Summary: Devotion Tracker
+# Project Summary Updates
 
-This document provides a comprehensive overview of the Devotion Tracker application, including its features, technology stack, and setup instructions.
+This document summarizes the key updates and enhancements made to the Devotion Tracker project during recent development iterations.
 
-## 1. Project Overview
+## 1. Vercel Deployment & Environment Configuration
 
-The Devotion Tracker is a web application designed for church members to record their daily personal devotions. It serves as a common platform to track prayer and bible reading habits, and to log personal notes and reflections.
+-   **`vercel.json` Configuration:**
+    -   Fixed schema validation issues by removing the unsupported `options` property from the `builds` array.
+    -   Corrected the `src` path in `builds` to point to the root `package.json` file.
+    -   Simplified `vercel.json` by removing the `builds` section entirely, opting to rely on Vercel's automatic project detection and settings configured in the Vercel UI.
+-   **Build Process (`package.json`):**
+    -   Corrected the `build` script in `package.json` to ensure environment variables are processed *before* the Angular compilation: `"build": "node replace-env.js && ng build"`.
+-   **Environment Variable Replacement (`replace-env.js`):**
+    -   Modified `replace-env.js` to correctly target the `dist/devotion-tracker/browser` directory for placeholder replacement in built JavaScript files, aligning with Angular's modern application builder output structure.
+    -   Enhanced `replace-env.js` with console logging for `NG_APP_SUPABASE_URL` and `NG_APP_SUPABASE_ANON_KEY` to aid in debugging Vercel environment variable issues.
+-   **Angular Configuration (`angular.json`):**
+    -   Added the missing `"tsConfig": "tsconfig.app.json"` property to `build.options` to resolve schema validation errors.
+    -   Updated the `styles` array to correctly reference `src/styles.scss` for custom theming.
+    -   Ensured pre-built Angular Material theme CSS files are copied to `assets/prebuilt-themes/` during the build process by configuring the `assets` array in `build.options`.
+-   **Environment File Management:**
+    -   Introduced a placeholder `environment.ts` file (`src/app/environments/environment.ts`) with empty values to resolve build errors when the file was missing from the repository (it is now correctly added to `.gitignore`).
+    -   Added `src/app/environments/environment.ts` to `.gitignore` to prevent sensitive development keys from being committed to the repository.
 
-## 2. Features
+## 2. User Authentication and Profile Flow Enhancements
 
-- **Authentication:** Users can create an account and sign in using their email and password.
-- **User Profiles:** After signing up, users are prompted to complete their profile with their full name and age.
-- **Daily Check-in:** A simple daily questionnaire on the home page asks users:
-  - "Did you pray today?" (Yes/No)
-  - "Did you read the bible today?" (Yes/No)
-- **Conditional Devotion Notes:** The option to add detailed devotion notes only appears after the user confirms they have read the bible.
-- **Focused Note Entry:** A dialog window provides a clean, focused interface for writing and saving devotion notes.
-- **Devotion History:** The application displays a history of all past devotion notes, sorted by date.
-- **Secure Backend:** All data is stored securely in a Supabase backend, with Row Level Security policies ensuring users can only access their own data.
-- **Responsive UI:** The user interface is built with Angular Material to be responsive and work on both desktop and mobile browsers.
+-   **Simplified Sign-up Process:**
+    -   Removed "Full Name" and "Age" input fields from the `login.component.html` sign-up form.
+    -   Updated `login.component.ts` to remove `fullName` and `age` form controls from `signUpForm` and their parameters from the `authService.signUp` call.
+    -   Modified `auth.service.ts` to no longer create a profile record immediately upon sign-up.
+    -   Replaced the native `alert()` with a custom notification pop-up after sign-up, instructing users to check their email for verification.
+-   **Mandatory Profile Completion Flow:**
+    -   Implemented logic in `auth.service.ts` (`checkProfileAndRedirect` method) to verify profile completeness (checking for `full_name` and `age`) after user login or session retrieval.
+    -   Automatically redirects users with incomplete profiles to the `/profile` page.
+    -   Ensures redirection to the home page (`/`) after a successful profile save from the `/profile` page.
+    -   Implemented robust checks to prevent infinite redirects by verifying the current URL before navigation in `checkProfileAndRedirect`.
+-   **Circular Dependency Resolution:**
+    -   Resolved a circular dependency between `AuthService` and `ProfileService` by lazily loading `ProfileService` in `AuthService` using Angular's `Injector`.
+    -   Adjusted the `signIn` method in `login.component.ts` to correctly handle the non-async nature of the updated `authService.signIn` method.
 
-## 3. Technology Stack
+## 3. UI/UX Improvements
 
-- **Frontend:**
-  - **Framework:** Angular
-  - **UI Components:** Angular Material
-- **Backend (BaaS):**
-  - **Platform:** Supabase
-  - **Services:** Authentication, PostgreSQL Database
+-   **Application Icon:**
+    -   Replaced the default `favicon.ico` with `icon.jpeg` to update the web application's visual identity.
+-   **Global Button Styling:**
+    -   Enhanced `mat-button`, `mat-raised-button`, `mat-icon-button`, and the custom `.theme-toggle` with improved borders, smooth hover effects (subtle scale increase, box-shadow change), and click effects (slight scale decrease, box-shadow removal) in `styles.scss` for better user feedback and visual appeal.
+-   **Navbar Redesign:**
+    -   Applied an attractive linear gradient background (aqua, turquoise, magenta, wine) to the `mat-toolbar` for a vibrant look.
+    -   Imported and applied the "Lora" Google Font to the navbar text, enhancing its elegance with adjusted font size and weight.
+    -   Added a subtle 1px black text border (using `text-shadow` with a `0.5px` blur radius) to the title and button text in the navbar, improving readability and visual contrast against the gradient background.
 
-## 4. Database Schema
+## 4. Theming System Overhaul
 
-The application uses three main tables in the Supabase database. The complete SQL for creating these tables and their security policies is in the `schema.sql` file.
-
-- **`profiles`**: Stores public user information.
-  - `id` (references `auth.users`)
-  - `full_name`
-  - `age`
-  - `username`
-- **`daily_check_ins`**: Stores the answers to the daily prayer/bible questions.
-  - `id`
-  - `user_id`
-  - `date`
-  - `prayed` (boolean)
-  - `read_bible` (boolean)
-- **`devotions`**: Stores the detailed notes from bible reading.
-  - `id`
-  - `user_id`
-  - `created_at`
-  - `notes`
-
-## 5. Getting Started
-
-### Prerequisites
-
-- Node.js and npm
-- Angular CLI (`npm install -g @angular/cli`)
-
-### Supabase Setup
-
-1.  **Create a Supabase Project:** Go to [supabase.com](https://supabase.com) and create a new project.
-2.  **Get Credentials:** In your Supabase project dashboard, navigate to **Settings > API**. Find your **Project URL** and `anon` **public** key.
-3.  **Update Environment File:** In the Angular project, find the `src/app/environments/environment.ts` file and update it with your Supabase credentials.
-4.  **Run SQL Schema:** Navigate to the **SQL Editor** in your Supabase project dashboard. Copy the entire content of the `schema.sql` file from the project root and run it to create the tables and security policies.
-5.  **Disable Email Confirmation (for testing):** Go to **Authentication > Providers** and disable the "Confirm email" setting if you want to sign up users without needing them to confirm their email address.
-
-### Local Development
-
-1.  **Install Dependencies:** Open a terminal in the project root (`DevotionTracker`) and run:
-    ```bash
-    npm install
-    ```
-2.  **Run the Application:** Run the following command to start the development server:
-    ```bash
-    npm start
-    ```
-3.  **Open in Browser:** Navigate to `http://localhost:4200`.
-
+-   **Initial Custom Theming Attempt:**
+    -   Attempted to implement a custom Sass-based theming system using `@angular/material`'s theming API, creating `light-theme.scss` and `dark-theme.scss` files.
+    -   Encountered and debugged `Undefined function 'mat.define-palette'` errors due to incorrect `@use` and `@import` Sass module usage.
+    -   Resolved Sass compilation issues by correctly applying `@use '@angular/material' as mat;` within theme definition files and ensuring the main `styles.scss` correctly orchestrated theme inclusion.
+-   **Simplified Class-Based Theming:**
+    -   Reverted to a simpler, more robust class-based theming approach using CSS variables defined directly in `styles.scss`.
+    -   Implemented `ThemeService` (using `localStorage` for persistence and system preference detection) to dynamically add/remove a `dark` class on the `document.body`.
+    -   Created a `NotificationOutletComponent` and `NotificationService` to manage a reusable notification pop-up overlay, replacing native browser alerts.
+    -   Corrected CSS selector from `.dark-theme body` to `body.dark-theme` in `styles.scss` to ensure the dark background color is applied correctly.
+    -   Removed `color="primary"` from `mat-toolbar` in `app.component.html` to prevent conflicts with the new custom CSS variable theming.
+    -   Modified `theme.service.ts` to ensure the default theme is always "light" if no preference is saved.
+-   **Theme Toggle UI:**
+    -   Added a custom button (`.theme-toggle`) to the `mat-toolbar` in `app.component.html` to trigger theme switching.
+    -   Adjusted CSS for `.theme-toggle` in `styles.scss` to correctly position it within the toolbar without using `position: fixed` and resolve overlapping issues.

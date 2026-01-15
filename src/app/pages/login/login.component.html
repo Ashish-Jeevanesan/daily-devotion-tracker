@@ -17,7 +17,10 @@
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Password</mat-label>
-                  <input matInput formControlName="password" type="password">
+                  <input matInput formControlName="password" [type]="hideSignInPassword ? 'password' : 'text'">
+                  <button mat-icon-button matSuffix (click)="togglePasswordVisibility('signIn')" type="button">
+                    <mat-icon>{{hideSignInPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                  </button>
                 </mat-form-field>
                 <button mat-raised-button color="primary" type="submit" [disabled]="signInForm.invalid || loading">Sign In</button>
               </fieldset>
@@ -32,7 +35,10 @@
                 </mat-form-field>
                 <mat-form-field appearance="fill">
                   <mat-label>Password</mat-label>
-                  <input matInput formControlName="password" type="password">
+                  <input matInput formControlName="password" [type]="hideSignUpPassword ? 'password' : 'text'">
+                  <button mat-icon-button matSuffix (click)="togglePasswordVisibility('signUp')" type="button">
+                    <mat-icon>{{hideSignUpPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                  </button>
                 </mat-form-field>
                 <button mat-raised-button color="primary" type="submit" [disabled]="signUpForm.invalid || loading">Sign Up</button>
               </fieldset>

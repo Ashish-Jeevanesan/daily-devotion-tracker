@@ -8,8 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
-import { NotificationService } from '../../services/notification.service';
+import { MatIconModule } from '@angular/material/icon'; // Added for password visibility toggle
+import { NotificationService } from '../../services/notification.service'; // Re-added NotificationService import
 
 @Component({
   selector: 'app-login',
@@ -20,7 +20,8 @@ import { NotificationService } from '../../services/notification.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -30,6 +31,8 @@ export class LoginComponent {
   signUpForm: FormGroup;
   errorMessage: string | null = null;
   loading = false;
+  hideSignInPassword = true;
+  hideSignUpPassword = true;
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +49,14 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+  }
+
+  togglePasswordVisibility(form: 'signIn' | 'signUp') {
+    if (form === 'signIn') {
+      this.hideSignInPassword = !this.hideSignInPassword;
+    } else {
+      this.hideSignUpPassword = !this.hideSignUpPassword;
+    }
   }
 
   signIn() {

@@ -2,6 +2,7 @@
   text-align: center;
   margin-bottom: 24px;
   padding: 0 16px;
+  color: var(--text-color);
 
   h1 {
     font-size: 2em;
@@ -27,6 +28,10 @@
     mat-radio-group {
       display: flex;
       gap: 16px;
+    }
+
+    mat-radio-button {
+      color: var(--text-color);
     }
   }
 }
