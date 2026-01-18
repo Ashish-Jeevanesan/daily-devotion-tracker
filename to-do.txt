@@ -1,5 +1,7 @@
--- Add dark mode ** Done ** 
+-- Add dark mode ** Done ** 13-01
 -- Add feature to Copy the devotion 
 -- Notification feature neeeds to be planned.
 -- Add Forgot Password option to reset Password
--- Add a popup to show when sign in is done to check mail for confirmation. ** Done ** 
+-- Add a popup to show when sign in is done to check mail for confirmation. ** Done ** 14-01
+-- Add view Password ** Done ** 15-01
+-- Multi Language Support
