@@ -9,26 +9,22 @@ export class ThemeService {
   private readonly storageKey = 'theme';
 
   initTheme() {
-    const savedTheme = localStorage.getItem(this.storageKey) as Theme | null;
-
-    if (savedTheme) {
-      this.setTheme(savedTheme);
-    } else {
-      this.setTheme('light');
-    }
+    const saved = localStorage.getItem(this.storageKey) as 'light' | 'dark' | null;
+    this.setTheme(saved ?? 'light');
   }
 
   toggleTheme() {
-    const isDark = document.body.classList.contains('dark');
+    const isDark = document.body.classList.contains('dark-theme');
     this.setTheme(isDark ? 'light' : 'dark');
   }
 
-  setTheme(theme: Theme) {
-    document.body.classList.toggle('dark', theme === 'dark');
+  setTheme(theme: 'light' | 'dark') {
+    document.body.classList.remove('light-theme', 'dark-theme');
+    document.body.classList.add(theme === 'dark' ? 'dark-theme' : 'light-theme');
     localStorage.setItem(this.storageKey, theme);
   }
 
   isDark(): boolean {
-    return document.body.classList.contains('dark');
+    return document.body.classList.contains('dark-theme');
   }
 }

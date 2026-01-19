@@ -1,45 +1,121 @@
-.header {
+.home-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.4s ease-in;
+}
+
+/* ===== Welcome Section ===== */
+.welcome-section {
   text-align: center;
-  margin-bottom: 24px;
-  padding: 0 16px;
-  color: var(--text-color);
-
-  h1 {
-    font-size: 2em;
-    font-weight: 300;
-  }
+  padding: 12px 8px;
 }
 
+.welcome-section h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.welcome-section .name {
+  color: var(--primary-color);
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+/* ===== Check-in Card ===== */
 .check-in-card {
-  max-width: 600px;
-  margin: 0 auto 24px auto;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
 
-  .question {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
+mat-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
 
-    p {
-      margin: 0;
-      font-size: 1.1em;
-    }
+/* ===== Questions ===== */
+.question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
 
-    mat-radio-group {
-      display: flex;
-      gap: 16px;
-    }
+.question p {
+  margin: 0;
+  font-weight: 500;
+  max-width: 420px;
+}
 
-    mat-radio-button {
-      color: var(--text-color);
-    }
+mat-radio-group {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* ===== Sections ===== */
+.today-section,
+.earlier-section {
+  margin-top: 8px;
+}
+
+/* ===== Dark mode polish ===== */
+:host-context(body.dark) {
+  .subtitle {
+    opacity: 0.7;
+  }
+
+  .check-in-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 }
 
-@media (max-width: 600px) {
-  .check-in-card .question {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.verse {
+  font-style: italic;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  margin-top: 8px;
+}
+
+.question:not(:last-child)::after {
+  content: '';
+  margin-top: 16px;
+  width: 40px;
+  height: 2px;
+  background-color: var(--border-color);
+  opacity: 0.4;
+}
+mat-card-title {
+  text-align: center;
+  width: 100%;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+mat-card-title::after {
+  content: '';
+  display: block;
+  margin: 10px auto 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--border-color);
+  opacity: 0.5;
 }

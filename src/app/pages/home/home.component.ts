@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { debounceTime } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,8 @@ import { debounceTime } from 'rxjs/operators';
     EarlierDevotionsComponent,
     ReactiveFormsModule,
     MatRadioModule,
-    MatCardModule
+    MatCardModule,
+    CommonModule
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'

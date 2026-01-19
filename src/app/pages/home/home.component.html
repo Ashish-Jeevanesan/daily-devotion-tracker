@@ -1,30 +1,49 @@
-<div class="header">
-  <h1>Welcome, {{ profile()?.full_name || 'friend' }}!</h1>
-  <p>Let's record your devotion for today.</p>
+<div class="home-container">
+  <!-- Welcome Header -->
+  <section class="welcome-section">
+    <h1>
+      Welcome,
+      <span class="name">
+        {{ profile()?.full_name || "friend" }}
+      </span>
+    </h1>
+    <p class="verse">“Be still, and know that I am God.” – Psalm 46:10</p>
+    <p class="subtitle">Let’s record your devotion for today 🙏</p>
+  </section>
+
+  <!-- Daily Check-in -->
+  <mat-card class="check-in-card">
+    <mat-card-title>Daily Check-in</mat-card-title>
+
+    <mat-card-content [formGroup]="checkInForm">
+      <div class="question">
+        <p>Did you pray today?</p>
+        <mat-radio-group formControlName="prayed">
+          <mat-radio-button [value]="true">Yes</mat-radio-button>
+          <mat-radio-button [value]="false">No</mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <div class="question">
+        <p>Did you read the Bible today?</p>
+        <mat-radio-group formControlName="read_bible">
+          <mat-radio-button [value]="true">Yes</mat-radio-button>
+          <mat-radio-button [value]="false">No</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Today's devotion -->
+  <section
+    class="today-section"
+    *ngIf="checkInForm.get('read_bible')?.value === true"
+  >
+    <app-todays-devotion></app-todays-devotion>
+  </section>
+
+  <!-- Earlier devotions -->
+  <section class="earlier-section">
+    <app-earlier-devotions></app-earlier-devotions>
+  </section>
 </div>
-
-<mat-card class="check-in-card">
-  <mat-card-content [formGroup]="checkInForm">
-    <div class="question">
-      <p>Did you pray today?</p>
-      <mat-radio-group formControlName="prayed">
-        <mat-radio-button [value]="true">Yes</mat-radio-button>
-        <mat-radio-button [value]="false">No</mat-radio-button>
-      </mat-radio-group>
-    </div>
-
-    <div class="question">
-      <p>Did you read the bible today?</p>
-      <mat-radio-group formControlName="read_bible">
-        <mat-radio-button [value]="true">Yes</mat-radio-button>
-        <mat-radio-button [value]="false">No</mat-radio-button>
-      </mat-radio-group>
-    </div>
-  </mat-card-content>
-</mat-card>
-
-@if (checkInForm.get('read_bible')?.value === true) {
-  <app-todays-devotion></app-todays-devotion>
-}
-
-<app-earlier-devotions></app-earlier-devotions>
