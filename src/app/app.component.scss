@@ -5,3 +5,40 @@
 .content {
   padding: 20px;
 }
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  cursor: pointer;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.desktop-only {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
+}

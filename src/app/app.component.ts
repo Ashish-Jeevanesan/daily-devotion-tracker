@@ -9,10 +9,12 @@ import { MatListModule } from '@angular/material/list';
 import { NotificationOutletComponent } from './components/notification-outlet/notification-outlet.component';
 import { ThemeService } from './services/theme.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { SupabaseService } from './services/supabase.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule, NotificationOutletComponent, MatSlideToggleModule, MatSidenavModule, MatListModule],
+  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule, NotificationOutletComponent, MatSlideToggleModule, MatSidenavModule, MatListModule, CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -21,9 +23,10 @@ export class AppComponent implements OnInit{
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   currentUser = this.authService.currentUser;
-  isLoggedIn = computed(() => !!this.currentUser());
 
-  constructor(public readonly themeService: ThemeService) {}
+  constructor(public readonly themeService: ThemeService,
+    public readonly supabaseService: SupabaseService
+  ) {}
 
   ngOnInit(): void {
     this.themeService.initTheme();
@@ -32,5 +35,8 @@ export class AppComponent implements OnInit{
   async signOut() {
     await this.authService.signOut();
     this.router.navigate(['/login']);
+  }
+  isLoggedIn():boolean{
+    return this.supabaseService.isLoggedIn();
   }
 }

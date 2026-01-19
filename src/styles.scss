@@ -1,57 +1,51 @@
-/* You can add global styles to this file, and also import other style files */
-/* Light Theme (default) */
-:root {
-  --bg-color: #ffffff;
-  --text-color: #111111;
-  --card-bg: #f5f5f5;
-  --primary-color: #3f51b5;
-  --border-color: #e0e0e0;
+@use '@angular/material' as mat;
+
+/* REQUIRED: emit base Material styles */
+@include mat.core();
+
+/* Define themes (NO palettes in v17+) */
+$light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+  ),
+));
+
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+  ),
+));
+
+/* Apply themes via body class */
+body.light-theme {
+  @include mat.all-component-themes($light-theme);
 }
 
-/* Dark Theme */
-body.dark {
-  --bg-color: #121212;
-  --text-color: #f5f5f5;
-  --card-bg: #1e1e1e;
-  --primary-color: #90caf9;
-  --border-color: #333333;
-  
-  color: var(--text-color) !important; // Global text color for dark mode
-
-  mat-raised-button[color="primary"] {
-    background-color: #555 !important;
-    color: var(--text-color) !important;
-  }
-
-  .mat-mdc-dialog-actions {
-    .mat-mdc-button {
-      color: var(--text-color) !important;
-    }
-    mat-raised-button[color="primary"] {
-      color: var(--text-color) !important;
-    }
-  }
-
-  .mat-mdc-dialog-container {
-    --mdc-dialog-container-color: var(--card-bg) !important;
-    .mat-mdc-dialog-title, .mat-mdc-dialog-content {
-      color: var(--text-color) !important;
-    }
-  }
+body.dark-theme {
+  @include mat.all-component-themes($dark-theme);
 }
 
-html, body { height: 100%; }
-// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* Visual proof (important for debugging) */
+body.light-theme {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+body.dark-theme {
+  background-color: #121212;
+  color: #ffffff;
+}
+/* ===== Base Layout ===== */
 
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 mat-card {
-  background-color: var(--card-bg) !important;
   color: var(--text-color) !important;
 }
 
@@ -99,17 +93,25 @@ mat-form-field {
   --mat-mdc-button-persistent-ripple-color: var(--primary-color);
 }
 
+body.light-theme mat-toolbar {
+  background: #ffffff;
+  color: #222;
+  border-bottom: 1px solid #e0e0e0;
+}
+
 mat-toolbar {
-  background: linear-gradient(to right, aqua, rgba(31, 73, 172, 0.788), rgba(94, 255, 0, 0.421), rgb(186, 205, 18) ) !important;
-  color: white !important;
-  box-shadow: 0 2px 4px rgba(16, 77, 142, 0.436);
-  font-family: 'Lora', serif !important;
+  background: linear-gradient(
+    135deg,
+    #3f51b5,
+    #5c6bc0
+  );
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 mat-toolbar span {
   font-size: 1.5rem;
   font-weight: 700;
- // text-shadow: 1px 1px 0.5px black, -1px -1px 0.5px black, 1px -1px 0.5px black, -1px 1px 0.5px black;
 }
 
 mat-toolbar .mat-button, mat-toolbar .mat-icon-button {
@@ -178,4 +180,8 @@ mat-sidenav {
 
 .app-container {
   background-color: var(--bg-color);
+}
+.app-title {
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }

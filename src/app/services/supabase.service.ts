@@ -7,6 +7,7 @@ import { environment } from '../environments/environment';
 })
 export class SupabaseService {
   public supabase: SupabaseClient;
+  loggedIn = false;
 
    constructor() {
     this.supabase = createClient(
@@ -21,5 +22,15 @@ export class SupabaseService {
         },
       }
     );
+    this.supabase.auth.onAuthStateChange((_event, session) =>{
+      this.loggedIn = !!session;
+    })
   }
+
+isLoggedIn(){
+  return this.loggedIn;
 }
+
+}
+
+
