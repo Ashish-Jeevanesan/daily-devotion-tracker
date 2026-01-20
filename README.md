@@ -7,8 +7,10 @@ A web application for church members to track their daily devotions, including p
 - Email & Password Authentication (Sign Up, Sign In)
 - User Profiles (Name, Age)
 - Daily Check-ins for Prayer and Bible Reading
+- Visual Progress Calendar with Daily Status
 - Detailed Devotion Note Entry
 - History of Past Devotions
+- Dark Mode Support
 - Secure Backend with Supabase
 
 ## Tech Stack

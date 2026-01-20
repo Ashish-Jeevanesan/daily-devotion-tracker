@@ -83,3 +83,16 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Added a fade-in animation (`@keyframes fadeIn`) to the home page for a smoother loading experience.
     -   Implemented dark mode-specific styling using `:host-context(body.dark)` to improve the look of elements in dark mode.
     -   Added decorative lines after the card title and questions for better visual separation.
+
+## 6. Calendar & Progress View Enhancements
+
+-   **Rich Calendar Cells (`progress.component.html`, `progress.component.scss`):**
+    -   Replaced standard calendar cells with a custom template to provide immediate visual feedback.
+    -   Cells now display "Prayed: Yes/No" and "Bible: Yes/No" directly on the calendar view.
+    -   Added a visual badge/icon for days that contain user notes.
+    -   Enhanced visual coding: Green tint for fully completed days, yellow for partial, and red for missed days.
+-   **Improved Devotion Details (`devotion-detail-dialog`):**
+    -   Redesigned the dialog to clearly separate Check-In status from Notes.
+    -   Implemented a cleaner, card-like interface for viewing daily details.
+    -   Added "Copy to Clipboard" functionality for devotion notes.
+    -   Fully optimized the dialog and calendar components for Dark Mode compatibility.

@@ -1,25 +1,46 @@
-<h1 mat-dialog-title>
-  Devotion for {{ (data.devotion?.created_at || data.checkIn?.date || data.date) | date: 'longDate' }}
-</h1>
-<div mat-dialog-content>
+<h2 mat-dialog-title>
+  {{ (data.devotion?.created_at || data.checkIn?.date || data.date) | date: 'fullDate' }}
+</h2>
+<mat-dialog-content class="dialog-content">
+  <div class="status-summary">
+    @if (data.checkIn) {
+      <div class="status-row">
+        <span class="status-label">Prayed:</span>
+        <span class="status-value" [class.yes]="data.checkIn.prayed" [class.no]="!data.checkIn.prayed">
+          {{ data.checkIn.prayed ? 'Yes' : 'No' }}
+        </span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Read Bible:</span>
+        <span class="status-value" [class.yes]="data.checkIn.read_bible" [class.no]="!data.checkIn.read_bible">
+          {{ data.checkIn.read_bible ? 'Yes' : 'No' }}
+        </span>
+      </div>
+    } @else {
+      <div class="status-row missed">
+        <span>No check-in record for this day.</span>
+      </div>
+    }
+  </div>
+
   @if (data.devotion) {
-    <h4>
-      Notes:
-      <button mat-icon-button [cdkCopyToClipboard]="data.devotion.notes" (click)="copyDevotion()" aria-label="Copy devotion notes">
-        <mat-icon>content_copy</mat-icon>
-      </button>
-    </h4>
-    <p>{{ data.devotion.notes }}</p>
+    <div class="notes-section">
+      <div class="notes-header">
+        <h3>My Notes</h3>
+        <button mat-icon-button [cdkCopyToClipboard]="data.devotion.notes" (click)="copyDevotion()" aria-label="Copy devotion notes" matTooltip="Copy to clipboard">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="notes-content">
+        <p>{{ data.devotion.notes }}</p>
+      </div>
+    </div>
+  } @else {
+    <div class="no-notes">
+      <p>No notes recorded for this day.</p>
+    </div>
   }
-  @if (data.checkIn) {
-    <h4>Check-in:</h4>
-    <p>Prayed: {{ data.checkIn.prayed ? 'Yes' : 'No' }}</p>
-    <p>Read Bible: {{ data.checkIn.read_bible ? 'Yes' : 'No' }}</p>
-  }
-  @if (!data.devotion && !data.checkIn) {
-    <p class="missed-message">You missed your devotion on this day.</p>
-  }
-</div>
-<div mat-dialog-actions align="end">
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-button (click)="onClose()">Close</button>
-</div>
+</mat-dialog-actions>

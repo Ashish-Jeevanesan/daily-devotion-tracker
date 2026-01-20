@@ -48,6 +48,19 @@ export class ProgressComponent implements OnInit {
                checkInDate.getDate() === day.date.getDate();
       });
 
+      const devotion = this.devotions.find(d => {
+        const devotionDate = new Date(d.created_at);
+        return devotionDate.getFullYear() === day.date.getFullYear() &&
+               devotionDate.getMonth() === day.date.getMonth() &&
+               devotionDate.getDate() === day.date.getDate();
+      });
+
+      day.meta = {
+        checkIn,
+        devotion,
+        isFuture: day.date > today
+      };
+
       if (checkIn) {
         if (checkIn.prayed && checkIn.read_bible) {
           day.cssClass = 'both';

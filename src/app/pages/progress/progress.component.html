@@ -2,19 +2,46 @@
   <mwl-calendar-month-view
     [viewDate]="viewDate"
     [refresh]="refresh"
+    [cellTemplate]="customCellTemplate"
     (beforeViewRender)="beforeMonthViewRender($event)"
     (dayClicked)="dayClicked($event.day)"
   >
   </mwl-calendar-month-view>
 
+  <ng-template #customCellTemplate let-day="day" let-locale="locale">
+    <div class="cal-cell-top">
+      <span class="cal-day-number">{{ day.date | date:'d' }}</span>
+    </div>
+    
+    @if (!day.meta?.isFuture) {
+      <div class="cell-detail">
+        @if (day.meta?.checkIn) {
+          <div class="status-item" [class.done]="day.meta.checkIn.prayed">
+            Prayed: {{ day.meta.checkIn.prayed ? 'Yes' : 'No' }}
+          </div>
+          <div class="status-item" [class.done]="day.meta.checkIn.read_bible">
+            Bible: {{ day.meta.checkIn.read_bible ? 'Yes' : 'No' }}
+          </div>
+          @if (day.meta?.devotion) {
+            <div class="has-notes">
+              <span class="note-icon">📝</span> Notes
+            </div>
+          }
+        } @else {
+          <div class="status-item missed-label">Missed</div>
+        }
+      </div>
+    }
+  </ng-template>
+
   <div class="calendar-legend">
     <div class="legend-item">
       <span class="legend-color both"></span>
-      <span>Both</span>
+      <span>Both Completed</span>
     </div>
     <div class="legend-item">
       <span class="legend-color one"></span>
-      <span>One</span>
+      <span>Partial Completed</span>
     </div>
     <div class="legend-item">
       <span class="legend-color missed"></span>
