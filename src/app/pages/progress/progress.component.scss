@@ -1,0 +1,39 @@
+.calendar-container {
+  padding: 20px;
+}
+
+::ng-deep .cal-day-cell.both {
+  background-color: #00ff00 !important;
+}
+
+::ng-deep .cal-day-cell.one {
+  background-color: #ffff00 !important;
+}
+
+::ng-deep .cal-day-cell.missed {
+  background-color: #ffcccc !important; /* Lighter red for better visibility of text */
+}
+
+::ng-deep .cal-today {
+  border: 2px solid black !important;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+}

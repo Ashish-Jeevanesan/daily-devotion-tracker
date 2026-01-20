@@ -38,6 +38,24 @@ export class AuthService {
     return data.user;
   }
 
+  async resetPassword(email: string) {
+    const { error } = await this.supabaseService.supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/update-password', // We need to create this route
+    });
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updatePassword(password: string) {
+    const { error } = await this.supabaseService.supabase.auth.updateUser({
+      password: password
+    });
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   signIn(email: string, password: string) {
     return this.supabaseService.supabase.auth.signInWithPassword({
       email: email,
@@ -72,7 +90,7 @@ export class AuthService {
           this.router.navigate(['/profile']);
         }
       } else {
-        if (this.router.url !== '/') {
+        if (this.router.url === '/login' || this.router.url === '/profile') {
           this.router.navigate(['/']);
         }
       }

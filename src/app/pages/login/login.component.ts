@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon'; // Added for password visibility toggle
 import { NotificationService } from '../../services/notification.service'; // Re-added NotificationService import
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ForgotPasswordDialogComponent } from '../../components/forgot-password-dialog/forgot-password-dialog.component';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +23,8 @@ import { NotificationService } from '../../services/notification.service'; // Re
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    MatDialogModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -38,7 +41,8 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private dialog: MatDialog
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -93,5 +97,25 @@ export class LoginComponent {
         this.loading = false;
       }
     }
+  }
+
+  forgotPassword() {
+    const dialogRef = this.dialog.open(ForgotPasswordDialogComponent, {
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(async (email) => {
+      if (email) {
+        this.loading = true;
+        try {
+          await this.authService.resetPassword(email);
+          this.notificationService.show('Password reset link sent to your email.', 'success');
+        } catch (error: any) {
+          this.notificationService.show(error.message, 'error');
+        } finally {
+          this.loading = false;
+        }
+      }
+    });
   }
 }

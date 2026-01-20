@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__title {
+  color: var(--text-color);
+}
+
+.missed-message {
+  color: #d32f2f; /* Material red */
+  font-weight: 500;
+}

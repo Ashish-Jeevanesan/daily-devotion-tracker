@@ -23,6 +23,9 @@
                   </button>
                 </mat-form-field>
                 <button mat-raised-button color="primary" type="submit" [disabled]="signInForm.invalid || loading">Sign In</button>
+                <div class="forgot-password-container">
+                    <button mat-button type="button" (click)="forgotPassword()" [disabled]="loading">Forgot Password?</button>
+                </div>
               </fieldset>
             </form>
           </mat-tab>

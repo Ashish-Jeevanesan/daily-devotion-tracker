@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>
+  Devotion for {{ (data.devotion?.created_at || data.checkIn?.date || data.date) | date: 'longDate' }}
+</h1>
+<div mat-dialog-content>
+  @if (data.devotion) {
+    <h4>
+      Notes:
+      <button mat-icon-button [cdkCopyToClipboard]="data.devotion.notes" (click)="copyDevotion()" aria-label="Copy devotion notes">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </h4>
+    <p>{{ data.devotion.notes }}</p>
+  }
+  @if (data.checkIn) {
+    <h4>Check-in:</h4>
+    <p>Prayed: {{ data.checkIn.prayed ? 'Yes' : 'No' }}</p>
+    <p>Read Bible: {{ data.checkIn.read_bible ? 'Yes' : 'No' }}</p>
+  }
+  @if (!data.devotion && !data.checkIn) {
+    <p class="missed-message">You missed your devotion on this day.</p>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onClose()">Close</button>
+</div>

@@ -2,6 +2,9 @@
   <mat-card-header>
     <mat-card-title>Today's Devotion Notes</mat-card-title>
     @if(todaysDevotion()) {
+      <button mat-icon-button [cdkCopyToClipboard]="todaysDevotion()?.notes || ''" (click)="copyDevotion()" aria-label="Copy devotion notes">
+        <mat-icon>content_copy</mat-icon>
+      </button>
       <button mat-icon-button (click)="openDevotionDialog()" aria-label="Edit devotion notes">
         <mat-icon>edit</mat-icon>
       </button>

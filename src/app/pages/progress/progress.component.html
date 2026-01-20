@@ -1,0 +1,24 @@
+<div class="calendar-container">
+  <mwl-calendar-month-view
+    [viewDate]="viewDate"
+    [refresh]="refresh"
+    (beforeViewRender)="beforeMonthViewRender($event)"
+    (dayClicked)="dayClicked($event.day)"
+  >
+  </mwl-calendar-month-view>
+
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <span class="legend-color both"></span>
+      <span>Both</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color one"></span>
+      <span>One</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color missed"></span>
+      <span>Missed</span>
+    </div>
+  </div>
+</div>

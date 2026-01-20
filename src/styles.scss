@@ -1,6 +1,8 @@
 @use '@angular/material' as mat;
 
-/* REQUIRED: emit base Material styles */
+@import "../node_modules/angular-calendar/css/angular-calendar.css";
+
+/* You can add global styles to this file, and also import other style files */
 @include mat.core();
 
 /* Define themes (NO palettes in v17+) */

@@ -6,6 +6,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DevotionEntryDialogComponent } from '../devotion-entry-dialog/devotion-entry-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-todays-devotion',
@@ -14,7 +16,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    MatIconModule
+    MatIconModule,
+    ClipboardModule,
+    MatSnackBarModule
   ],
   templateUrl: './todays-devotion.component.html',
   styleUrl: './todays-devotion.component.scss'
@@ -26,7 +30,8 @@ export class TodaysDevotionComponent implements OnInit {
 
   constructor(
     private devotionService: DevotionService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -68,5 +73,15 @@ export class TodaysDevotionComponent implements OnInit {
         }
       }
     });
+  }
+
+  copyDevotion(): void {
+    const devotion = this.todaysDevotion();
+    if (devotion?.notes) {
+      // Logic handled by cdkCopyToClipboard directive, but we can show a snackbar
+      this.snackBar.open('Devotion copied to clipboard!', 'Close', {
+        duration: 3000
+      });
+    }
   }
 }

@@ -62,4 +62,21 @@ export class CheckInService {
 
     return data;
   }
+
+  async getCheckIns(): Promise<CheckIn[]> {
+    const user = this.authService.currentUser();
+    if (!user) return [];
+
+    const { data, error } = await this.supabaseService.supabase
+      .from('daily_check_ins')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching check-ins:', error);
+      return [];
+    }
+
+    return data || [];
+  }
 }
