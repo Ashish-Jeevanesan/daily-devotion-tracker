@@ -9,3 +9,5 @@
 -- User needs to view the dates he Missed there devotion.
 -- The bible books and verses must be in a selectable wheel.
 -- Need to create a Trello board to record the updates.
+-- Mobile view book selector is very clumsy
+-- Mail redirection link is localhost only 
