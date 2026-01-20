@@ -5,3 +5,7 @@
 -- Add a popup to show when sign in is done to check mail for confirmation. ** Done ** 14-01
 -- Add view Password ** Done ** 15-01
 -- Multi Language Support
+-- UI Enhancements ** Done ** 18-01
+-- User needs to view the dates he Missed there devotion.
+-- The bible books and verses must be in a selectable wheel.
+-- Need to create a Trello board to record the updates.
