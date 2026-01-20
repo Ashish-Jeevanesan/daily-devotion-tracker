@@ -15,21 +15,39 @@
     
     @if (!day.meta?.isFuture) {
       <div class="cell-detail">
-        @if (day.meta?.checkIn) {
-          <div class="status-item" [class.done]="day.meta.checkIn.prayed">
-            Prayed: {{ day.meta.checkIn.prayed ? 'Yes' : 'No' }}
-          </div>
-          <div class="status-item" [class.done]="day.meta.checkIn.read_bible">
-            Bible: {{ day.meta.checkIn.read_bible ? 'Yes' : 'No' }}
-          </div>
-          @if (day.meta?.devotion) {
-            <div class="has-notes">
-              <span class="note-icon">📝</span> Notes
+        <!-- Desktop: Detailed Text -->
+        <div class="desktop-details">
+          @if (day.meta?.checkIn) {
+            <div class="status-item" [class.done]="day.meta.checkIn.prayed">
+              Prayed: {{ day.meta.checkIn.prayed ? 'Yes' : 'No' }}
             </div>
+            <div class="status-item" [class.done]="day.meta.checkIn.read_bible">
+              Bible: {{ day.meta.checkIn.read_bible ? 'Yes' : 'No' }}
+            </div>
+            @if (day.meta?.devotion) {
+              <div class="has-notes">
+                <span class="note-icon">📝</span> Notes
+              </div>
+            }
+          } @else {
+            <div class="status-item missed-label">Missed</div>
           }
-        } @else {
-          <div class="status-item missed-label">Missed</div>
-        }
+        </div>
+
+        <!-- Mobile: Compact Icons -->
+        <div class="mobile-details">
+          @if (day.meta?.checkIn) {
+            <div class="icons-row">
+              @if (day.meta.checkIn.prayed) { <span class="icon" title="Prayed">🙏</span> }
+              @if (day.meta.checkIn.read_bible) { <span class="icon" title="Read Bible">📖</span> }
+            </div>
+          } @else {
+             <span class="icon missed-icon">❌</span>
+          }
+          @if (day.meta?.devotion) {
+            <div class="note-indicator" title="Has Notes">📝</div>
+          }
+        </div>
       </div>
     }
   </ng-template>
