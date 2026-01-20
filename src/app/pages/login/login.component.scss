@@ -43,4 +43,19 @@
     color: red;
     margin-top: 16px;
   }
+
+  .forgot-password-container {
+    text-align: center;
+    margin-top: 10px;
+    
+    button {
+      font-size: 14px;
+      color: var(--text-color);
+      opacity: 0.8;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 }

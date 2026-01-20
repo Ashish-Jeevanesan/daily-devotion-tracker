@@ -8,9 +8,12 @@
         <mat-icon>account_circle</mat-icon>
         <span>Profile</span>
       </a>
-
+      <a mat-list-item routerLink="/progress" (click)="sidenav.close()">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Progress</span>
+      </a>
       <a mat-list-item (click)="signOut(); sidenav.close()">
-        <mat-icon>logout</mat-icon>
+        <mat-icon>exit_to_app</mat-icon>
         <span>Sign Out</span>
       </a>
 
@@ -50,6 +53,13 @@
           <mat-icon>
             {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
           </mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          routerLink="/progress"
+          aria-label="Progress">
+          <mat-icon>calendar_today</mat-icon>
         </button>
 
         <button

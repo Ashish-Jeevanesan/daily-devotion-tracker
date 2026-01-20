@@ -5,7 +5,12 @@
     @for (devotion of earlierDevotions(); track devotion.id) {
       <mat-card class="devotion-card">
         <mat-card-header>
-          <mat-card-title>{{ devotion.created_at | date: 'longDate' }}</mat-card-title>
+          <mat-card-title>
+            {{ devotion.created_at | date: 'longDate' }}
+            <button mat-icon-button [cdkCopyToClipboard]="devotion.notes" (click)="copyDevotion(devotion.notes)" aria-label="Copy devotion notes">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <p>{{ devotion.notes }}</p>

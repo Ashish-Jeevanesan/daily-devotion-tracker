@@ -1,12 +1,42 @@
 <h1 mat-dialog-title>Add Your Devotion Notes</h1>
-<div mat-dialog-content>
+<div mat-dialog-content [formGroup]="form">
   <p>What did you read and reflect on from the bible today?</p>
-  <mat-form-field appearance="outline">
+  
+  <div class="bible-selector">
+    <mat-form-field appearance="outline">
+      <mat-label>Book</mat-label>
+      <mat-select formControlName="book">
+        @for (book of bibleBooks; track book) {
+          <mat-option [value]="book">{{ book }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Chapter</mat-label>
+      <mat-select formControlName="chapter">
+        @for (chapter of chapters; track chapter) {
+          <mat-option [value]="chapter">{{ chapter }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Verse</mat-label>
+      <mat-select formControlName="verse">
+        @for (verse of verses; track verse) {
+          <mat-option [value]="verse">{{ verse }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Devotion Notes</mat-label>
-    <textarea matInput [formControl]="notes" rows="10" placeholder="e.g., John 3:16 - God's love is unconditional..."></textarea>
+    <textarea matInput formControlName="notes" rows="10" placeholder="God's love is unconditional..."></textarea>
   </mat-form-field>
 </div>
 <div mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!notes.valid">Save</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid">Save</button>
 </div>

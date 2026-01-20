@@ -64,3 +64,22 @@ This document summarizes the key updates and enhancements made to the Devotion T
 -   **Theme Toggle UI:**
     -   Added a custom button (`.theme-toggle`) to the `mat-toolbar` in `app.component.html` to trigger theme switching.
     -   Adjusted CSS for `.theme-toggle` in `styles.scss` to correctly position it within the toolbar without using `position: fixed` and resolve overlapping issues.
+
+## 5. UI Refresh (Home & App Components)
+
+-   **App Component (`app.component.html`, `app.component.scss`):**
+    -   Restructured the main app layout with a more organized and commented HTML structure.
+    -   Implemented a responsive navbar that displays a full set of actions on desktop and a hamburger menu on mobile.
+    -   The desktop theme toggle is now a `mat-icon-button` (`light_mode`/`dark_mode`), providing a cleaner look.
+    -   The mobile menu is implemented using `mat-sidenav` and contains links for Profile, Sign Out, and the theme toggle.
+    -   Made the main app toolbar (`.app-toolbar`) sticky for better user experience on long pages.
+    -   Refined the styling for the app title (`.app-title`) and the layout of desktop action buttons.
+-   **Home Component (`home.component.html`, `home.component.scss`):**
+    -   Introduced a new, more welcoming header section (`.welcome-section`) that greets the user by name and includes an inspirational bible verse.
+    -   Restructured the home page layout using `<section>` tags for better organization.
+    -   Added a `mat-card-title` to the daily check-in card.
+    -   Improved the styling of the `.check-in-card` with rounded corners and a more subtle box-shadow.
+    -   Enhanced the layout and styling of the "question" sections within the check-in card.
+    -   Added a fade-in animation (`@keyframes fadeIn`) to the home page for a smoother loading experience.
+    -   Implemented dark mode-specific styling using `:host-context(body.dark)` to improve the look of elements in dark mode.
+    -   Added decorative lines after the card title and questions for better visual separation.

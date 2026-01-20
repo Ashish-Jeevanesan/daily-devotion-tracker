@@ -98,4 +98,21 @@ export class DevotionService {
 
     return data;
   }
+
+  async getDevotions(): Promise<Devotion[]> {
+    const user = this.authService.currentUser();
+    if (!user) return [];
+
+    const { data, error } = await this.supabaseService.supabase
+      .from('devotions')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching devotions:', error);
+      return [];
+    }
+
+    return data || [];
+  }
 }
