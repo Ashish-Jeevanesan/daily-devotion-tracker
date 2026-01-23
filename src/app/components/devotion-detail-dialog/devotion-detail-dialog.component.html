@@ -32,7 +32,10 @@
         </button>
       </div>
       <div class="notes-content">
-        <p>{{ data.devotion.notes }}</p>
+        @if (bibleVerse) {
+          <p class="bible-verse">{{ bibleVerse }}</p>
+        }
+        <p>{{ devotionNotes }}</p>
       </div>
     </div>
   } @else {

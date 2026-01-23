@@ -1,10 +1,29 @@
+.reference-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
 .bible-selector {
   display: flex;
   gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
   
-  mat-form-field {
-    flex: 1;
+  .book-select {
+    flex: 2;
+    min-width: 120px;
   }
+
+  .number-select {
+    flex: 1;
+    min-width: 70px;
+  }
+}
+
+.add-btn {
+  margin-bottom: 16px;
 }
 
 .full-width {

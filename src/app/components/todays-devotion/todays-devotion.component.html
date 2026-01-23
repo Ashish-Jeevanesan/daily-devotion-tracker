@@ -18,7 +18,10 @@
     } @else {
       @if (todaysDevotion()) {
         <div class="devotion-display">
-          <p>{{ todaysDevotion()?.notes }}</p>
+          @if(bibleVerse()) {
+            <p class="bible-verse">{{ bibleVerse() }}</p>
+          }
+          <p>{{ devotionNotes() }}</p>
         </div>
       } @else {
         <div class="add-button-container">

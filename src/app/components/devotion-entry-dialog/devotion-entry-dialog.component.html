@@ -2,34 +2,63 @@
 <div mat-dialog-content [formGroup]="form">
   <p>What did you read and reflect on from the bible today?</p>
   
-  <div class="bible-selector">
-    <mat-form-field appearance="outline">
-      <mat-label>Book</mat-label>
-      <mat-select formControlName="book">
-        @for (book of bibleBooks; track book) {
-          <mat-option [value]="book">{{ book }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+  <div formArrayName="references">
+    @for (ref of references.controls; track ref; let i = $index) {
+      <div [formGroupName]="i" class="reference-row">
+        <div class="bible-selector">
+          <mat-form-field appearance="outline" class="book-select">
+            <mat-label>Book</mat-label>
+            <input type="text" matInput formControlName="book" [matAutocomplete]="auto" (focus)="onBookFocus(i)">
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayBook">
+              @for (book of filteredBooks | async; track book.id) {
+                <mat-option [value]="book">{{ book.name }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Chapter</mat-label>
-      <mat-select formControlName="chapter">
-        @for (chapter of chapters; track chapter) {
-          <mat-option [value]="chapter">{{ chapter }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+          <mat-form-field appearance="outline" class="number-select">
+            <mat-label>Ch</mat-label>
+            <mat-select formControlName="chapter">
+              @if(chapters$[i] | async; as bookChapters) {
+                 @for (chapter of bookChapters; track chapter) {
+                  <mat-option [value]="chapter">{{ chapter }}</mat-option>
+                }
+              }
+            </mat-select>
+          </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Verse</mat-label>
-      <mat-select formControlName="verse">
-        @for (verse of verses; track verse) {
-          <mat-option [value]="verse">{{ verse }}</mat-option>
+          <mat-form-field appearance="outline" class="number-select">
+            <mat-label>V.Start</mat-label>
+            <mat-select formControlName="verseStart">
+              @for (verse of verses; track verse) {
+                <mat-option [value]="verse">{{ verse }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="number-select">
+            <mat-label>V.End</mat-label>
+            <mat-select formControlName="verseEnd">
+              <mat-option value="">-</mat-option>
+              @for (verse of verses; track verse) {
+                <mat-option [value]="verse">{{ verse }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        @if (i > 0) {
+          <button mat-icon-button color="warn" (click)="removeReference(i)" matTooltip="Remove reference">
+            <mat-icon>delete</mat-icon>
+          </button>
         }
-      </mat-select>
-    </mat-form-field>
+      </div>
+    }
   </div>
+
+  <button mat-button color="primary" (click)="addReference()" class="add-btn">
+    <mat-icon>add</mat-icon> Add Verse
+  </button>
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Devotion Notes</mat-label>

@@ -24,11 +24,26 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./devotion-detail-dialog.component.scss']
 })
 export class DevotionDetailDialogComponent {
+  bibleVerse: string | null = null;
+  devotionNotes: string | null = null;
+
   constructor(
     public dialogRef: MatDialogRef<DevotionDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { devotion: Devotion | undefined, checkIn: CheckIn | undefined, date: Date },
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    if (data.devotion?.notes) {
+      const notes = data.devotion.notes;
+      const separatorIndex = notes.indexOf(' - ');
+
+      if (separatorIndex > -1) {
+        this.bibleVerse = notes.substring(0, separatorIndex);
+        this.devotionNotes = notes.substring(separatorIndex + 3);
+      } else {
+        this.devotionNotes = notes;
+      }
+    }
+  }
 
   onClose(): void {
     this.dialogRef.close();

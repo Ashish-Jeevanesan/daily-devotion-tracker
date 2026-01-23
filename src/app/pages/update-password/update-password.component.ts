@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationService } from '../../services/notification.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-update-password',
@@ -18,7 +19,8 @@ import { NotificationService } from '../../services/notification.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    CommonModule
   ],
   templateUrl: './update-password.component.html',
   styleUrl: './update-password.component.scss'

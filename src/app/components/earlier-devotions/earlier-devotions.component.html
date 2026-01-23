@@ -1,21 +1,41 @@
 <h2>Earlier Devotions</h2>
 
-@if (earlierDevotions().length > 0) {
+@if (timeline().length > 0) {
   <div class="devotion-list">
-    @for (devotion of earlierDevotions(); track devotion.id) {
-      <mat-card class="devotion-card">
-        <mat-card-header>
-          <mat-card-title>
-            {{ devotion.created_at | date: 'longDate' }}
-            <button mat-icon-button [cdkCopyToClipboard]="devotion.notes" (click)="copyDevotion(devotion.notes)" aria-label="Copy devotion notes">
-              <mat-icon>content_copy</mat-icon>
-            </button>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ devotion.notes }}</p>
-        </mat-card-content>
-      </mat-card>
+    @for (item of timeline(); track item) {
+      @if (item.isMissedDay) {
+        <mat-card class="missed-day-card">
+          <mat-card-content>
+            <p class="missed-day-message">{{ item.encouragement.message }}</p>
+            <p class="missed-day-verse">{{ item.encouragement.verse }}</p>
+            <p class="missed-day-duration">
+              {{ item.missedDays }} day{{ item.missedDays > 1 ? 's' : '' }} missed
+              @if (item.missedDays > 1) {
+                ({{ item.startDate | date: 'MMM d' }} - {{ item.endDate | date: 'MMM d' }})
+              } @else {
+                ({{ item.startDate | date: 'MMM d' }})
+              }
+            </p>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <mat-card class="devotion-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{ item.created_at | date: 'longDate' }}
+              <button mat-icon-button [cdkCopyToClipboard]="item.notes" (click)="copyDevotion(item.notes)" aria-label="Copy devotion notes">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (getVerseReference(item.notes)) {
+              <p class="bible-verse">{{ getVerseReference(item.notes) }}</p>
+            }
+            <p>{{ getNotesContent(item.notes) }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
     }
   </div>
 } @else {

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { Devotion, DevotionService } from '../../services/devotion.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +25,19 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 })
 export class TodaysDevotionComponent implements OnInit {
   todaysDevotion = signal<Devotion | null>(null);
+  bibleVerse = computed(() => {
+    const notes = this.todaysDevotion()?.notes;
+    if (!notes) return '';
+    const separatorIndex = notes.indexOf(' - ');
+    return separatorIndex > -1 ? notes.substring(0, separatorIndex) : '';
+  });
+  devotionNotes = computed(() => {
+    const notes = this.todaysDevotion()?.notes;
+    if (!notes) return '';
+    const separatorIndex = notes.indexOf(' - ');
+    return separatorIndex > -1 ? notes.substring(separatorIndex + 3) : notes;
+  });
+
   today = new Date();
   loading = false;
 
@@ -48,7 +61,7 @@ export class TodaysDevotionComponent implements OnInit {
     
     const dialogRef = this.dialog.open(DevotionEntryDialogComponent, {
       width: '80vw',
-      maxWidth: '600px',
+      maxWidth: '900px',
       data: { notes: currentDevotion?.notes || '' }
     });
 

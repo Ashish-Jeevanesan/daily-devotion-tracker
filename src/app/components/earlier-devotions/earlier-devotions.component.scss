@@ -2,6 +2,13 @@ h2, p {
   color: var(--text-color);
 }
 
+.bible-verse {
+  font-weight: bold;
+  font-style: italic;
+  color: #5a8cc2;
+  margin-bottom: 12px;
+}
+
 .devotion-list {
   display: grid;
   gap: 16px;
@@ -10,4 +17,48 @@ h2, p {
 
 .devotion-card {
   margin-bottom: 16px;
+}
+
+.missed-day-card {
+  background-color: var(--missed-day-background-color, #f9f9f9);
+  border: 1px dashed var(--missed-day-border-color, #ccc);
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.missed-day-message {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--missed-day-text-color, #888);
+}
+
+.missed-day-verse {
+  font-style: italic;
+  color: var(--missed-day-verse-color, #5a8cc2);
+  margin: 12px 0;
+}
+
+.missed-day-duration {
+  font-size: 0.9em;
+  color: var(--missed-day-duration-color, #aaa);
+}
+
+:host-context(.dark-theme) {
+  .missed-day-card {
+    background-color: var(--missed-day-background-color, #3a3a3a);
+    border-color: var(--missed-day-border-color, #555);
+  }
+
+  .missed-day-message {
+    color: var(--missed-day-text-color, #ccc);
+  }
+
+  .missed-day-verse {
+    color: var(--missed-day-verse-color, #8ab4f8);
+  }
+
+  .missed-day-duration {
+    color: var(--missed-day-duration-color, #888);
+  }
 }

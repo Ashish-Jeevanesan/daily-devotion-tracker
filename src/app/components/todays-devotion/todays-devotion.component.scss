@@ -13,8 +13,17 @@ mat-card-header {
   min-height: 150px;
 }
 
-.devotion-display p {
-  white-space: pre-wrap;
-  font-family: 'Roboto', sans-serif;
-  line-height: 1.6;
+.devotion-display {
+  p {
+    white-space: pre-wrap;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+  }
+
+  .bible-verse {
+    font-weight: bold;
+    font-style: italic;
+    color: #5a8cc2;
+    margin-bottom: 12px;
+  }
 }
