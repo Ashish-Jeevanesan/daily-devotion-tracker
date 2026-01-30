@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, Output, EventEmitter } from '@angular/core';
 import { Devotion, DevotionService } from '../../services/devotion.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +24,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrl: './todays-devotion.component.scss'
 })
 export class TodaysDevotionComponent implements OnInit {
+  @Output() devotionUpdated = new EventEmitter<Devotion | null>();
   todaysDevotion = signal<Devotion | null>(null);
   bibleVerse = computed(() => {
     const notes = this.todaysDevotion()?.notes;
@@ -51,6 +52,7 @@ export class TodaysDevotionComponent implements OnInit {
     this.loading = true;
     this.devotionService.getTodaysDevotion().then(devotion => {
       this.todaysDevotion.set(devotion);
+      this.devotionUpdated.emit(devotion);
     }).finally(() => {
       this.loading = false;
     });
@@ -62,28 +64,13 @@ export class TodaysDevotionComponent implements OnInit {
     const dialogRef = this.dialog.open(DevotionEntryDialogComponent, {
       width: '80vw',
       maxWidth: '900px',
-      data: { notes: currentDevotion?.notes || '' }
+      data: { devotion: currentDevotion }
     });
 
-    dialogRef.afterClosed().subscribe(async (result: string | undefined) => {
-      if (result) {
-        this.loading = true;
-        try {
-          let updatedDevotion: Devotion | null = null;
-          if (currentDevotion) {
-            updatedDevotion = await this.devotionService.updateDevotion(currentDevotion.id, result);
-          } else {
-            updatedDevotion = await this.devotionService.addDevotion(result);
-          }
-          
-          if (updatedDevotion) {
-            this.todaysDevotion.set(updatedDevotion);
-          }
-        } catch (error) {
-          console.error('Error saving devotion', error);
-        } finally {
-          this.loading = false;
-        }
+    dialogRef.afterClosed().subscribe((updatedDevotion: Devotion | undefined) => {
+      if (updatedDevotion) {
+        this.todaysDevotion.set(updatedDevotion);
+        this.devotionUpdated.emit(updatedDevotion);
       }
     });
   }

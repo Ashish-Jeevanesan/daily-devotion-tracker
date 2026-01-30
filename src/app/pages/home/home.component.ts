@@ -8,6 +8,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { debounceTime } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { Devotion } from '../../services/devotion.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +19,8 @@ import { CommonModule } from '@angular/common';
     ReactiveFormsModule,
     MatRadioModule,
     MatCardModule,
-    CommonModule
+    CommonModule,
+    MatIconModule
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
@@ -25,6 +28,7 @@ import { CommonModule } from '@angular/common';
 export class HomeComponent implements OnInit {
   profile = signal<Profile | null>(null);
   checkInForm: FormGroup;
+  todayDevotion: Devotion | null = null;
   
   constructor(
     private profileService: ProfileService,
@@ -53,5 +57,9 @@ export class HomeComponent implements OnInit {
         this.checkInForm.patchValue(checkIn, { emitEvent: false });
       }
     });
+  }
+
+  onDevotionUpdated(devotion: Devotion | null) {
+    this.todayDevotion = devotion;
   }
 }

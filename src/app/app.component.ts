@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent implements OnInit{
   title = 'DevotionTracker';
+  currentYear = new Date().getFullYear();
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   currentUser = this.authService.currentUser;

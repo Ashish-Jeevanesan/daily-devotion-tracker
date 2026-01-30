@@ -39,7 +39,9 @@
     class="today-section"
     *ngIf="checkInForm.get('read_bible')?.value === true"
   >
-    <app-todays-devotion></app-todays-devotion>
+    <app-todays-devotion
+      (devotionUpdated)="onDevotionUpdated($event)"
+    ></app-todays-devotion>
   </section>
 
   <!-- Earlier devotions -->

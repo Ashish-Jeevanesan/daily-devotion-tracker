@@ -67,6 +67,38 @@ mat-radio-group {
   margin-top: 8px;
 }
 
+/* ===== Empty State ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 20px;
+  background-color: var(--background-alt);
+  border-radius: 14px;
+  margin-top: 8px;
+  animation: fadeIn 0.4s ease-in;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  border-style: dashed;
+  border-spacing: 6px;
+}
+
+.empty-state mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--text-muted);
+}
+
+.empty-state p {
+  margin-top: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+
 /* ===== Dark mode polish ===== */
 :host-context(body.dark) {
   .subtitle {

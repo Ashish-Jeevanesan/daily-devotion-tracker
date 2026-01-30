@@ -9,9 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Observable, of } from 'rxjs';
-import { startWith, map, switchMap, tap } from 'rxjs/operators';
+import { startWith, map } from 'rxjs/operators';
 import { BibleService } from '../../services/bible.service';
 import { BibleBook } from '../../data/bible-books';
+import { Devotion, DevotionService } from '../../services/devotion.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-devotion-entry-dialog',
@@ -24,7 +27,9 @@ import { BibleBook } from '../../data/bible-books';
     MatButtonModule,
     MatSelectModule,
     MatIconModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   templateUrl: './devotion-entry-dialog.component.html',
   styleUrl: './devotion-entry-dialog.component.scss'
@@ -33,16 +38,22 @@ export class DevotionEntryDialogComponent implements OnInit {
   form: FormGroup;
   bibleBooks: BibleBook[] = [];
   chapters: number[] = [];
-  verses: number[] = Array.from({length: 176}, (_, i) => i + 1); // Simple max verses for now
+  verses: number[] = Array.from({ length: 176 }, (_, i) => i + 1);
   filteredBooks!: Observable<BibleBook[]>;
   chapters$: { [key: number]: Observable<number[]> } = {};
+  isSaving = false;
+
+  private currentDevotion: Devotion | null;
 
   constructor(
     public dialogRef: MatDialogRef<DevotionEntryDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { notes: string },
-    private bibleService: BibleService
+    @Inject(MAT_DIALOG_DATA) public data: { devotion: Devotion | null },
+    private bibleService: BibleService,
+    private devotionService: DevotionService,
+    private snackBar: MatSnackBar
   ) {
-    const notes = data?.notes || '';
+    this.currentDevotion = data.devotion;
+    const notes = this.currentDevotion?.notes || '';
     
     let content = notes;
     let references: any[] = [];
@@ -84,7 +95,6 @@ export class DevotionEntryDialogComponent implements OnInit {
       this.bibleBooks = books;
     });
 
-    // Initialize chapters for existing references
     this.references.controls.forEach((control, index) => {
       const bookName = control.get('book')?.value;
       if (bookName) {
@@ -101,13 +111,10 @@ export class DevotionEntryDialogComponent implements OnInit {
       verseEnd: new FormControl(reference?.verseEnd || '')
     });
 
-    // Subscribe to book changes to update chapters
     group.get('book')?.valueChanges.subscribe(bookName => {
-      // Find the index of this control
       const index = this.references.controls.indexOf(group);
       if (index !== -1 && typeof bookName === 'string') {
         this.updateChapters(index, bookName);
-        // Clear chapter selection when book changes
         if (group.get('chapter')?.value) {
             group.get('chapter')?.setValue('');
         }
@@ -163,8 +170,14 @@ export class DevotionEntryDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  onSave(): void {
-    if (this.form.valid) {
+  async onSave(): Promise<void> {
+    if (this.form.invalid || this.isSaving) {
+      return;
+    }
+
+    this.isSaving = true;
+
+    try {
       const formValue = this.form.value;
       let referenceString = '';
       
@@ -184,7 +197,28 @@ export class DevotionEntryDialogComponent implements OnInit {
       }
       
       const finalNote = `${referenceString}${formValue.notes}`;
-      this.dialogRef.close(finalNote);
+      
+      let updatedDevotion: Devotion | null = null;
+      if (this.currentDevotion) {
+        updatedDevotion = await this.devotionService.updateDevotion(this.currentDevotion.id, finalNote);
+      } else {
+        updatedDevotion = await this.devotionService.addDevotion(finalNote);
+      }
+      
+      this.snackBar.open('Devotion saved successfully!', 'Close', {
+        duration: 3000,
+        panelClass: 'success-snackbar'
+      });
+      this.dialogRef.close(updatedDevotion);
+
+    } catch (error) {
+      console.error('Error saving devotion', error);
+      this.snackBar.open('Something went wrong. Please try again.', 'Close', {
+        duration: 5000,
+        panelClass: 'error-snackbar'
+      });
+    } finally {
+      this.isSaving = false;
     }
   }
 }
