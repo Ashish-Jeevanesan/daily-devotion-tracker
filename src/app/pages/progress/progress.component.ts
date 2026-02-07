@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CalendarModule, CalendarMonthViewDay, CalendarMonthViewBeforeRenderEvent } from 'angular-calendar';
 import { CheckIn, CheckInService } from '../../services/check-in.service';
 import { Devotion, DevotionService } from '../../services/devotion.service';
-import { startOfDay, isSameDay } from 'date-fns';
+import { addMonths, startOfDay } from 'date-fns';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DevotionDetailDialogComponent } from '../../components/devotion-detail-dialog/devotion-detail-dialog.component';
 import { Subject } from 'rxjs';
@@ -39,7 +39,10 @@ export class ProgressComponent implements OnInit {
     this.refresh.next();
   }
 
-  /** Populate calendar cells with devotion/check-in metadata and styles. */
+  changeMonth(offset: number): void {
+    this.viewDate = addMonths(this.viewDate, offset);
+  }
+
   beforeMonthViewRender({ body }: { body: CalendarMonthViewDay[] }): void {
     const today = startOfDay(new Date());
     body.forEach(day => {

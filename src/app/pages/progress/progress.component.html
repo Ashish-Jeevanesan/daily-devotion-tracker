@@ -1,4 +1,14 @@
 <div class="calendar-container">
+  <div class="calendar-controls">
+    <button class="nav-button" type="button" (click)="changeMonth(-1)" aria-label="Previous month">
+      ◀
+    </button>
+    <div class="month-label">{{ viewDate | date:'MMMM y' }}</div>
+    <button class="nav-button" type="button" (click)="changeMonth(1)" aria-label="Next month">
+      ▶
+    </button>
+  </div>
+
   <mwl-calendar-month-view
     [viewDate]="viewDate"
     [refresh]="refresh"
