@@ -7,11 +7,13 @@ import { map, shareReplay } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
+/** Provides Bible book metadata and chapter lists. */
 export class BibleService {
   private booksCache$: Observable<BibleBook[]> | null = null;
 
   constructor(private supabaseService: SupabaseService) { }
 
+  /** Fetch and cache the list of Bible books from Supabase. */
   getBooks(): Observable<BibleBook[]> {
     if (!this.booksCache$) {
       const promise = this.supabaseService.supabase
@@ -33,6 +35,7 @@ export class BibleService {
     return this.booksCache$;
   }
 
+  /** Derive chapter numbers for a selected book. */
   getChapters(bookName: string): Observable<number[]> {
     return this.getBooks().pipe(
       map(books => {

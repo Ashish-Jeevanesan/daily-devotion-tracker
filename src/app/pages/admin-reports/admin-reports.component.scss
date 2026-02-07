@@ -1,0 +1,125 @@
+.admin-reports-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+mat-card {
+  width: 100%;
+  max-width: 1000px;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.week-range {
+  color: #6b6b6b;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kpi-card {
+  padding: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.kpi-title {
+  font-size: 13px;
+  color: #6b6b6b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1f2a27;
+}
+
+.kpi-subtitle {
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+.chart-card {
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.chart-card ngx-charts-bar-vertical {
+  display: block;
+  width: 100%;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.chart-title {
+  font-weight: 600;
+  color: #1f2a27;
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+.spinner-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+}
+
+.table-container {
+  overflow: auto;
+}
+
+.percentage-cell {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-width: 140px;
+}
+
+.empty-state {
+  padding: 24px 0;
+  text-align: center;
+  color: #6b6b6b;
+}

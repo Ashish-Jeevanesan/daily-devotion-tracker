@@ -18,24 +18,28 @@ import { Subscription } from 'rxjs';
     }
   `,
 })
+/** Hosts global notifications and connects to the notification stream. */
 export class NotificationOutletComponent implements OnInit {
   notification: Notification | null = null;
   private subscription: Subscription | undefined;
 
   constructor(private notificationService: NotificationService) {}
 
+  /** Subscribe to notification events on init. */
   ngOnInit() {
     this.subscription = this.notificationService.notification$.subscribe(notification => {
       this.notification = notification;
     });
   }
 
+  /** Clean up the notification subscription. */
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
 
+  /** Dismiss the current notification. */
   onClose() {
     this.notificationService.hide();
   }

@@ -25,6 +25,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './update-password.component.html',
   styleUrl: './update-password.component.scss'
 })
+/** Password reset page used after Supabase email reset link. */
 export class UpdatePasswordComponent {
   updatePasswordForm: FormGroup;
   hidePassword = true;
@@ -41,10 +42,12 @@ export class UpdatePasswordComponent {
     });
   }
 
+  /** Toggle password visibility in the form field. */
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
 
+  /** Submit the new password and redirect on success. */
   async updatePassword() {
     if (this.updatePasswordForm.valid) {
       this.loading = true;

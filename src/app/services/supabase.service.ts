@@ -5,10 +5,12 @@ import { environment } from '../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
+/** Initializes the Supabase client and tracks auth state. */
 export class SupabaseService {
   public supabase: SupabaseClient;
   loggedIn = false;
 
+   /** Create the Supabase client and subscribe to auth changes. */
    constructor() {
     this.supabase = createClient(
       environment.supabaseUrl,
@@ -18,7 +20,8 @@ export class SupabaseService {
           storage: window.localStorage,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true
+          detectSessionInUrl: true,
+          lock: async (_name, _acquireTimeout, fn) => await fn()
         },
       }
     );
@@ -27,10 +30,9 @@ export class SupabaseService {
     })
   }
 
+/** Simple boolean flag for auth state used by the shell. */
 isLoggedIn(){
   return this.loggedIn;
 }
 
 }
-
-

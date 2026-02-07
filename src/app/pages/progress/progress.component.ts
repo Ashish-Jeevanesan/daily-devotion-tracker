@@ -19,6 +19,7 @@ import { Subject } from 'rxjs';
   templateUrl: './progress.component.html',
   styleUrls: ['./progress.component.scss']
 })
+/** Calendar view showing historical devotions and check-ins. */
 export class ProgressComponent implements OnInit {
   viewDate: Date = new Date();
   devotions: Devotion[] = [];
@@ -31,12 +32,14 @@ export class ProgressComponent implements OnInit {
     private dialog: MatDialog
   ) {}
 
+  /** Load check-ins and devotions for the calendar. */
   async ngOnInit() {
     this.checkIns = await this.checkInService.getCheckIns();
     this.devotions = await this.devotionService.getDevotions();
     this.refresh.next();
   }
 
+  /** Populate calendar cells with devotion/check-in metadata and styles. */
   beforeMonthViewRender({ body }: { body: CalendarMonthViewDay[] }): void {
     const today = startOfDay(new Date());
     body.forEach(day => {
@@ -75,6 +78,7 @@ export class ProgressComponent implements OnInit {
     });
   }
 
+  /** Open the detail dialog for a selected day. */
   dayClicked({ date }: { date: Date }): void {
     const devotion = this.devotions.find(
       d => startOfDay(new Date(d.created_at)).getTime() === startOfDay(date).getTime()

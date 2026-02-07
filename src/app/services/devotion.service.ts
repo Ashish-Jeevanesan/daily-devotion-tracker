@@ -11,6 +11,7 @@ export interface Devotion {
 @Injectable({
   providedIn: 'root'
 })
+/** CRUD service for devotion entries. */
 export class DevotionService {
 
   constructor(
@@ -18,6 +19,7 @@ export class DevotionService {
     private authService: AuthService
   ) { }
 
+  /** Fetch the user's devotion for today, if any. */
   async getTodaysDevotion(): Promise<Devotion | null> {
     const user = this.authService.currentUser();
     if (!user) return null;
@@ -33,9 +35,9 @@ export class DevotionService {
       .eq('user_id', user.id)
       .gte('created_at', today.toISOString())
       .lt('created_at', tomorrow.toISOString())
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116: "exact one row expected, but 0 rows found"
+    if (error) {
       console.error('Error fetching today\'s devotion:', error);
       return null;
     }
@@ -43,6 +45,7 @@ export class DevotionService {
     return data;
   }
 
+  /** Fetch all devotions before today in descending order. */
   async getEarlierDevotions(): Promise<Devotion[]> {
     const user = this.authService.currentUser();
     if (!user) return [];
@@ -65,6 +68,7 @@ export class DevotionService {
     return data || [];
   }
 
+  /** Create a new devotion entry for the current user. */
   async addDevotion(notes: string): Promise<Devotion | null> {
     const user = this.authService.currentUser();
     if (!user) return null;
@@ -83,6 +87,7 @@ export class DevotionService {
     return data;
   }
 
+  /** Update an existing devotion entry. */
   async updateDevotion(id: string, notes: string): Promise<Devotion | null> {
     const { data, error } = await this.supabaseService.supabase
       .from('devotions')
@@ -99,6 +104,7 @@ export class DevotionService {
     return data;
   }
 
+  /** Fetch all devotions for the current user. */
   async getDevotions(): Promise<Devotion[]> {
     const user = this.authService.currentUser();
     if (!user) return [];

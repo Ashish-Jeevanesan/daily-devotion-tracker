@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
+/** Profile form for collecting user details after sign-in. */
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   loading = false;
@@ -37,6 +38,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /** Load existing profile data into the form. */
   ngOnInit() {
     this.loading = true;
     this.profileService.getProfile().then(profile => {
@@ -48,6 +50,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /** Save profile changes and return to home. */
   async updateProfile() {
     if (this.profileForm.valid) {
       this.loading = true;

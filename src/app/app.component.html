@@ -12,6 +12,15 @@
         <mat-icon>calendar_today</mat-icon>
         <span>Progress</span>
       </a>
+      <a
+        *ngIf="profile()?.role === 'admin'"
+        mat-list-item
+        routerLink="/admin/reports"
+        (click)="sidenav.close()"
+      >
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>Admin Reports</span>
+      </a>
       <a mat-list-item (click)="signOut(); sidenav.close()">
         <mat-icon>exit_to_app</mat-icon>
         <span>Sign Out</span>
@@ -60,6 +69,14 @@
           routerLink="/progress"
           aria-label="Progress">
           <mat-icon>calendar_today</mat-icon>
+        </button>
+
+        <button
+          *ngIf="profile()?.role === 'admin'"
+          mat-icon-button
+          routerLink="/admin/reports"
+          aria-label="Admin Reports">
+          <mat-icon>admin_panel_settings</mat-icon>
         </button>
 
         <button

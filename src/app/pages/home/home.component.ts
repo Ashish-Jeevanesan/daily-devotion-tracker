@@ -25,6 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
+/** Main dashboard showing today's devotion and recent history. */
 export class HomeComponent implements OnInit {
   profile = signal<Profile | null>(null);
   checkInForm: FormGroup;
@@ -47,11 +48,11 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /** Load profile data and today's check-in state. */
   ngOnInit() {
     this.profileService.getProfile().then(profile => {
       this.profile.set(profile);
     });
-
     this.checkInService.getTodaysCheckIn().then(checkIn => {
       if (checkIn) {
         this.checkInForm.patchValue(checkIn, { emitEvent: false });
@@ -59,6 +60,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /** Receive devotion updates from the child component. */
   onDevotionUpdated(devotion: Devotion | null) {
     this.todayDevotion = devotion;
   }

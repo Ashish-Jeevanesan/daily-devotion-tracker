@@ -23,6 +23,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   templateUrl: './devotion-detail-dialog.component.html',
   styleUrls: ['./devotion-detail-dialog.component.scss']
 })
+/** Dialog showing devotion and check-in details for a day. */
 export class DevotionDetailDialogComponent {
   bibleVerse: string | null = null;
   devotionNotes: string | null = null;
@@ -45,10 +46,12 @@ export class DevotionDetailDialogComponent {
     }
   }
 
+  /** Close the details dialog. */
   onClose(): void {
     this.dialogRef.close();
   }
 
+  /** Notify user when devotion text is copied. */
   copyDevotion(): void {
     if (this.data.devotion?.notes) {
       this.snackBar.open('Devotion copied to clipboard!', 'Close', {

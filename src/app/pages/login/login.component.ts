@@ -29,6 +29,7 @@ import { ForgotPasswordDialogComponent } from '../../components/forgot-password-
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
+/** Login and registration page with password reset dialog. */
 export class LoginComponent {
   signInForm: FormGroup;
   signUpForm: FormGroup;
@@ -55,6 +56,7 @@ export class LoginComponent {
     });
   }
 
+  /** Toggle visibility for sign-in/sign-up password fields. */
   togglePasswordVisibility(form: 'signIn' | 'signUp') {
     if (form === 'signIn') {
       this.hideSignInPassword = !this.hideSignInPassword;
@@ -63,6 +65,7 @@ export class LoginComponent {
     }
   }
 
+  /** Submit sign-in credentials and handle auth errors. */
   signIn() {
     this.errorMessage = null;
     if (this.signInForm.valid) {
@@ -83,6 +86,7 @@ export class LoginComponent {
     }
   }
 
+  /** Create a new account and prompt email verification. */
   async signUp() {
     this.errorMessage = null;
     if (this.signUpForm.valid) {
@@ -99,6 +103,7 @@ export class LoginComponent {
     }
   }
 
+  /** Open reset dialog and trigger password reset email. */
   forgotPassword() {
     const dialogRef = this.dialog.open(ForgotPasswordDialogComponent, {
       width: '400px'

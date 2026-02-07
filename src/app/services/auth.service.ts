@@ -7,6 +7,7 @@ import { ProfileService } from './profile.service';
 @Injectable({
   providedIn: 'root'
 })
+/** Supabase auth wrapper with session tracking and profile gating. */
 export class AuthService {
   currentUser = signal<User | null | undefined>(undefined);
 
@@ -27,6 +28,7 @@ export class AuthService {
     });
   }
 
+  /** Register a new user with email/password. */
   async signUp(email: string, password: string) {
     const { data, error } = await this.supabaseService.supabase.auth.signUp({
       email: email,
@@ -38,6 +40,7 @@ export class AuthService {
     return data.user;
   }
 
+  /** Send a password reset email. */
   async resetPassword(email: string) {
     const { error } = await this.supabaseService.supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/update-password', // We need to create this route
@@ -47,6 +50,7 @@ export class AuthService {
     }
   }
 
+  /** Update the current user's password. */
   async updatePassword(password: string) {
     const { error } = await this.supabaseService.supabase.auth.updateUser({
       password: password
@@ -56,6 +60,7 @@ export class AuthService {
     }
   }
 
+  /** Sign in with email/password. */
   signIn(email: string, password: string) {
     return this.supabaseService.supabase.auth.signInWithPassword({
       email: email,
@@ -63,6 +68,7 @@ export class AuthService {
     });
   }
 
+  /** Sign out the current user. */
   async signOut() {
     const { error } = await this.supabaseService.supabase.auth.signOut();
     if (error) {
@@ -70,6 +76,7 @@ export class AuthService {
     }
   }
 
+  /** Hydrate session and keep current user signal in sync. */
   async getSession() {
     const { data } = await this.supabaseService.supabase.auth.getSession();
     if (data.session) {
@@ -81,6 +88,7 @@ export class AuthService {
     return data.session;
   }
 
+  /** Enforce profile completion before accessing the app. */
   private async checkProfileAndRedirect() {
     if (this.currentUser()) {
       const profileService = this.injector.get(ProfileService);

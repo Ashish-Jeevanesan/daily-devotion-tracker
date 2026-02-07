@@ -34,6 +34,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   templateUrl: './devotion-entry-dialog.component.html',
   styleUrl: './devotion-entry-dialog.component.scss'
 })
+/** Dialog for creating or editing a devotion entry. */
 export class DevotionEntryDialogComponent implements OnInit {
   form: FormGroup;
   bibleBooks: BibleBook[] = [];
@@ -90,6 +91,7 @@ export class DevotionEntryDialogComponent implements OnInit {
     });
   }
 
+  /** Load Bible data and initialize reference dropdowns. */
   ngOnInit() {
     this.bibleService.getBooks().subscribe(books => {
       this.bibleBooks = books;
@@ -103,6 +105,7 @@ export class DevotionEntryDialogComponent implements OnInit {
     });
   }
 
+  /** Build a reference form group and wire book change handling. */
   createReferenceGroup(reference?: any): FormGroup {
     const group = new FormGroup({
       book: new FormControl(reference?.book || ''),
@@ -129,23 +132,28 @@ export class DevotionEntryDialogComponent implements OnInit {
     return group;
   }
 
+  /** Load chapter list for a selected Bible book. */
   updateChapters(index: number, bookName: string) {
     this.chapters$[index] = this.bibleService.getChapters(bookName);
   }
 
+  /** Accessor for the references form array. */
   get references(): FormArray {
     return this.form.get('references') as FormArray;
   }
 
+  /** Add an additional scripture reference entry. */
   addReference(): void {
     this.references.push(this.createReferenceGroup());
   }
 
+  /** Remove a scripture reference entry. */
   removeReference(index: number): void {
     this.references.removeAt(index);
     delete this.chapters$[index];
   }
 
+  /** Initialize book autocomplete for the given row. */
   onBookFocus(index: number) {
     this.filteredBooks = this.references.at(index).get('book')!.valueChanges.pipe(
       startWith(''),
@@ -156,20 +164,24 @@ export class DevotionEntryDialogComponent implements OnInit {
     );
   }
 
+  /** Filter Bible books for autocomplete. */
   private _filterBooks(value: string): BibleBook[] {
     const filterValue = value.toLowerCase();
     return this.bibleBooks.filter(book => book.name.toLowerCase().includes(filterValue));
   }
   
+  /** Format selected book value for display. */
   displayBook(book: BibleBook | string): string {
       if (typeof book === 'string') return book;
       return book ? book.name : '';
   }
 
+  /** Close the dialog without saving. */
   onCancel(): void {
     this.dialogRef.close();
   }
 
+  /** Validate and persist the devotion, then close the dialog. */
   async onSave(): Promise<void> {
     if (this.form.invalid || this.isSaving) {
       return;
