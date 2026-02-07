@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CalendarModule, CalendarMonthViewDay, CalendarMonthViewBeforeRenderEvent } from 'angular-calendar';
 import { CheckIn, CheckInService } from '../../services/check-in.service';
 import { Devotion, DevotionService } from '../../services/devotion.service';
-import { startOfDay, isSameDay } from 'date-fns';
+import { addMonths, startOfDay } from 'date-fns';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DevotionDetailDialogComponent } from '../../components/devotion-detail-dialog/devotion-detail-dialog.component';
 import { Subject } from 'rxjs';
@@ -35,6 +35,10 @@ export class ProgressComponent implements OnInit {
     this.checkIns = await this.checkInService.getCheckIns();
     this.devotions = await this.devotionService.getDevotions();
     this.refresh.next();
+  }
+
+  changeMonth(offset: number): void {
+    this.viewDate = addMonths(this.viewDate, offset);
   }
 
   beforeMonthViewRender({ body }: { body: CalendarMonthViewDay[] }): void {
