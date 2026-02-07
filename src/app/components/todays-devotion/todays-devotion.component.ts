@@ -23,6 +23,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   templateUrl: './todays-devotion.component.html',
   styleUrl: './todays-devotion.component.scss'
 })
+/** Card showing today's devotion with edit and copy actions. */
 export class TodaysDevotionComponent implements OnInit {
   @Output() devotionUpdated = new EventEmitter<Devotion | null>();
   todaysDevotion = signal<Devotion | null>(null);
@@ -48,6 +49,7 @@ export class TodaysDevotionComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {}
 
+  /** Load today's devotion and emit changes to parent. */
   ngOnInit() {
     this.loading = true;
     this.devotionService.getTodaysDevotion().then(devotion => {
@@ -58,6 +60,7 @@ export class TodaysDevotionComponent implements OnInit {
     });
   }
 
+  /** Open the entry dialog to create or edit today's devotion. */
   openDevotionDialog(): void {
     const currentDevotion = this.todaysDevotion();
     
@@ -75,6 +78,7 @@ export class TodaysDevotionComponent implements OnInit {
     });
   }
 
+  /** Notify user when devotion text is copied. */
   copyDevotion(): void {
     const devotion = this.todaysDevotion();
     if (devotion?.notes) {

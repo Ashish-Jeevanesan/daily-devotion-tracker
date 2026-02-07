@@ -44,6 +44,7 @@ export interface Encouragement {
   templateUrl: './earlier-devotions.component.html',
   styleUrls: ['./earlier-devotions.component.scss']
 })
+/** Timeline of previous devotions with gaps highlighted as missed days. */
 export class EarlierDevotionsComponent implements OnInit {
   timeline = signal<TimelineItem[]>([]);
 
@@ -71,12 +72,14 @@ export class EarlierDevotionsComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {}
 
+  /** Load earlier devotions and build the timeline. */
   ngOnInit() {
     this.devotionService.getEarlierDevotions().then(devotions => {
       this.buildTimeline(devotions);
     });
   }
 
+  /** Build timeline entries with missed-day segments and devotions. */
   private buildTimeline(devotions: Devotion[]): void {
     if (devotions.length === 0) {
       this.timeline.set([]);
@@ -108,6 +111,7 @@ export class EarlierDevotionsComponent implements OnInit {
     this.timeline.set(newTimeline);
   }
 
+  /** Calculate whole-day difference between two dates. */
   private getDateDifference(date1: Date, date2: Date): number {
     const d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
     const d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
@@ -115,10 +119,12 @@ export class EarlierDevotionsComponent implements OnInit {
     return Math.floor(differenceInTime / (1000 * 3600 * 24));
   }
 
+  /** Pick a random encouragement for missed-day gaps. */
   private getRandomEncouragement(): Encouragement {
     return this.encouragements[Math.floor(Math.random() * this.encouragements.length)];
   }
 
+  /** Notify user when devotion text is copied. */
   copyDevotion(notes: string): void {
     if (notes) {
       this.snackBar.open('Devotion copied to clipboard!', 'Close', {
@@ -127,6 +133,7 @@ export class EarlierDevotionsComponent implements OnInit {
     }
   }
 
+  /** Extract verse reference from a devotion note. */
   getVerseReference(notes: string): string {
     const separatorIndex = notes.indexOf(' - ');
     if (separatorIndex > -1) {
@@ -135,6 +142,7 @@ export class EarlierDevotionsComponent implements OnInit {
     return '';
   }
 
+  /** Extract the notes content after the verse reference. */
   getNotesContent(notes: string): string {
     const separatorIndex = notes.indexOf(' - ');
     if (separatorIndex > -1) {

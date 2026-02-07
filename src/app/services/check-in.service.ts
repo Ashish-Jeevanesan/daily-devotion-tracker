@@ -13,6 +13,7 @@ export interface CheckIn {
 @Injectable({
   providedIn: 'root'
 })
+/** CRUD service for daily prayer/Bible check-ins. */
 export class CheckInService {
 
   constructor(
@@ -20,6 +21,7 @@ export class CheckInService {
     private authService: AuthService
   ) { }
 
+  /** Fetch the current user's check-in for today. */
   async getTodaysCheckIn(): Promise<CheckIn | null> {
     const user = this.authService.currentUser();
     if (!user) return null;
@@ -31,9 +33,9 @@ export class CheckInService {
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error('Error fetching today\'s check-in:', error);
       return null;
     }
@@ -41,6 +43,7 @@ export class CheckInService {
     return data;
   }
 
+  /** Create or update today's check-in for the current user. */
   async upsertCheckIn(checkInData: Partial<CheckIn>): Promise<CheckIn | null> {
     const user = this.authService.currentUser();
     if (!user) return null;
@@ -63,6 +66,7 @@ export class CheckInService {
     return data;
   }
 
+  /** Fetch all check-ins for the current user. */
   async getCheckIns(): Promise<CheckIn[]> {
     const user = this.authService.currentUser();
     if (!user) return [];

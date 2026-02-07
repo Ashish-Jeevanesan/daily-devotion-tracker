@@ -20,15 +20,18 @@ import { CommonModule } from '@angular/common';
   templateUrl: './forgot-password-dialog.component.html',
   styleUrls: ['./forgot-password-dialog.component.scss']
 })
+/** Dialog to collect an email for password reset. */
 export class ForgotPasswordDialogComponent {
   email = new FormControl('', [Validators.required, Validators.email]);
 
   constructor(public dialogRef: MatDialogRef<ForgotPasswordDialogComponent>) {}
 
+  /** Close the dialog without submitting. */
   onCancel(): void {
     this.dialogRef.close();
   }
 
+  /** Submit the email if valid and close the dialog. */
   onSubmit(): void {
     if (this.email.valid) {
       this.dialogRef.close(this.email.value);

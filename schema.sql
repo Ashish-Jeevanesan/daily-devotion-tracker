@@ -26,6 +26,7 @@ CREATE TABLE public.profiles (
   username text NULL,
   full_name text NULL,
   age int4 NULL,
+  role text NOT NULL DEFAULT 'member',
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_username_key UNIQUE (username),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
@@ -52,6 +53,47 @@ CREATE POLICY "Users can update their own profile." ON public.profiles FOR UPDAT
 
 -- Create policies for the 'devotions' table
 CREATE POLICY "Users can view their own devotions." ON public.devotions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins can read all devotions" ON public.devotions FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.role = 'admin'
+  )
+);
 CREATE POLICY "Users can insert their own devotions." ON public.devotions FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own devotions." ON public.devotions FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete their own devotions." ON public.devotions FOR DELETE USING (auth.uid() = user_id);
+
+-- Ensure the role column exists for existing databases
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'member';
+
+-- Weekly devotion report for admins
+CREATE OR REPLACE FUNCTION public.weekly_devotion_report(
+  week_start timestamptz,
+  week_end timestamptz
+)
+RETURNS TABLE (
+  user_id uuid,
+  full_name text,
+  devotion_days bigint
+)
+LANGUAGE sql
+SECURITY INVOKER
+AS $$
+  SELECT
+    p.id AS user_id,
+    p.full_name,
+    COUNT(DISTINCT DATE(d.created_at)) AS devotion_days
+  FROM public.profiles p
+  LEFT JOIN public.devotions d
+    ON d.user_id = p.id
+    AND d.created_at >= week_start
+    AND d.created_at < week_end
+  WHERE EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.role = 'admin'
+  )
+  GROUP BY p.id, p.full_name
+  ORDER BY p.full_name;
+$$;
