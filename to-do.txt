@@ -1,14 +1,17 @@
 -- Add dark mode ** Done ** 13-01
--- Add feature to Copy the devotion 
--- Notification feature neeeds to be planned.
--- Add Forgot Password option to reset Password
+-- Add feature to Copy the devotion ** Done **
+-- Notification feature neeeds to be planned. ** Planned Need to execute **
+-- Add Forgot Password option to reset Password ** Done **
 -- Add a popup to show when sign in is done to check mail for confirmation. ** Done ** 14-01
 -- Add view Password ** Done ** 15-01
--- Multi Language Support
+-- Multi Language Support 
 -- UI Enhancements ** Done ** 18-01
--- User needs to view the dates he Missed there devotion.
--- The bible books and verses must be in a selectable wheel.
+-- User needs to view the dates he Missed there devotion. ** Done **
+-- The bible books and verses must be in a selectable wheel. ** Done ** 
 -- Need to create a Trello board to record the updates.
 -- Mobile view book selector is very clumsy
 -- Mail redirection link is localhost only ** Fixed **
 -- Mail Templates for Sign UP and Forget Password Changes ** Fixed ** 
+-- Admin Page needs to be planned and developed. ** Done ** 
+-- Reports must be mailed to all users via Cron Job.
+-- Add notes type window on add devotion.
