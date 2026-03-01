@@ -120,3 +120,18 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Improved earlier-devotions timeline to highlight missed-day gaps between entries.
     -   Added rotating encouragement verse/message cards for missed-day periods.
     -   Added clipboard copy actions with snackbar feedback for today's and earlier devotion notes.
+
+## 8. Latest Enhancements (Admin Drill-Down + Notification Fixes)
+
+-   **Admin Reports: User-Level Devotion Notes Drill-Down:**
+    -   Added click-to-drill interaction on admin report table rows.
+    -   When an admin clicks a user row, the app now fetches and displays that user's full devotion notes for the currently selected date range (daily/weekly/monthly window).
+    -   Added selected-row highlighting and toggle behavior (click same row again to collapse notes).
+    -   Implemented dedicated notes panel states for loading, empty range results, and note list rendering with timestamps.
+    -   Extended `AdminReportsService` with range-bound note retrieval (`getUserDevotionNotes`) using `user_id` + date boundaries.
+-   **Forgot Password / Notification Reliability Fix:**
+    -   Fixed notification handling so null/empty messages no longer render blank success/error popups.
+    -   Added safe fallback notification text in `NotificationService` when incoming message content is missing.
+    -   Updated forgot-password success copy to a safer/accurate message pattern:
+      "If an account exists for this email, a password reset link has been sent."
+    -   Hardened forgot-password error handling with a fallback error message when Supabase error text is unavailable.
