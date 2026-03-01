@@ -15,8 +15,17 @@ export class NotificationService {
   notification$ = this.notificationSubject.asObservable();
 
   /** Emit a notification message with a type. */
-  show(message: string, type: 'success' | 'error') {
-    this.notificationSubject.next({ message, type });
+  show(message: string | null | undefined, type: 'success' | 'error') {
+    const normalizedMessage = (message ?? '').toString().trim();
+    const fallbackMessage =
+      type === 'success'
+        ? 'Action completed successfully.'
+        : 'Something went wrong. Please try again.';
+
+    this.notificationSubject.next({
+      message: normalizedMessage || fallbackMessage,
+      type
+    });
   }
 
   /** Clear the current notification. */

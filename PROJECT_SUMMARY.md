@@ -96,3 +96,27 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Implemented a cleaner, card-like interface for viewing daily details.
     -   Added "Copy to Clipboard" functionality for devotion notes.
     -   Fully optimized the dialog and calendar components for Dark Mode compatibility.
+
+## 7. Newly Added but Previously Undocumented Features
+
+-   **Password Recovery & Update Flow:**
+    -   Added a "Forgot Password" dialog in the login page to collect email and trigger Supabase reset email delivery.
+    -   Implemented `/update-password` route and `UpdatePasswordComponent` for setting a new password after reset-link verification.
+    -   Added password visibility toggles and notification-based success/error feedback for auth flows.
+-   **Role-Based Admin Access Control:**
+    -   Introduced `adminGuard` to protect admin-only routes.
+    -   Added role-based UI rendering in the app shell so "Admin Reports" navigation appears only for users with `role = 'admin'`.
+    -   Extended profile model/schema usage to include role-aware behavior (`admin` vs `member`).
+-   **Admin Reporting Dashboard (`/admin/reports`):**
+    -   Implemented range-based analytics (daily, weekly, monthly) with dynamic date-window calculation.
+    -   Added user filtering, KPI cards (active users, average devotion days, top consistency), and engagement distribution charting.
+    -   Integrated Supabase RPC (`weekly_devotion_report`) for aggregated reporting.
+    -   Added Excel export (`.xlsx`) for filtered report data.
+-   **Devotion Entry Experience Improvements:**
+    -   Added a rich devotion entry/edit dialog with support for multiple scripture references.
+    -   Implemented Bible book autocomplete, dynamic chapter loading by selected book, and optional verse ranges.
+    -   Normalized stored devotion note format to combine scripture references and user reflection content.
+-   **Devotion History Timeline Enhancements:**
+    -   Improved earlier-devotions timeline to highlight missed-day gaps between entries.
+    -   Added rotating encouragement verse/message cards for missed-day periods.
+    -   Added clipboard copy actions with snackbar feedback for today's and earlier devotion notes.

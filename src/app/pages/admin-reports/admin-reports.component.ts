@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 import * as XLSX from 'xlsx';
-import { AdminReportsService } from '../../services/admin-reports.service';
+import { AdminReportsService, UserDevotionNote } from '../../services/admin-reports.service';
 import { Profile, ProfileService } from '../../services/profile.service';
 
 interface ReportRow {
@@ -65,6 +65,10 @@ export class AdminReportsComponent implements OnInit {
   topConsistency: ReportRow | null = null;
   averageDays = 0;
   activeUsers = 0;
+  notesLoading = false;
+  selectedRowUserId: string | null = null;
+  selectedRowUserName = '';
+  selectedUserNotes: UserDevotionNote[] = [];
 
   chartView: [number, number] = [700, 280];
   chartScheme: Color = {
@@ -95,6 +99,7 @@ export class AdminReportsComponent implements OnInit {
   /** Load devotion report rows for the selected range and user filter. */
   async loadReport() {
     this.loading = true;
+    this.clearSelectedNotes();
     try {
       const reportRows = await this.adminReportsService.getWeeklyDevotionReport(
         this.weekStart,
@@ -136,6 +141,7 @@ export class AdminReportsComponent implements OnInit {
     if (!date) return;
     this.selectedDate = date;
     this.setRange(date);
+    this.clearSelectedNotes();
     this.loadReport();
   }
 
@@ -143,13 +149,43 @@ export class AdminReportsComponent implements OnInit {
   onRangeChange(range: ReportRange) {
     this.selectedRange = range;
     this.setRange(this.selectedDate);
+    this.clearSelectedNotes();
     this.loadReport();
   }
 
   /** Apply user filter and refresh report. */
   onUserFilterChange(userId: string | null) {
     this.selectedUserId = userId;
+    this.clearSelectedNotes();
     this.loadReport();
+  }
+
+  /** Load note details for a selected user row in the current range. */
+  async onUserRowClick(row: ReportRow) {
+    if (this.selectedRowUserId === row.userId) {
+      this.clearSelectedNotes();
+      return;
+    }
+
+    this.notesLoading = true;
+    this.selectedRowUserId = row.userId;
+    this.selectedRowUserName = row.name;
+
+    try {
+      this.selectedUserNotes = await this.adminReportsService.getUserDevotionNotes(
+        row.userId,
+        this.weekStart,
+        this.weekEnd
+      );
+    } catch (error) {
+      this.clearSelectedNotes();
+      this.snackBar.open('Failed to load devotion notes for this user.', 'Close', {
+        duration: 4000,
+        panelClass: 'error-snackbar'
+      });
+    } finally {
+      this.notesLoading = false;
+    }
   }
 
   /** Export the currently filtered rows to an Excel file. */
@@ -266,5 +302,13 @@ export class AdminReportsComponent implements OnInit {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
+  }
+
+  /** Reset selected-user note state. */
+  private clearSelectedNotes() {
+    this.selectedRowUserId = null;
+    this.selectedRowUserName = '';
+    this.selectedUserNotes = [];
+    this.notesLoading = false;
   }
 }

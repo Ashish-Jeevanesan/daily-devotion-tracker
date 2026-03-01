@@ -110,6 +110,18 @@ mat-card {
   overflow: auto;
 }
 
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background: #f6faf8;
+}
+
+.selected-row {
+  background: #e8f3ef;
+}
+
 .percentage-cell {
   display: grid;
   grid-template-columns: 60px 1fr;
@@ -122,4 +134,55 @@ mat-card {
   padding: 24px 0;
   text-align: center;
   color: #6b6b6b;
+}
+
+.notes-panel {
+  margin-top: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fcfdfd;
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.notes-header h3 {
+  margin: 0;
+  color: #1f2a27;
+}
+
+.notes-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.notes-list {
+  display: grid;
+  gap: 10px;
+}
+
+.note-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.note-date {
+  font-size: 12px;
+  color: #6b6b6b;
+  margin-bottom: 6px;
+}
+
+.note-text {
+  white-space: pre-wrap;
+  color: #1f2a27;
 }

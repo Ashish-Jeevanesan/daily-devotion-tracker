@@ -114,9 +114,16 @@ export class LoginComponent {
         this.loading = true;
         try {
           await this.authService.resetPassword(email);
-          this.notificationService.show('Password reset link sent to your email.', 'success');
+          this.notificationService.show(
+            'If an account exists for this email, a password reset link has been sent.',
+            'success'
+          );
         } catch (error: any) {
-          this.notificationService.show(error.message, 'error');
+          const message =
+            typeof error?.message === 'string' && error.message.trim().length > 0
+              ? error.message
+              : 'Unable to send password reset link right now. Please try again.';
+          this.notificationService.show(message, 'error');
         } finally {
           this.loading = false;
         }

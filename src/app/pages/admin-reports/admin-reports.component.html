@@ -123,8 +123,38 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          (click)="onUserRowClick(row)"
+          [class.selected-row]="selectedRowUserId === row.userId"
+          class="clickable-row"
+        ></tr>
       </table>
+    </div>
+
+    <div class="notes-panel" *ngIf="selectedRowUserId">
+      <div class="notes-header">
+        <h3>{{ selectedRowUserName }}'s Devotion Notes</h3>
+        <div class="week-range">
+          {{ weekStart | date:'MMM d, y' }} â€“ {{ weekEndDisplay | date:'MMM d, y' }}
+        </div>
+      </div>
+
+      <div class="notes-loading" *ngIf="notesLoading">
+        <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+      </div>
+
+      <div class="empty-state" *ngIf="!notesLoading && selectedUserNotes.length === 0">
+        No devotion notes found for this user in the selected range.
+      </div>
+
+      <div class="notes-list" *ngIf="!notesLoading && selectedUserNotes.length > 0">
+        <div class="note-item" *ngFor="let note of selectedUserNotes">
+          <div class="note-date">{{ note.created_at | date:'MMM d, y, h:mm a' }}</div>
+          <div class="note-text">{{ note.notes || 'No note text provided.' }}</div>
+        </div>
+      </div>
     </div>
   </mat-card>
 </div>
