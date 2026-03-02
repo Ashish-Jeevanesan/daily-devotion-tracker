@@ -33,6 +33,7 @@ export class CheckInService {
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
+      .is('void_fl', null)
       .maybeSingle();
 
     if (error) {
@@ -56,6 +57,7 @@ export class CheckInService {
         onConflict: 'user_id,date'
       })
       .select()
+      .is('void_fl', null)
       .single();
 
     if (error) {
@@ -74,7 +76,8 @@ export class CheckInService {
     const { data, error } = await this.supabaseService.supabase
       .from('daily_check_ins')
       .select('*')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .is('void_fl', null);
 
     if (error) {
       console.error('Error fetching check-ins:', error);

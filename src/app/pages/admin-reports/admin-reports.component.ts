@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -49,6 +49,8 @@ type ReportRange = 'daily' | 'weekly' | 'monthly';
 })
 /** Admin-only reporting dashboard with filters, KPIs, chart, and export. */
 export class AdminReportsComponent implements OnInit {
+  @ViewChild('notesPanel') notesPanel?: ElementRef<HTMLElement>;
+
   profiles: Profile[] = [];
   selectedUserId: string | null = null;
   selectedRange: ReportRange = 'weekly';
@@ -170,6 +172,7 @@ export class AdminReportsComponent implements OnInit {
     this.notesLoading = true;
     this.selectedRowUserId = row.userId;
     this.selectedRowUserName = row.name;
+    this.scrollToNotesPanel();
 
     try {
       this.selectedUserNotes = await this.adminReportsService.getUserDevotionNotes(
@@ -310,5 +313,15 @@ export class AdminReportsComponent implements OnInit {
     this.selectedRowUserName = '';
     this.selectedUserNotes = [];
     this.notesLoading = false;
+  }
+
+  /** Smooth-scroll to the notes panel after selecting a user row. */
+  private scrollToNotesPanel() {
+    setTimeout(() => {
+      this.notesPanel?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 0);
   }
 }

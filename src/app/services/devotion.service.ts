@@ -33,6 +33,7 @@ export class DevotionService {
       .from('devotions')
       .select('*')
       .eq('user_id', user.id)
+      .is('void_fl', null)
       .gte('created_at', today.toISOString())
       .lt('created_at', tomorrow.toISOString())
       .maybeSingle();
@@ -57,6 +58,7 @@ export class DevotionService {
       .from('devotions')
       .select('*')
       .eq('user_id', user.id)
+      .is('void_fl', null)
       .lt('created_at', today.toISOString())
       .order('created_at', { ascending: false });
 
@@ -77,6 +79,7 @@ export class DevotionService {
       .from('devotions')
       .insert([{ user_id: user.id, notes }])
       .select()
+      .is('void_fl', null)
       .single();
 
     if (error) {
@@ -93,6 +96,7 @@ export class DevotionService {
       .from('devotions')
       .update({ notes })
       .eq('id', id)
+      .is('void_fl', null)
       .select()
       .single();
     
@@ -112,7 +116,8 @@ export class DevotionService {
     const { data, error } = await this.supabaseService.supabase
       .from('devotions')
       .select('*')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .is('void_fl', null);
 
     if (error) {
       console.error('Error fetching devotions:', error);

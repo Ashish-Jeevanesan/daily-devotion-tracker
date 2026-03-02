@@ -42,6 +42,7 @@ export class AdminReportsService {
       .from('devotions')
       .select('id, created_at, notes')
       .eq('user_id', userId)
+      .is('void_fl', null)
       .gte('created_at', rangeStart.toISOString())
       .lt('created_at', rangeEnd.toISOString())
       .order('created_at', { ascending: false });

@@ -87,11 +87,14 @@ AS $$
   FROM public.profiles p
   LEFT JOIN public.devotions d
     ON d.user_id = p.id
+    AND d.void_fl IS NULL
     AND d.created_at >= week_start
     AND d.created_at < week_end
-  WHERE EXISTS (
+  WHERE p.void_fl IS NULL
+    AND EXISTS (
     SELECT 1 FROM public.profiles
     WHERE profiles.id = auth.uid()
+    AND profiles.void_fl IS NULL
     AND profiles.role = 'admin'
   )
   GROUP BY p.id, p.full_name

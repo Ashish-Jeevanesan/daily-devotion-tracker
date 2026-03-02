@@ -133,11 +133,11 @@
       </table>
     </div>
 
-    <div class="notes-panel" *ngIf="selectedRowUserId">
+    <div #notesPanel class="notes-panel" *ngIf="selectedRowUserId">
       <div class="notes-header">
         <h3>{{ selectedRowUserName }}'s Devotion Notes</h3>
         <div class="week-range">
-          {{ weekStart | date:'MMM d, y' }} â€“ {{ weekEndDisplay | date:'MMM d, y' }}
+          {{ weekStart | date:'MMM d, y' }} - {{ weekEndDisplay | date:'MMM d, y' }}
         </div>
       </div>
 

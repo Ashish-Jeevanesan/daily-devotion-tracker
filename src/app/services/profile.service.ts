@@ -30,6 +30,7 @@ export class ProfileService {
       .from('profiles')
       .select('*')
       .eq('id', user.id)
+      .is('void_fl', null)
       .single();
 
     if (error && error.code !== 'PGRST116') {
@@ -48,6 +49,7 @@ export class ProfileService {
       .from('profiles')
       .upsert({ ...profile, id: user.id })
       .select()
+      .is('void_fl', null)
       .single();
 
     if (error) {
@@ -63,6 +65,7 @@ export class ProfileService {
     const { data, error } = await this.supabaseService.supabase
       .from('profiles')
       .select('id, full_name, username, role')
+      .is('void_fl', null)
       .order('full_name', { ascending: true });
 
     if (error) {

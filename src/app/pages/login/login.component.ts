@@ -73,17 +73,26 @@ export class LoginComponent {
       this.authService.signIn(this.signInForm.value.email, this.signInForm.value.password)
         .then(result => {
           if (result.error) {
-            this.notificationService.show(result.error.message, 'error');
+            this.notificationService.show(this.getSignInErrorMessage(result.error.message), 'error');
           }
           // The redirection logic is now handled in AuthService
         })
         .catch(error => {
-          this.notificationService.show(error.message, 'error');
+          this.notificationService.show(this.getSignInErrorMessage(error.message), 'error');
         })
         .finally(() => {
           this.loading = false;
         });
     }
+  }
+
+  /** Normalize sign-in errors with user-friendly guidance. */
+  private getSignInErrorMessage(message: string | undefined): string {
+    const normalizedMessage = (message ?? '').toLowerCase();
+    if (normalizedMessage.includes('invalid login credentials')) {
+      return 'Invalid credentials. If you do not have an account, please sign up first.';
+    }
+    return message?.trim() || 'Unable to sign in right now. Please try again.';
   }
 
   /** Create a new account and prompt email verification. */

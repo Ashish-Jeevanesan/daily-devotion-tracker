@@ -19,6 +19,7 @@ export class BibleService {
       const promise = this.supabaseService.supabase
         .from('bible_books')
         .select('*')
+        .is('void_fl', null)
         .order('id');
       
       this.booksCache$ = from(promise).pipe(
