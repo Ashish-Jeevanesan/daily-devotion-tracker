@@ -113,10 +113,17 @@ export class DevotionService {
     const user = this.authService.currentUser();
     if (!user) return [];
 
+    return this.getDevotionsForUser(user.id);
+  }
+
+  /** Fetch all devotions for a specific user. */
+  async getDevotionsForUser(userId: string): Promise<Devotion[]> {
+    if (!userId) return [];
+
     const { data, error } = await this.supabaseService.supabase
       .from('devotions')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .is('void_fl', null);
 
     if (error) {

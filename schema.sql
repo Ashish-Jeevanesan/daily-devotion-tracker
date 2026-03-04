@@ -15,6 +15,14 @@ ALTER TABLE public.daily_check_ins ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for the 'daily_check_ins' table
 CREATE POLICY "Users can view their own check-ins." ON public.daily_check_ins FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins can read all check-ins" ON public.daily_check_ins FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid()
+    AND profiles.void_fl IS NULL
+    AND profiles.role = 'admin'
+  )
+);
 CREATE POLICY "Users can insert their own check-ins." ON public.daily_check_ins FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own check-ins." ON public.daily_check_ins FOR UPDATE USING (auth.uid() = user_id);
 

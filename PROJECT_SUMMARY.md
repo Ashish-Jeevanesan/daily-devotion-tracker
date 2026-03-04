@@ -135,3 +135,19 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Updated forgot-password success copy to a safer/accurate message pattern:
       "If an account exists for this email, a password reset link has been sent."
     -   Hardened forgot-password error handling with a fallback error message when Supabase error text is unavailable.
+
+## 9. Latest Enhancements (Admin Calendar User Filter + Loading State)
+
+-   **Progress Calendar: Admin User Selector (`/progress`):**
+    -   Added an admin-only user dropdown at the top of the calendar page.
+    -   Admins can now switch the calendar to any user and view that user’s check-ins and devotions.
+    -   Default behavior for admins when no user is selected is now "My data" (the logged-in admin’s own calendar data).
+-   **Progress Calendar: Loader During User Switching:**
+    -   Added a loading state (`loadingCalendar`) and spinner UI while selected-user data is being fetched.
+    -   Calendar grid and legend are hidden during load to avoid showing stale values from the previously selected user.
+    -   Loader is used on both first page load and subsequent dropdown changes.
+-   **Service Layer Updates for Reusable User-Scoped Fetching:**
+    -   Extended `CheckInService` with `getCheckInsForUser(userId)` and reused it from `getCheckIns()`.
+    -   Extended `DevotionService` with `getDevotionsForUser(userId)` and reused it from `getDevotions()`.
+-   **Database / RLS Alignment:**
+    -   Added policy for admins to read all records in `daily_check_ins` so admin calendar user-switching works with check-in data under RLS.

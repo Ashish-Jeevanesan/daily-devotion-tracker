@@ -1,4 +1,19 @@
 <div class="calendar-container">
+  <div class="admin-user-filter" *ngIf="isAdmin">
+    <mat-form-field appearance="outline">
+      <mat-label>User</mat-label>
+      <mat-select
+        [value]="selectedUserId"
+        (selectionChange)="onUserSelectionChange($event.value)"
+      >
+        <mat-option [value]="null">My data</mat-option>
+        <mat-option *ngFor="let profile of profiles" [value]="profile.id">
+          {{ profile.full_name || profile.username || profile.id }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <div class="calendar-controls">
     <button class="nav-button" type="button" (click)="changeMonth(-1)" aria-label="Previous month">
       ◀
@@ -9,7 +24,13 @@
     </button>
   </div>
 
+  <div class="calendar-loading" *ngIf="loadingCalendar">
+    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    <div class="loading-text">Loading calendar data...</div>
+  </div>
+
   <mwl-calendar-month-view
+    *ngIf="!loadingCalendar"
     [viewDate]="viewDate"
     [refresh]="refresh"
     [cellTemplate]="customCellTemplate"
@@ -62,7 +83,7 @@
     }
   </ng-template>
 
-  <div class="calendar-legend">
+  <div class="calendar-legend" *ngIf="!loadingCalendar">
     <div class="legend-item">
       <span class="legend-color both"></span>
       <span>Both Completed</span>

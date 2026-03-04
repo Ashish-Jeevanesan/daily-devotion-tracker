@@ -73,10 +73,17 @@ export class CheckInService {
     const user = this.authService.currentUser();
     if (!user) return [];
 
+    return this.getCheckInsForUser(user.id);
+  }
+
+  /** Fetch all check-ins for a specific user. */
+  async getCheckInsForUser(userId: string): Promise<CheckIn[]> {
+    if (!userId) return [];
+
     const { data, error } = await this.supabaseService.supabase
       .from('daily_check_ins')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .is('void_fl', null);
 
     if (error) {
