@@ -1,0 +1,236 @@
+@use '@angular/material' as mat;
+
+@import "../../../node_modules/angular-calendar/css/angular-calendar.css";
+
+/* You can add global styles to this file, and also import other style files */
+@include mat.core();
+
+/* Define themes (NO palettes in v17+) */
+$light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+  ),
+));
+
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+  ),
+));
+
+/* Apply themes via body class */
+body.light-theme {
+  @include mat.all-component-themes($light-theme);
+}
+
+body.dark-theme {
+  @include mat.all-component-themes($dark-theme);
+}
+
+/* Visual proof (important for debugging) */
+body.light-theme {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+body.dark-theme {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+/* ===== Custom Snackbar Styles ===== */
+.error-snackbar {
+  --mdc-snackbar-container-color: #f44336; /* Red background */
+  --mat-mdc-snack-bar-button-color: #ffffff; /* White button text */
+  --mdc-snackbar-supporting-text-color: #ffffff; /* White message text */
+}
+
+.success-snackbar {
+  --mdc-snackbar-container-color: #4CAF50; /* Green background */
+  --mat-mdc-snack-bar-button-color: #ffffff; /* White button text */
+  --mdc-snackbar-supporting-text-color: #ffffff; /* White message text */
+}
+
+/* ===== Base Layout ===== */
+
+:root {
+  --primary-color: #5c6bc0;
+  --bg-color: #f5f5f5;
+  --text-color: #333333;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+  --background-alt: #eeeeee;
+}
+
+body.light-theme {
+  --primary-color: #5c6bc0;
+  --bg-color: #f5f5f5;
+  --text-color: #333333;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
+  --background-alt: #eeeeee;
+}
+
+body.dark-theme {
+  --primary-color: #7986cb;
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --text-muted: #666666;
+  --card-bg: #1e1e1e;
+  --border-color: #333333;
+  --background-alt: #2c2c2c;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+mat-card {
+  color: var(--text-color) !important;
+}
+
+mat-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--bg-color) !important;
+  }
+  .mat-mdc-form-field-flex {
+    background-color: var(--bg-color) !important;
+  }
+  .mat-mdc-floating-label {
+    color: var(--text-color) !important;
+  }
+  .mat-mdc-input-element {
+    color: var(--text-color) !important;
+  }
+  .mat-mdc-form-field-outline-color {
+    color: var(--border-color) !important;
+  }
+  .mat-mdc-form-field-focus-outline-color {
+    color: var(--primary-color) !important;
+  }
+}
+
+.mat-mdc-tab-body-content {
+  background-color: var(--card-bg) !important;
+}
+
+.mat-mdc-tab-list {
+  background-color: var(--card-bg) !important;
+}
+
+.mat-mdc-tab .mdc-tab__text-label {
+  color: var(--text-color) !important;
+}
+
+.mat-mdc-tab.mat-mdc-tab-active {
+  .mdc-tab__text-label {
+    color: var(--primary-color) !important;
+  }
+}
+
+.mat-mdc-button.mat-primary {
+  --mdc-text-button-label-text-color: var(--primary-color);
+  --mat-mdc-button-persistent-ripple-color: var(--primary-color);
+}
+
+body.light-theme mat-toolbar {
+  background: #ffffff;
+  color: #222;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+mat-toolbar {
+  background: linear-gradient(
+    135deg,
+    #3f51b5,
+    #5c6bc0
+  );
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+mat-toolbar span {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+mat-toolbar .mat-button, mat-toolbar .mat-icon-button {
+  font-family: 'Lora', serif !important;
+  text-shadow: 1px 1px 0.5px black, -1px -1px 0.5px black, 1px -1px 0.5px black, -1px 1px 0.5px black;
+}
+
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.theme-toggle {
+  margin: 0 10px;
+}
+
+[mat-button], [mat-raised-button], [mat-icon-button] {
+  transition: all 0.2s ease-in-out;
+  border-radius: 20px !important;
+}
+
+[mat-button]:hover, [mat-raised-button]:hover, [mat-icon-button]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+[mat-button]:active, [mat-raised-button]:active, [mat-icon-button]:active {
+  transform: scale(0.95);
+  box-shadow: none;
+}
+
+mat-toolbar .mobile-only {
+  display: none;
+}
+
+mat-toolbar .desktop-only {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  mat-toolbar .mobile-only {
+    display: block;
+  }
+
+  mat-toolbar .desktop-only {
+    display: none;
+  }
+}
+
+mat-sidenav {
+  width: 250px;
+  background-color: var(--card-bg);
+}
+
+.mat-drawer-container {
+  background-color: var(--bg-color);
+}
+
+.mat-drawer-content {
+  background-color: var(--bg-color);
+}
+
+.app-container {
+  background-color: var(--bg-color);
+}
+.app-title {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}

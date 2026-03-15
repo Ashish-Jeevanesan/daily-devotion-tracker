@@ -10,29 +10,29 @@
           "style": "scss"
         }
       },
-      "root": "",
-      "sourceRoot": "src",
+      "root": "apps/web",
+      "sourceRoot": "apps/web/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": "dist/devotion-tracker",
-            "index": "src/index.html",
-            "browser": "src/main.ts",
+            "index": "apps/web/src/index.html",
+            "browser": "apps/web/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "tsconfig.app.json",
+            "tsConfig": "apps/web/tsconfig.app.json",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "apps/web/public"
               }
             ],
             "styles": [
               "@angular/material/prebuilt-themes/azure-blue.css",
-              "src/styles.scss"
+              "apps/web/src/styles.scss"
             ],
             "scripts": []
           },
@@ -40,8 +40,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "src/app/environments/environment.ts",
-                  "with": "src/app/environments/environment.prod.ts"
+                  "replace": "apps/web/src/app/environments/environment.ts",
+                  "with": "apps/web/src/app/environments/environment.prod.ts"
                 }
               ],
               "budgets": [
@@ -88,17 +88,17 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "tsconfig.spec.json",
+            "tsConfig": "apps/web/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "apps/web/public"
               }
             ],
             "styles": [
               "@angular/material/prebuilt-themes/azure-blue.css",
-              "src/styles.scss"
+              "apps/web/src/styles.scss"
             ],
             "scripts": []
           }

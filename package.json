@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && node replace-env.js",
+    "build": "ng build && node apps/web/replace-env.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
