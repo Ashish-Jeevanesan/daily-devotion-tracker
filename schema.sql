@@ -34,6 +34,9 @@ CREATE TABLE public.profiles (
   username text NULL,
   full_name text NULL,
   age int4 NULL,
+  dob date NULL,
+  phone_number text NULL,
+  church_name text NULL,
   role text NOT NULL DEFAULT 'member',
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_username_key UNIQUE (username),
@@ -74,6 +77,9 @@ CREATE POLICY "Users can delete their own devotions." ON public.devotions FOR DE
 
 -- Ensure the role column exists for existing databases
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'member';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dob date NULL;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number text NULL;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS church_name text NULL;
 
 -- Weekly devotion report for admins
 CREATE OR REPLACE FUNCTION public.weekly_devotion_report(

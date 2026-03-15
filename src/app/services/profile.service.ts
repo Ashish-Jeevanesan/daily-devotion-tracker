@@ -6,6 +6,9 @@ export interface Profile {
   id: string;
   full_name: string;
   age?: number;
+  dob?: string;
+  phone_number?: string;
+  church_name?: string;
   username?: string;
   role?: 'admin' | 'member';
 }

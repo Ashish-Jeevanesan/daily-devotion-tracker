@@ -2,7 +2,7 @@ import { Injectable, signal, Injector } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { User } from '@supabase/supabase-js';
 import { Router } from '@angular/router';
-import { ProfileService } from './profile.service';
+import { Profile, ProfileService } from './profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -93,7 +93,7 @@ export class AuthService {
     if (this.currentUser()) {
       const profileService = this.injector.get(ProfileService);
       const profile = await profileService.getProfile();
-      if (!profile || !profile.full_name || !profile.age) {
+      if (!this.isProfileComplete(profile)) {
         if (this.router.url !== '/profile') {
           this.router.navigate(['/profile']);
         }
@@ -103,5 +103,17 @@ export class AuthService {
         }
       }
     }
+  }
+
+  private isProfileComplete(profile: Profile | null): boolean {
+    return !!(
+      profile &&
+      profile.full_name?.trim() &&
+      profile.church_name?.trim() &&
+      profile.phone_number?.trim() &&
+      profile.dob &&
+      profile.age !== null &&
+      profile.age !== undefined
+    );
   }
 }

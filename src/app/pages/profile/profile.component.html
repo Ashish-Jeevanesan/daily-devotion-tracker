@@ -24,8 +24,25 @@
             </mat-form-field>
     
             <mat-form-field appearance="fill">
+              <mat-label>Date of Birth</mat-label>
+              <input matInput [matDatepicker]="dobPicker" formControlName="dob">
+              <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+              <mat-datepicker #dobPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
               <mat-label>Age</mat-label>
-              <input matInput formControlName="age" type="number">
+              <input matInput formControlName="age" type="number" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Phone Number</mat-label>
+              <input matInput formControlName="phone_number" type="tel">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Church</mat-label>
+              <input matInput formControlName="church_name">
             </mat-form-field>
     
             <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
