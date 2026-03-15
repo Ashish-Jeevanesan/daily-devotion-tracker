@@ -65,11 +65,19 @@ export class ProfileService {
 
   /** Fetch all profiles for admin filtering. */
   async getAllProfiles(): Promise<Profile[]> {
-    const { data, error } = await this.supabaseService.supabase
+    const currentProfile = await this.getProfile();
+
+    let query = this.supabaseService.supabase
       .from('profiles')
-      .select('id, full_name, username, role')
+      .select('id, full_name, username, role, church_name')
       .is('void_fl', null)
       .order('full_name', { ascending: true });
+
+    if (currentProfile?.role === 'admin' && currentProfile.church_name?.trim()) {
+      query = query.eq('church_name', currentProfile.church_name.trim());
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching profiles:', error);
@@ -77,5 +85,33 @@ export class ProfileService {
     }
 
     return data || [];
+  }
+
+  /** Fetch distinct church names matching the current input. */
+  async getChurchSuggestions(searchTerm = ''): Promise<string[]> {
+    let query = this.supabaseService.supabase
+      .from('profiles')
+      .select('church_name')
+      .not('church_name', 'is', null)
+      .is('void_fl', null)
+      .limit(20);
+
+    const trimmedSearchTerm = searchTerm.trim();
+    if (trimmedSearchTerm) {
+      query = query.ilike('church_name', `%${trimmedSearchTerm}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching church suggestions:', error);
+      return [];
+    }
+
+    return [...new Set(
+      (data || [])
+        .map(profile => profile.church_name?.trim())
+        .filter((churchName): churchName is string => !!churchName)
+    )].sort((left, right) => left.localeCompare(right));
   }
 }

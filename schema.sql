@@ -110,6 +110,11 @@ AS $$
     WHERE profiles.id = auth.uid()
     AND profiles.void_fl IS NULL
     AND profiles.role = 'admin'
+    AND (
+      profiles.church_name IS NULL
+      OR btrim(profiles.church_name) = ''
+      OR p.church_name = profiles.church_name
+    )
   )
   GROUP BY p.id, p.full_name
   ORDER BY p.full_name;

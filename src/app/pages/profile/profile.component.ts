@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProfileService } from '../../services/profile.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   selector: 'app-profile',
   imports: [
     ReactiveFormsModule,
+    MatAutocompleteModule,
     MatFormFieldModule,
     MatDatepickerModule,
     MatNativeDateModule,
@@ -28,7 +30,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 /** Profile form for collecting user details after sign-in. */
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
+  churchSuggestions: string[] = [];
   loading = false;
+  private churchLookupRequestId = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +53,10 @@ export class ProfileComponent implements OnInit {
         { age: this.calculateAge(value) },
         { emitEvent: false }
       );
+    });
+
+    this.profileForm.get('church_name')?.valueChanges.subscribe(value => {
+      this.loadChurchSuggestions(typeof value === 'string' ? value : '');
     });
   }
 
@@ -86,6 +94,20 @@ export class ProfileComponent implements OnInit {
         this.loading = false;
       }
     }
+  }
+
+  async loadChurchSuggestions(searchTerm = '') {
+    const requestId = ++this.churchLookupRequestId;
+    const suggestions = await this.profileService.getChurchSuggestions(searchTerm);
+
+    if (requestId !== this.churchLookupRequestId) {
+      return;
+    }
+
+    const currentValue = (this.profileForm.get('church_name')?.value ?? '').toString().trim().toLowerCase();
+    this.churchSuggestions = suggestions.filter(churchName =>
+      churchName.toLowerCase() !== currentValue
+    );
   }
 
   private calculateAge(value: string | Date | null): number | null {

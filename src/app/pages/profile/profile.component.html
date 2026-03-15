@@ -42,7 +42,16 @@
 
             <mat-form-field appearance="fill">
               <mat-label>Church</mat-label>
-              <input matInput formControlName="church_name">
+              <input
+                matInput
+                formControlName="church_name"
+                [matAutocomplete]="churchAuto"
+                (focus)="loadChurchSuggestions(profileForm.get('church_name')?.value || '')">
+              <mat-autocomplete #churchAuto="matAutocomplete">
+                @for (church of churchSuggestions; track church) {
+                  <mat-option [value]="church">{{ church }}</mat-option>
+                }
+              </mat-autocomplete>
             </mat-form-field>
     
             <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
