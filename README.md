@@ -11,8 +11,11 @@ A web application for church members to track their daily devotions, including p
 - Visual Progress Calendar with Daily Status
 - Detailed Devotion Note Entry
 - History of Past Devotions
-- Profile Center with feature-gated report job action
+- Profile Center with mobile-friendly section navigation
+- Profile report frequency selection (`WEEKLY` / `MONTHLY`) stored in `profiles.report_preference`
+- Profile Center access-management screen for assigning access rules
 - Admin Reports dashboard gated by `admin_reports` access instead of profile role
+- Progress calendar user-switching gated by `calender_admin_view`
 - Supabase Edge Function integration for monthly report execution
 - Dark Mode Support
 - Secure Backend with Supabase
@@ -46,7 +49,7 @@ Follow these instructions to get a copy of the project up and running on your lo
     - Update the `src/app/environments/environment.ts` file with your URL and key.
     - Go to the **SQL Editor** in your Supabase dashboard.
     - Copy the entire content of `schema.sql` from the project root and run it to create your database tables and policies.
-    - Seed `profile_access_rules` for users who should receive feature access such as `admin_reports` or `run_user_report_job`.
+    - Seed `profile_access_rules` for users who should receive feature access such as `admin_reports`, `run_user_report_job`, `calender_admin_view`, or `map_user_access`.
     - **(Optional for Testing)** To allow users to sign in immediately after signing up, you can disable email confirmation. Go to **Authentication > Providers** and turn off "Confirm email".
     - If you deploy the monthly report edge function, keep gateway JWT verification off and use the function's custom auth/access check logic.
 

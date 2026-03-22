@@ -157,7 +157,7 @@ This document summarizes the key updates and enhancements made to the Devotion T
 -   **Normalized Access Control Model:**
     -   Added master access table support with `access_rules`.
     -   Added user mapping support with `profile_access_rules`.
-    -   Seeded access codes including `admin_reports` and `run_user_report_job`.
+    -   Seeded access codes including `admin_reports`, `run_user_report_job`, `calender_admin_view`, and `map_user_access`.
     -   Added `void_fl` support on `profile_access_rules` so access mappings can be soft-voided without deletion.
     -   Updated app-side access reads and edge-function authorization checks to ignore voided mappings.
 
@@ -170,9 +170,19 @@ This document summarizes the key updates and enhancements made to the Devotion T
 -   **Profile Center UX Refactor:**
     -   Reworked the `/profile` page into a "Profile Center" with section-level actions.
     -   Added a dedicated "Report Job" section inside Profile Center for users who have the `run_user_report_job` access mapping.
+    -   Added a "Manage Access" section inside Profile Center for admins who have the `map_user_access` access mapping.
+    -   Added inline user-to-access-rule grant/revoke management backed by `profile_access_rules`.
+    -   Added report frequency selection in the profile form using `profiles.report_preference` with `WEEKLY` / `MONTHLY`.
     -   Ensured the report-job option is not shown at all for users without access.
     -   Added a blocking loader overlay and rotating progress copy while the report edge function is running.
     -   Moved the report-job trigger out of the Admin Reports page to keep the report execution flow independent from admin analytics.
+    -   Added a mobile-specific option-list flow so Profile Center sections open as separate views with a back action on smaller screens.
+    -   Refined the section-header icon and action-button spacing for mobile to prevent icon clipping.
+
+-   **Calendar Access Refactor:**
+    -   Replaced the Progress page's prior admin-only user-switching check with the `calender_admin_view` access rule.
+    -   Updated user-list loading for the Progress page to be scoped by the new permission.
+    -   Added RLS read policies for `daily_check_ins` and `devotions` so users with `calender_admin_view` can read other users' calendar data.
 
 -   **Monthly Report Edge Function Hardening:**
     -   Added CORS handling for both `http://localhost:4200` and `https://daily-devotion-tracker.vercel.app`.
@@ -186,3 +196,4 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Added explicit session lookup and refresh before calling the edge function.
     -   Added explicit `Authorization: Bearer <access_token>` and `apikey` headers so the edge function receives the authenticated caller correctly.
     -   Parsed the JSON job summary response and surfaced it through the app's popup notification system.
+    -   Added support for skipping users whose `report_preference` is not yet selected in the edge-function flow.

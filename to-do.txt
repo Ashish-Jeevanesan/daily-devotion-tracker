@@ -26,3 +26,22 @@
 8. Add a gated "Run User Report Job" action in Admin Reports, visible only when the mapped access exists. ** Moved to Profile Center and completed **
 9. Add loading/error/success UX around the job trigger. ** Done **
 10. Verify the Angular build after the access-control and report-job changes. ** Done **
+11. Add permission-based calendar user-switching with `calender_admin_view`. ** Done **
+12. Add permission-based user-access mapping UI with `map_user_access`. ** Done **
+13. Add report frequency selection in Profile Center and persist to `profiles.report_preference`. ** Done **
+14. Add mobile-friendly Profile Center navigation. ** Done **
+-- Notification Execution Plan
+1. Add `notification_enabled`, `notification_time`, and `notification_timezone` to `profiles`.
+2. Create `push_subscriptions` table for per-device/browser subscriptions.
+3. Create `notification_log` table for deduplication and delivery tracking.
+4. Add RLS policies for subscription and notification log tables.
+5. Enable Angular PWA/service worker support.
+6. Add notification settings to Profile Center.
+7. Request browser permission and register push subscription using `SwPush`.
+8. Upsert active browser subscriptions into `push_subscriptions`.
+9. Build `send-reminders` edge function with timezone-aware scheduling.
+10. Skip users who already completed the expected devotion/check-in.
+11. Prevent duplicate sends using `notification_log`.
+12. Void expired/dead push subscriptions on permanent delivery failure.
+13. Add Supabase cron scheduling for reminder execution.
+14. Test on desktop Chrome first, then Android Chrome.
