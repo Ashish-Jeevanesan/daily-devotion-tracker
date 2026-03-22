@@ -36,6 +36,31 @@ mat-form-field {
   margin-bottom: 20px;
 }
 
+.mobile-section-menu {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mobile-section-option {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+}
+
+.mobile-section-header {
+  margin-bottom: 12px;
+}
+
+.mobile-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 0;
+}
+
 .section-button {
   display: inline-flex;
   align-items: center;
@@ -80,10 +105,17 @@ mat-form-field {
 }
 
 .report-job-icon {
-  font-size: 30px;
-  width: 30px;
-  height: 30px;
+  font-size: 32px;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  line-height: 40px;
   color: #2f6b5a;
+  flex-shrink: 0;
+  overflow: visible;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .report-job-summary {
@@ -115,6 +147,18 @@ mat-form-field {
 .job-button-spinner {
   display: inline-block;
   margin-right: 8px;
+}
+
+.profile-action-button {
+  width: 100%;
+  min-height: 48px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.profile-action-button mat-icon {
+  margin-right: 8px;
+  overflow: visible;
 }
 
 .mapping-loading {

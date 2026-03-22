@@ -10,7 +10,7 @@
         </div>
       }
       <div [style.visibility]="loading ? 'hidden' : 'visible'">
-        <div class="section-switcher">
+        <div class="section-switcher" *ngIf="!isMobileView">
           <ng-container *ngFor="let section of sections">
             <button
               *ngIf="
@@ -30,7 +30,49 @@
           </ng-container>
         </div>
 
-        <div *ngIf="activeSection === 'profile'" class="section-panel">
+        <div class="mobile-section-menu" *ngIf="isMobileView && mobileSectionMenuVisible">
+          <button
+            *ngIf="true"
+            mat-stroked-button
+            type="button"
+            class="mobile-section-option"
+            (click)="setActiveSection('profile')"
+          >
+            <mat-icon>account_circle</mat-icon>
+            <span>Profile Details</span>
+          </button>
+
+          <button
+            *ngIf="canRunUserReportJob"
+            mat-stroked-button
+            type="button"
+            class="mobile-section-option"
+            (click)="setActiveSection('report-job')"
+          >
+            <mat-icon>play_circle</mat-icon>
+            <span>Report Job</span>
+          </button>
+
+          <button
+            *ngIf="canMapUserAccess"
+            mat-stroked-button
+            type="button"
+            class="mobile-section-option"
+            (click)="setActiveSection('manage-access')"
+          >
+            <mat-icon>admin_panel_settings</mat-icon>
+            <span>Manage Access</span>
+          </button>
+        </div>
+
+        <div class="mobile-section-header" *ngIf="isMobileView && !mobileSectionMenuVisible">
+          <button mat-button type="button" class="mobile-back-button" (click)="showMobileSectionMenu()">
+            <mat-icon>arrow_back</mat-icon>
+            Back
+          </button>
+        </div>
+
+        <div *ngIf="activeSection === 'profile' && (!isMobileView || !mobileSectionMenuVisible)" class="section-panel">
           <p>Please complete your profile.</p>
           <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
             <fieldset [disabled]="loading">
@@ -91,7 +133,7 @@
           </form>
         </div>
 
-        <div *ngIf="activeSection === 'report-job' && canRunUserReportJob" class="section-panel report-job-panel">
+        <div *ngIf="activeSection === 'report-job' && canRunUserReportJob && (!isMobileView || !mobileSectionMenuVisible)" class="section-panel report-job-panel">
           <div class="report-job-header">
             <div>
               <h3>Run Report Job</h3>
@@ -114,6 +156,7 @@
             mat-raised-button
             color="primary"
             type="button"
+            class="profile-action-button"
             (click)="runUserReportJob()"
             [disabled]="jobRunning || !canRunUserReportJob"
           >
@@ -129,7 +172,7 @@
 
         </div>
 
-        <div *ngIf="activeSection === 'manage-access' && canMapUserAccess" class="section-panel manage-access-panel">
+        <div *ngIf="activeSection === 'manage-access' && canMapUserAccess && (!isMobileView || !mobileSectionMenuVisible)" class="section-panel manage-access-panel">
           <div class="report-job-header">
             <div>
               <h3>Manage User Access</h3>

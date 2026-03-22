@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -66,6 +66,8 @@ export class ProfileComponent implements OnInit {
   canRunUserReportJob = false;
   jobRunning = false;
   jobRunningMessage = this.jobStatusMessages[0];
+  isMobileView = false;
+  mobileSectionMenuVisible = true;
   mappingBusy = false;
   mappingLoading = false;
   selectedMappingUserId: string | null = null;
@@ -107,6 +109,7 @@ export class ProfileComponent implements OnInit {
 
   /** Load existing profile data into the form. */
   ngOnInit() {
+    this.syncMobileView();
     this.loading = true;
     Promise.all([
       this.profileService.getProfile(),
@@ -164,6 +167,17 @@ export class ProfileComponent implements OnInit {
     }
 
     this.activeSection = section;
+    if (this.isMobileView) {
+      this.mobileSectionMenuVisible = false;
+    }
+  }
+
+  showMobileSectionMenu() {
+    if (!this.isMobileView) {
+      return;
+    }
+
+    this.mobileSectionMenuVisible = true;
   }
 
   async runUserReportJob() {
@@ -359,5 +373,11 @@ export class ProfileComponent implements OnInit {
     const month = String(dob.getMonth() + 1).padStart(2, '0');
     const day = String(dob.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  @HostListener('window:resize')
+  private syncMobileView() {
+    this.isMobileView = window.innerWidth <= 768;
+    this.mobileSectionMenuVisible = this.isMobileView;
   }
 }
