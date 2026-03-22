@@ -9,6 +9,8 @@ export interface Profile {
   full_name: string;
   age?: number;
   dob?: string;
+  notification_enabled?: boolean;
+  notification_timezone?: string | null;
   phone_number?: string;
   church_name?: string;
   report_preference?: 'WEEKLY' | 'MONTHLY';

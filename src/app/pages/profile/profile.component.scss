@@ -76,6 +76,47 @@ mat-form-field {
   position: relative;
 }
 
+.notification-settings-card {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #d9e4de;
+  border-radius: 14px;
+  background: #fbfcfc;
+}
+
+.notification-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.notification-settings-header h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.notification-settings-header p {
+  margin: 0;
+  color: #5f6f68;
+}
+
+.notification-settings-header mat-icon {
+  color: #2f6b5a;
+}
+
+.notification-support-note {
+  font-size: 13px;
+  color: #2f6b5a;
+  line-height: 1.4;
+}
+
+.notification-support-note.warning {
+  color: #8a5a12;
+}
+
 .report-job-panel {
   display: grid;
   gap: 16px;

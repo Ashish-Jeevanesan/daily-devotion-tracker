@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { ACCESS_CODES } from './services/access-codes';
 import { AccessService } from './services/access.service';
 import { Profile, ProfileService } from './services/profile.service';
+import { PushNotificationService } from './services/push-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit{
   private readonly router = inject(Router);
   private readonly accessService = inject(AccessService);
   private readonly profileService = inject(ProfileService);
+  private readonly pushNotificationService = inject(PushNotificationService);
   currentUser = this.authService.currentUser;
   profile = signal<Profile | null>(null);
   canViewAdminReports = signal(false);
@@ -46,6 +48,9 @@ export class AppComponent implements OnInit{
       }
       this.profileService.getProfile().then(profile => {
         this.profile.set(profile);
+        if (profile?.notification_enabled) {
+          void this.pushNotificationService.syncCurrentBrowserSubscription();
+        }
       });
       this.accessService.hasAccess(ACCESS_CODES.ADMIN_REPORTS, true).then(hasAccess => {
         this.canViewAdminReports.set(hasAccess);

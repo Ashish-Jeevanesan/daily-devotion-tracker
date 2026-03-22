@@ -82,6 +82,9 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dob date NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS church_name text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS report_preference text NOT NULL DEFAULT 'MONTHLY';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS notification_enabled boolean NOT NULL DEFAULT false;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS notification_timezone text NULL;
+ALTER TABLE public.profiles DROP COLUMN IF EXISTS notification_time;
 
 -- Weekly devotion report for admins
 CREATE OR REPLACE FUNCTION public.weekly_devotion_report(
@@ -148,10 +151,43 @@ CREATE TABLE IF NOT EXISTS public.profile_access_rules (
   CONSTRAINT profile_access_rules_profile_id_access_rule_id_key UNIQUE (profile_id, access_rule_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.push_subscriptions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  endpoint text NOT NULL,
+  p256dh_key text NOT NULL,
+  auth_key text NOT NULL,
+  user_agent text NULL,
+  device_label text NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  last_seen_at timestamptz NOT NULL DEFAULT now(),
+  void_fl timestamptz NULL,
+  CONSTRAINT push_subscriptions_pkey PRIMARY KEY (id),
+  CONSTRAINT push_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE,
+  CONSTRAINT push_subscriptions_endpoint_key UNIQUE (endpoint)
+);
+
+CREATE TABLE IF NOT EXISTS public.notification_log (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  subscription_id uuid NULL,
+  notification_type text NOT NULL,
+  scheduled_for timestamptz NOT NULL,
+  sent_at timestamptz NULL,
+  status text NOT NULL,
+  error_message text NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT notification_log_pkey PRIMARY KEY (id),
+  CONSTRAINT notification_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE,
+  CONSTRAINT notification_log_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.push_subscriptions(id) ON DELETE SET NULL
+);
+
 ALTER TABLE public.profile_access_rules ADD COLUMN IF NOT EXISTS void_fl timestamptz NULL;
 
 ALTER TABLE public.access_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profile_access_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notification_log ENABLE ROW LEVEL SECURITY;
 
 INSERT INTO public.access_rules (code, name, description)
 VALUES (
@@ -205,6 +241,71 @@ BEGIN
       ON public.access_rules
       FOR SELECT
       USING (auth.uid() IS NOT NULL AND is_active = true);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'push_subscriptions'
+      AND policyname = 'Users can view their own push subscriptions'
+  ) THEN
+    CREATE POLICY "Users can view their own push subscriptions"
+      ON public.push_subscriptions
+      FOR SELECT
+      USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'push_subscriptions'
+      AND policyname = 'Users can insert their own push subscriptions'
+  ) THEN
+    CREATE POLICY "Users can insert their own push subscriptions"
+      ON public.push_subscriptions
+      FOR INSERT
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'push_subscriptions'
+      AND policyname = 'Users can update their own push subscriptions'
+  ) THEN
+    CREATE POLICY "Users can update their own push subscriptions"
+      ON public.push_subscriptions
+      FOR UPDATE
+      USING (auth.uid() = user_id)
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'notification_log'
+      AND policyname = 'Users can view their own notification log'
+  ) THEN
+    CREATE POLICY "Users can view their own notification log"
+      ON public.notification_log
+      FOR SELECT
+      USING (auth.uid() = user_id);
   END IF;
 END $$;
 

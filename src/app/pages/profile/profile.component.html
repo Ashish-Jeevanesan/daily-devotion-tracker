@@ -125,6 +125,40 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
+
+              <div class="notification-settings-card">
+                <div class="notification-settings-header">
+                  <div>
+                    <h3>Reminder Notifications</h3>
+                    <p>Enable browser notifications for devotion reminders on this device.</p>
+                  </div>
+                  <mat-icon>notifications_active</mat-icon>
+                </div>
+
+                <mat-slide-toggle formControlName="notification_enabled">
+                  Enable browser reminders on this device
+                </mat-slide-toggle>
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Timezone</mat-label>
+                  <input matInput formControlName="notification_timezone">
+                </mat-form-field>
+
+                <div class="notification-support-note" [class.warning]="!browserPushSupported || !browserPushConfigured || browserNotificationPermission === 'denied'">
+                  <span *ngIf="browserPushSupported && browserPushConfigured && browserNotificationPermission !== 'denied'">
+                    Browser notifications are ready. Current permission: {{ browserNotificationPermission }}. Daily reminders will follow the app schedule for your timezone.
+                  </span>
+                  <span *ngIf="!browserPushSupported">
+                    This browser does not support push notifications for this app.
+                  </span>
+                  <span *ngIf="browserPushSupported && !browserPushConfigured">
+                    Push notifications are not configured yet. Add the VAPID public key before enabling this.
+                  </span>
+                  <span *ngIf="browserNotificationPermission === 'denied'">
+                    Notifications are blocked in the browser for this site. Re-enable them in browser settings first.
+                  </span>
+                </div>
+              </div>
       
               <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
                 Save Profile

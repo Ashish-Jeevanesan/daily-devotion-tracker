@@ -34,12 +34,12 @@ This should be treated as:
 Store user-level reminder preferences on `profiles`:
 
 - `notification_enabled boolean not null default false`
-- `notification_time time null`
 - `notification_timezone text null`
 
 Notes:
 
 - `notification_timezone` is required for correct reminder timing.
+- Reminder time is fixed by the application, not chosen per user.
 - Do not rely on server timezone for reminder scheduling.
 - If timezone is missing, reminders should not be sent until it is captured.
 
@@ -77,7 +77,7 @@ The function should:
 
 1. find users with `notification_enabled = true`
 2. find active subscriptions for those users
-3. compare current UTC time against each user's `notification_time` and `notification_timezone`
+3. compare current UTC time against the app-defined reminder hour in each user's `notification_timezone`
 4. check whether a reminder was already sent in the current reminder window
 5. check whether the user already completed devotion/check-in for that day
 6. send push payload only when needed
@@ -130,7 +130,6 @@ This gives the app a service worker, which is required for browser push.
 In the profile form, add fields for:
 
 - enable notifications
-- preferred reminder time
 - timezone
 
 Behavior:
@@ -181,7 +180,7 @@ Recommended rule:
 
 - store timezone as an IANA string, for example `Asia/Kolkata`
 - convert current UTC time into the user timezone
-- compare local time to `notification_time`
+- compare local time to the app's fixed reminder hour
 
 Without this, reminders will fire at the wrong hour.
 
@@ -235,7 +234,7 @@ This is important for expectations:
 - desktop Chrome support
 - Android Chrome support
 - one daily reminder type
-- profile settings for enable/time/timezone
+- profile settings for enable/timezone
 - push subscription table
 - cron-driven edge function
 - delivery log
@@ -251,7 +250,7 @@ This is important for expectations:
 
 ### Database
 
-1. Add `notification_enabled`, `notification_time`, and `notification_timezone` to `profiles`.
+1. Add `notification_enabled` and `notification_timezone` to `profiles`.
 2. Create `push_subscriptions` table.
 3. Create `notification_log` table.
 4. Add RLS policies for `push_subscriptions`.

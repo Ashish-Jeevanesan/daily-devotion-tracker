@@ -13,11 +13,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ACCESS_CODES } from '../../services/access-codes';
 import { AccessRule, AccessService } from '../../services/access.service';
 import { AccessManagementService } from '../../services/access-management.service';
 import { NotificationService } from '../../services/notification.service';
 import { Profile } from '../../services/profile.service';
+import { PushNotificationService } from '../../services/push-notification.service';
 import { UserReportJobResponse, UserReportJobService } from '../../services/user-report-job.service';
 
 type ProfileSection = 'profile' | 'report-job' | 'manage-access';
@@ -36,7 +38,8 @@ type ProfileSection = 'profile' | 'report-job' | 'manage-access';
     MatCardModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSlideToggleModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
@@ -57,6 +60,9 @@ export class ProfileComponent implements OnInit {
   readonly reportPreferences: Array<'WEEKLY' | 'MONTHLY'> = ['WEEKLY', 'MONTHLY'];
 
   profileForm: FormGroup;
+  browserNotificationPermission: NotificationPermission | 'unsupported' = 'default';
+  browserPushConfigured = false;
+  browserPushSupported = false;
   churchSuggestions: string[] = [];
   availableAccessRules: AccessRule[] = [];
   canMapUserAccess = false;
@@ -82,6 +88,7 @@ export class ProfileComponent implements OnInit {
     private accessService: AccessService,
     private notificationService: NotificationService,
     private profileService: ProfileService,
+    private pushNotificationService: PushNotificationService,
     private router: Router,
     private userReportJobService: UserReportJobService
   ) {
@@ -91,6 +98,8 @@ export class ProfileComponent implements OnInit {
       dob: [null, Validators.required],
       phone_number: ['', Validators.required],
       church_name: ['', Validators.required],
+      notification_enabled: [false],
+      notification_timezone: [''],
       report_preference: ['MONTHLY', Validators.required],
       username: ['']
     });
@@ -110,20 +119,28 @@ export class ProfileComponent implements OnInit {
   /** Load existing profile data into the form. */
   ngOnInit() {
     this.syncMobileView();
+    this.browserPushSupported = this.pushNotificationService.isSupported();
+    this.browserPushConfigured = this.pushNotificationService.isConfigured();
+    this.profileForm.patchValue({
+      notification_timezone: this.pushNotificationService.getBrowserTimezone()
+    }, { emitEvent: false });
     this.loading = true;
     Promise.all([
       this.profileService.getProfile(),
       this.accessService.hasAccess(ACCESS_CODES.RUN_USER_REPORT_JOB),
-      this.accessService.hasAccess(ACCESS_CODES.MAP_USER_ACCESS)
-    ]).then(([profile, canRunUserReportJob, canMapUserAccess]) => {
+      this.accessService.hasAccess(ACCESS_CODES.MAP_USER_ACCESS),
+      this.pushNotificationService.getCurrentPermission()
+    ]).then(([profile, canRunUserReportJob, canMapUserAccess, browserNotificationPermission]) => {
       this.currentProfile = profile;
       this.canRunUserReportJob = canRunUserReportJob;
       this.canMapUserAccess = canMapUserAccess && profile?.role === 'admin';
+      this.browserNotificationPermission = browserNotificationPermission;
       if (profile) {
         this.profileForm.patchValue({
           ...profile,
           dob: profile.dob ? new Date(profile.dob) : null,
-          age: profile.dob ? this.calculateAge(profile.dob) : profile.age
+          age: profile.dob ? this.calculateAge(profile.dob) : profile.age,
+          notification_timezone: profile.notification_timezone || this.pushNotificationService.getBrowserTimezone()
         });
       }
 
@@ -141,14 +158,60 @@ export class ProfileComponent implements OnInit {
       this.loading = true;
       try {
         const formValue = this.profileForm.getRawValue();
-        await this.profileService.upsertProfile({
+        let shouldEnableNotifications = !!formValue.notification_enabled;
+        const notificationTimezone = (formValue.notification_timezone || this.pushNotificationService.getBrowserTimezone()).trim();
+        let pushSubscription: PushSubscription | null = null;
+
+        if (shouldEnableNotifications) {
+          if (!notificationTimezone) {
+            throw new Error('Choose a timezone before enabling browser notifications.');
+          }
+
+          try {
+            pushSubscription = await this.pushNotificationService.ensureSubscription();
+            this.browserNotificationPermission = await this.pushNotificationService.getCurrentPermission();
+          } catch (error) {
+            shouldEnableNotifications = false;
+            this.profileForm.patchValue({ notification_enabled: false }, { emitEvent: false });
+            const message = error instanceof Error
+              ? error.message
+              : 'Unable to enable browser notifications.';
+            this.notificationService.show(message, 'error');
+          }
+        } else {
+          this.browserNotificationPermission = await this.pushNotificationService.getCurrentPermission();
+        }
+
+        const savedProfile = await this.profileService.upsertProfile({
           ...formValue,
           age: this.calculateAge(formValue.dob),
-          dob: this.formatDateForStorage(formValue.dob)
+          dob: this.formatDateForStorage(formValue.dob),
+          notification_enabled: shouldEnableNotifications,
+          notification_timezone: notificationTimezone
         });
+
+        if (!savedProfile) {
+          throw new Error('Unable to save your profile right now.');
+        }
+
+        this.currentProfile = savedProfile;
+
+        if (shouldEnableNotifications && pushSubscription) {
+          await this.pushNotificationService.upsertSubscription(pushSubscription);
+        }
+
+        if (!shouldEnableNotifications) {
+          await this.pushNotificationService.disableCurrentBrowserSubscription();
+        }
+
+        this.notificationService.show('Profile updated successfully.', 'success');
         this.router.navigate(['/']);
       } catch (error) {
         console.error('Error updating profile', error);
+        const message = error instanceof Error
+          ? error.message
+          : 'Unable to save your profile right now.';
+        this.notificationService.show(message, 'error');
       } finally {
         this.loading = false;
       }
