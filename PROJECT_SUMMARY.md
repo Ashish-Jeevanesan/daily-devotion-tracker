@@ -103,7 +103,7 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Added a "Forgot Password" dialog in the login page to collect email and trigger Supabase reset email delivery.
     -   Implemented `/update-password` route and `UpdatePasswordComponent` for setting a new password after reset-link verification.
     -   Added password visibility toggles and notification-based success/error feedback for auth flows.
--   **Role-Based Admin Access Control:**
+-   **Initial Role-Based Admin Access Control:**
     -   Introduced `adminGuard` to protect admin-only routes.
     -   Added role-based UI rendering in the app shell so "Admin Reports" navigation appears only for users with `role = 'admin'`.
     -   Extended profile model/schema usage to include role-aware behavior (`admin` vs `member`).
@@ -151,3 +151,38 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Extended `DevotionService` with `getDevotionsForUser(userId)` and reused it from `getDevotions()`.
 -   **Database / RLS Alignment:**
     -   Added policy for admins to read all records in `daily_check_ins` so admin calendar user-switching works with check-in data under RLS.
+
+## 10. Latest Enhancements (Normalized Access Rules + Profile-Centered Report Job)
+
+-   **Normalized Access Control Model:**
+    -   Added master access table support with `access_rules`.
+    -   Added user mapping support with `profile_access_rules`.
+    -   Seeded access codes including `admin_reports` and `run_user_report_job`.
+    -   Added `void_fl` support on `profile_access_rules` so access mappings can be soft-voided without deletion.
+    -   Updated app-side access reads and edge-function authorization checks to ignore voided mappings.
+
+-   **Admin Reports Access Refactor:**
+    -   Replaced shell and route access checks for Admin Reports so they now depend on the `admin_reports` access rule instead of `profiles.role = 'admin'`.
+    -   Updated `adminGuard` to use the shared access-service lookup.
+    -   Updated shell navigation visibility to use permission checks instead of role checks.
+    -   Updated profile-list filtering logic used by reporting flows so it keys off `admin_reports` access.
+
+-   **Profile Center UX Refactor:**
+    -   Reworked the `/profile` page into a "Profile Center" with section-level actions.
+    -   Added a dedicated "Report Job" section inside Profile Center for users who have the `run_user_report_job` access mapping.
+    -   Ensured the report-job option is not shown at all for users without access.
+    -   Added a blocking loader overlay and rotating progress copy while the report edge function is running.
+    -   Moved the report-job trigger out of the Admin Reports page to keep the report execution flow independent from admin analytics.
+
+-   **Monthly Report Edge Function Hardening:**
+    -   Added CORS handling for both `http://localhost:4200` and `https://daily-devotion-tracker.vercel.app`.
+    -   Added custom in-function auth validation by reading the bearer token and resolving the current user manually.
+    -   Added access validation in the edge function using `profile_access_rules` + `access_rules` for `run_user_report_job`.
+    -   Added startup diagnostics for required secrets (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BREVO_API_KEY`).
+    -   Documented the requirement to keep legacy edge-function JWT verification disabled and rely on custom auth logic inside the function instead.
+
+-   **Report Job Client Flow:**
+    -   Added a dedicated Angular service to invoke `monthlt-report-api`.
+    -   Added explicit session lookup and refresh before calling the edge function.
+    -   Added explicit `Authorization: Bearer <access_token>` and `apikey` headers so the edge function receives the authenticated caller correctly.
+    -   Parsed the JSON job summary response and surfaced it through the app's popup notification system.

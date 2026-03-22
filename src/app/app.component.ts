@@ -11,6 +11,8 @@ import { ThemeService } from './services/theme.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SupabaseService } from './services/supabase.service';
 import { CommonModule } from '@angular/common';
+import { ACCESS_CODES } from './services/access-codes';
+import { AccessService } from './services/access.service';
 import { Profile, ProfileService } from './services/profile.service';
 
 @Component({
@@ -25,9 +27,11 @@ export class AppComponent implements OnInit{
   currentYear = new Date().getFullYear();
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly accessService = inject(AccessService);
   private readonly profileService = inject(ProfileService);
   currentUser = this.authService.currentUser;
   profile = signal<Profile | null>(null);
+  canViewAdminReports = signal(false);
 
   constructor(
     public readonly themeService: ThemeService,
@@ -37,10 +41,14 @@ export class AppComponent implements OnInit{
       const user = this.currentUser();
       if (!user) {
         this.profile.set(null);
+        this.canViewAdminReports.set(false);
         return;
       }
       this.profileService.getProfile().then(profile => {
         this.profile.set(profile);
+      });
+      this.accessService.hasAccess(ACCESS_CODES.ADMIN_REPORTS, true).then(hasAccess => {
+        this.canViewAdminReports.set(hasAccess);
       });
     });
   }

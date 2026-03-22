@@ -324,4 +324,5 @@ export class AdminReportsComponent implements OnInit {
       });
     }, 0);
   }
+
 }

@@ -7,6 +7,8 @@ import { addMonths, startOfDay } from 'date-fns';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DevotionDetailDialogComponent } from '../../components/devotion-detail-dialog/devotion-detail-dialog.component';
 import { Subject } from 'rxjs';
+import { ACCESS_CODES } from '../../services/access-codes';
+import { AccessService } from '../../services/access.service';
 import { Profile, ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,6 +41,7 @@ export class ProgressComponent implements OnInit {
   loadingCalendar = false;
 
   constructor(
+    private accessService: AccessService,
     private checkInService: CheckInService,
     private devotionService: DevotionService,
     private dialog: MatDialog,
@@ -48,12 +51,11 @@ export class ProgressComponent implements OnInit {
 
   /** Load role/profile context and calendar data. */
   async ngOnInit() {
-    const profile = await this.profileService.getProfile();
-    this.isAdmin = profile?.role === 'admin';
+    this.isAdmin = await this.accessService.hasAccess(ACCESS_CODES.CALENDER_ADMIN_VIEW);
 
     if (this.isAdmin) {
       const currentUserId = this.authService.currentUser()?.id;
-      const allProfiles = await this.profileService.getAllProfiles();
+      const allProfiles = await this.profileService.getAllProfiles(ACCESS_CODES.CALENDER_ADMIN_VIEW);
       this.profiles = allProfiles.filter(p => p.id !== currentUserId);
     }
 

@@ -15,3 +15,14 @@
 -- Admin Page needs to be planned and developed. ** Done ** 
 -- Reports must be mailed to all users via Cron Job.
 -- Add notes type window on add devotion.
+-- Access Control Refactor Plan ** Done **
+1. Add master access table `access_rules` to hold all permission codes. ** Done **
+2. Add mapping table `profile_access_rules` to assign rules to users/profiles. ** Done **
+3. Seed the first access rule: `run_user_report_job`. ** Done **
+4. Add RLS policies so users can read only their own access mappings and admins can manage/report on them. ** Done **
+5. Add Angular access constants and an `AccessService` for loading/checking current-user permissions. ** Done **
+6. Keep existing `role`-based admin route behavior unchanged for now and layer permission checks for new features. ** Updated to access-rule model **
+7. Add a `UserReportJobService` that invokes the Supabase edge function `user-report-job`. ** Done with `monthlt-report-api` **
+8. Add a gated "Run User Report Job" action in Admin Reports, visible only when the mapped access exists. ** Moved to Profile Center and completed **
+9. Add loading/error/success UX around the job trigger. ** Done **
+10. Verify the Angular build after the access-control and report-job changes. ** Done **

@@ -3,12 +3,13 @@ import { CanActivateFn, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { ACCESS_CODES } from '../services/access-codes';
+import { AccessService } from '../services/access.service';
 import { AuthService } from '../services/auth.service';
-import { ProfileService } from '../services/profile.service';
 
 export const adminGuard: CanActivateFn = async () => {
+  const accessService = inject(AccessService);
   const authService = inject(AuthService);
-  const profileService = inject(ProfileService);
   const router = inject(Router);
 
   await firstValueFrom(
@@ -20,8 +21,8 @@ export const adminGuard: CanActivateFn = async () => {
     return router.parseUrl('/login');
   }
 
-  const profile = await profileService.getProfile();
-  if (profile?.role === 'admin') {
+  const canViewAdminReports = await accessService.hasAccess(ACCESS_CODES.ADMIN_REPORTS, true);
+  if (canViewAdminReports) {
     return true;
   }
 

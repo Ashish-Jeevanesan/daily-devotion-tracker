@@ -37,6 +37,7 @@ CREATE TABLE public.profiles (
   dob date NULL,
   phone_number text NULL,
   church_name text NULL,
+  report_preference text NOT NULL DEFAULT 'MONTHLY',
   role text NOT NULL DEFAULT 'member',
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_username_key UNIQUE (username),
@@ -80,6 +81,7 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dob date NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS church_name text NULL;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS report_preference text NOT NULL DEFAULT 'MONTHLY';
 
 -- Weekly devotion report for admins
 CREATE OR REPLACE FUNCTION public.weekly_devotion_report(
@@ -96,7 +98,7 @@ SECURITY INVOKER
 AS $$
   SELECT
     p.id AS user_id,
-    p.full_name,
+      p.full_name,
     COUNT(DISTINCT DATE(d.created_at)) AS devotion_days
   FROM public.profiles p
   LEFT JOIN public.devotions d
@@ -119,3 +121,219 @@ AS $$
   GROUP BY p.id, p.full_name
   ORDER BY p.full_name;
 $$;
+
+-- Master access rules for feature-level authorization
+CREATE TABLE IF NOT EXISTS public.access_rules (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL,
+  name text NOT NULL,
+  description text NULL,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT access_rules_pkey PRIMARY KEY (id),
+  CONSTRAINT access_rules_code_key UNIQUE (code)
+);
+
+CREATE TABLE IF NOT EXISTS public.profile_access_rules (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  profile_id uuid NOT NULL,
+  access_rule_id uuid NOT NULL,
+  granted_at timestamptz NOT NULL DEFAULT now(),
+  granted_by uuid NULL,
+  void_fl timestamptz NULL,
+  CONSTRAINT profile_access_rules_pkey PRIMARY KEY (id),
+  CONSTRAINT profile_access_rules_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES public.profiles(id) ON DELETE CASCADE,
+  CONSTRAINT profile_access_rules_access_rule_id_fkey FOREIGN KEY (access_rule_id) REFERENCES public.access_rules(id) ON DELETE CASCADE,
+  CONSTRAINT profile_access_rules_granted_by_fkey FOREIGN KEY (granted_by) REFERENCES public.profiles(id) ON DELETE SET NULL,
+  CONSTRAINT profile_access_rules_profile_id_access_rule_id_key UNIQUE (profile_id, access_rule_id)
+);
+
+ALTER TABLE public.profile_access_rules ADD COLUMN IF NOT EXISTS void_fl timestamptz NULL;
+
+ALTER TABLE public.access_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profile_access_rules ENABLE ROW LEVEL SECURITY;
+
+INSERT INTO public.access_rules (code, name, description)
+VALUES (
+  'admin_reports',
+  'Admin Reports',
+  'Can open the admin reports dashboard.'
+), (
+  'calender_admin_view',
+  'Calendar Admin View',
+  'Can view other users in the progress calendar.'
+), (
+  'map_user_access',
+  'Map User Access',
+  'Can grant or revoke access rules for other users.'
+), (
+  'run_user_report_job',
+  'Run User Report Job',
+  'Can trigger the user report edge function from the application.'
+)
+ON CONFLICT (code) DO NOTHING;
+
+CREATE OR REPLACE FUNCTION public.current_user_has_access(required_code text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profile_access_rules par
+    INNER JOIN public.access_rules ar
+      ON ar.id = par.access_rule_id
+    WHERE par.profile_id = auth.uid()
+      AND par.void_fl IS NULL
+      AND ar.code = required_code
+      AND ar.is_active = true
+  );
+$$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'access_rules'
+      AND policyname = 'Authenticated users can view active access rules'
+  ) THEN
+    CREATE POLICY "Authenticated users can view active access rules"
+      ON public.access_rules
+      FOR SELECT
+      USING (auth.uid() IS NOT NULL AND is_active = true);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'daily_check_ins'
+      AND policyname = 'Users with calendar admin view can read all check-ins'
+  ) THEN
+    CREATE POLICY "Users with calendar admin view can read all check-ins"
+      ON public.daily_check_ins
+      FOR SELECT
+      USING (
+        EXISTS (
+          SELECT 1
+          FROM public.profile_access_rules par
+          INNER JOIN public.access_rules ar
+            ON ar.id = par.access_rule_id
+          WHERE par.profile_id = auth.uid()
+            AND par.void_fl IS NULL
+            AND ar.code = 'calender_admin_view'
+            AND ar.is_active = true
+        )
+      );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'devotions'
+      AND policyname = 'Users with calendar admin view can read all devotions'
+  ) THEN
+    CREATE POLICY "Users with calendar admin view can read all devotions"
+      ON public.devotions
+      FOR SELECT
+      USING (
+        EXISTS (
+          SELECT 1
+          FROM public.profile_access_rules par
+          INNER JOIN public.access_rules ar
+            ON ar.id = par.access_rule_id
+          WHERE par.profile_id = auth.uid()
+            AND par.void_fl IS NULL
+            AND ar.code = 'calender_admin_view'
+            AND ar.is_active = true
+        )
+      );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'profile_access_rules'
+      AND policyname = 'Users can view their own access mappings'
+  ) THEN
+    CREATE POLICY "Users can view their own access mappings"
+      ON public.profile_access_rules
+      FOR SELECT
+      USING (auth.uid() = profile_id AND void_fl IS NULL);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'profile_access_rules'
+      AND policyname = 'Admins can view all access mappings'
+  ) THEN
+    CREATE POLICY "Admins can view all access mappings"
+      ON public.profile_access_rules
+      FOR SELECT
+      USING (
+        void_fl IS NULL
+        AND
+        EXISTS (
+          SELECT 1
+          FROM public.profiles
+          WHERE profiles.id = auth.uid()
+            AND profiles.role = 'admin'
+        )
+        AND current_user_has_access('map_user_access')
+      );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'profile_access_rules'
+      AND policyname = 'Admins can manage access mappings'
+  ) THEN
+    CREATE POLICY "Admins can manage access mappings"
+      ON public.profile_access_rules
+      FOR ALL
+      USING (
+        EXISTS (
+          SELECT 1
+          FROM public.profiles
+          WHERE profiles.id = auth.uid()
+            AND profiles.role = 'admin'
+        )
+        AND current_user_has_access('map_user_access')
+        AND void_fl IS NULL
+      )
+      WITH CHECK (
+        EXISTS (
+          SELECT 1
+          FROM public.profiles
+          WHERE profiles.id = auth.uid()
+            AND profiles.role = 'admin'
+        )
+        AND current_user_has_access('map_user_access')
+      );
+  END IF;
+END $$;

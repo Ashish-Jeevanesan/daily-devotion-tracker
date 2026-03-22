@@ -8,6 +8,8 @@ import { environment } from '../environments/environment';
 /** Initializes the Supabase client and tracks auth state. */
 export class SupabaseService {
   public supabase: SupabaseClient;
+  public readonly supabaseUrl = environment.supabaseUrl;
+  public readonly supabaseKey = environment.supabaseKey;
   loggedIn = false;
 
    /** Create the Supabase client and subscribe to auth changes. */

@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { ACCESS_CODES, AccessCode } from './access-codes';
+import { AccessService } from './access.service';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 
@@ -9,6 +11,7 @@ export interface Profile {
   dob?: string;
   phone_number?: string;
   church_name?: string;
+  report_preference?: 'WEEKLY' | 'MONTHLY';
   username?: string;
   role?: 'admin' | 'member';
 }
@@ -20,6 +23,7 @@ export interface Profile {
 export class ProfileService {
 
   constructor(
+    private accessService: AccessService,
     private supabaseService: SupabaseService,
     private authService: AuthService
   ) { }
@@ -63,9 +67,10 @@ export class ProfileService {
     return data;
   }
 
-  /** Fetch all profiles for admin filtering. */
-  async getAllProfiles(): Promise<Profile[]> {
+  /** Fetch all profiles for permission-scoped user filtering. */
+  async getAllProfiles(accessCode: AccessCode | string = ACCESS_CODES.ADMIN_REPORTS): Promise<Profile[]> {
     const currentProfile = await this.getProfile();
+    const hasScopedAccess = await this.accessService.hasAccess(accessCode);
 
     let query = this.supabaseService.supabase
       .from('profiles')
@@ -73,7 +78,7 @@ export class ProfileService {
       .is('void_fl', null)
       .order('full_name', { ascending: true });
 
-    if (currentProfile?.role === 'admin' && currentProfile.church_name?.trim()) {
+    if (hasScopedAccess && currentProfile?.church_name?.trim()) {
       query = query.eq('church_name', currentProfile.church_name.trim());
     }
 

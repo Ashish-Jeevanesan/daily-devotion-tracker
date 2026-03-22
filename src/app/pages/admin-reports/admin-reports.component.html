@@ -7,10 +7,12 @@
           Range: {{ weekStart | date:'MMM d, y' }} – {{ weekEndDisplay | date:'MMM d, y' }}
         </div>
       </div>
-      <button mat-stroked-button color="primary" (click)="exportToExcel()" [disabled]="rows.length === 0 || loading">
-        <mat-icon>download</mat-icon>
-        Export Excel
-      </button>
+      <div class="header-actions">
+        <button mat-stroked-button color="primary" (click)="exportToExcel()" [disabled]="rows.length === 0 || loading">
+          <mat-icon>download</mat-icon>
+          Export Excel
+        </button>
+      </div>
     </div>
 
     <div class="filters">

@@ -1,7 +1,7 @@
 <div class="profile-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Your Profile</mat-card-title>
+      <mat-card-title>Profile Center</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if(loading) {
@@ -10,56 +10,190 @@
         </div>
       }
       <div [style.visibility]="loading ? 'hidden' : 'visible'">
-        <p>Please complete your profile.</p>
-        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
-          <fieldset [disabled]="loading">
-            <mat-form-field appearance="fill">
-              <mat-label>Username</mat-label>
-              <input matInput formControlName="username">
-            </mat-form-field>
-    
-            <mat-form-field appearance="fill">
-              <mat-label>Full Name</mat-label>
-              <input matInput formControlName="full_name">
-            </mat-form-field>
-    
-            <mat-form-field appearance="fill">
-              <mat-label>Date of Birth</mat-label>
-              <input matInput [matDatepicker]="dobPicker" formControlName="dob">
-              <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
-              <mat-datepicker #dobPicker></mat-datepicker>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Age</mat-label>
-              <input matInput formControlName="age" type="number" readonly>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Phone Number</mat-label>
-              <input matInput formControlName="phone_number" type="tel">
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Church</mat-label>
-              <input
-                matInput
-                formControlName="church_name"
-                [matAutocomplete]="churchAuto"
-                (focus)="loadChurchSuggestions(profileForm.get('church_name')?.value || '')">
-              <mat-autocomplete #churchAuto="matAutocomplete">
-                @for (church of churchSuggestions; track church) {
-                  <mat-option [value]="church">{{ church }}</mat-option>
-                }
-              </mat-autocomplete>
-            </mat-form-field>
-    
-            <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
-              Save Profile
+        <div class="section-switcher">
+          <ng-container *ngFor="let section of sections">
+            <button
+              *ngIf="
+                section.id === 'profile' ||
+                (section.id === 'report-job' && canRunUserReportJob) ||
+                (section.id === 'manage-access' && canMapUserAccess)
+              "
+              mat-stroked-button
+              type="button"
+              class="section-button"
+              [class.active]="activeSection === section.id"
+              (click)="setActiveSection(section.id)"
+            >
+              <mat-icon>{{ section.icon }}</mat-icon>
+              {{ section.label }}
             </button>
-          </fieldset>
-        </form>
+          </ng-container>
+        </div>
+
+        <div *ngIf="activeSection === 'profile'" class="section-panel">
+          <p>Please complete your profile.</p>
+          <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+            <fieldset [disabled]="loading">
+              <mat-form-field appearance="fill">
+                <mat-label>Username</mat-label>
+                <input matInput formControlName="username">
+              </mat-form-field>
+      
+              <mat-form-field appearance="fill">
+                <mat-label>Full Name</mat-label>
+                <input matInput formControlName="full_name">
+              </mat-form-field>
+      
+              <mat-form-field appearance="fill">
+                <mat-label>Date of Birth</mat-label>
+                <input matInput [matDatepicker]="dobPicker" formControlName="dob">
+                <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                <mat-datepicker #dobPicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Age</mat-label>
+                <input matInput formControlName="age" type="number" readonly>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Phone Number</mat-label>
+                <input matInput formControlName="phone_number" type="tel">
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Church</mat-label>
+                <input
+                  matInput
+                  formControlName="church_name"
+                  [matAutocomplete]="churchAuto"
+                  (focus)="loadChurchSuggestions(profileForm.get('church_name')?.value || '')">
+                <mat-autocomplete #churchAuto="matAutocomplete">
+                  @for (church of churchSuggestions; track church) {
+                    <mat-option [value]="church">{{ church }}</mat-option>
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill">
+                <mat-label>Report Frequency</mat-label>
+                <mat-select formControlName="report_preference">
+                  <mat-option *ngFor="let preference of reportPreferences" [value]="preference">
+                    {{ preference }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+      
+              <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
+                Save Profile
+              </button>
+            </fieldset>
+          </form>
+        </div>
+
+        <div *ngIf="activeSection === 'report-job' && canRunUserReportJob" class="section-panel report-job-panel">
+          <div class="report-job-header">
+            <div>
+              <h3>Run Report Job</h3>
+              <p>Start the monthly report edge function from here without going through the admin reports page.</p>
+            </div>
+            <mat-icon class="report-job-icon">assessment</mat-icon>
+          </div>
+
+          <div class="report-job-summary">
+            <div class="summary-label">Job window</div>
+            <div class="summary-value">Current month</div>
+          </div>
+
+          <div class="report-job-summary">
+            <div class="summary-label">Access status</div>
+            <div class="summary-value">{{ canRunUserReportJob ? 'Enabled for your account' : 'Not enabled' }}</div>
+          </div>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="runUserReportJob()"
+            [disabled]="jobRunning || !canRunUserReportJob"
+          >
+            <mat-progress-spinner
+              *ngIf="jobRunning"
+              mode="indeterminate"
+              diameter="18"
+              class="job-button-spinner"
+            ></mat-progress-spinner>
+            <mat-icon *ngIf="!jobRunning">play_arrow</mat-icon>
+            {{ jobRunning ? 'Running Report Job...' : 'Run Report Job' }}
+          </button>
+
+        </div>
+
+        <div *ngIf="activeSection === 'manage-access' && canMapUserAccess" class="section-panel manage-access-panel">
+          <div class="report-job-header">
+            <div>
+              <h3>Manage User Access</h3>
+              <p>Select a user and map them to the available access rules.</p>
+            </div>
+            <mat-icon class="report-job-icon">manage_accounts</mat-icon>
+          </div>
+
+          <mat-form-field appearance="fill">
+            <mat-label>User</mat-label>
+            <mat-select
+              [value]="selectedMappingUserId"
+              (selectionChange)="onMappingUserChange($event.value)"
+              [disabled]="mappingBusy || mappingLoading"
+            >
+              <mat-option [value]="null">Select a user</mat-option>
+              <mat-option *ngFor="let profile of mappingProfiles" [value]="profile.id">
+                {{ profile.full_name || profile.username || profile.id }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div class="mapping-loading" *ngIf="mappingLoading">
+            <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+          </div>
+
+          <div class="access-rule-list" *ngIf="!mappingLoading && selectedMappingUserId">
+            <div class="access-rule-card" *ngFor="let rule of availableAccessRules">
+              <div class="access-rule-copy">
+                <div class="access-rule-name">{{ rule.name }}</div>
+                <div class="access-rule-code">{{ rule.code }}</div>
+                <div class="access-rule-description">{{ rule.description || 'No description provided.' }}</div>
+                <div
+                  class="access-rule-status"
+                  [class.granted]="hasMappedAccess(rule.code)"
+                >
+                  {{ hasMappedAccess(rule.code) ? 'Granted' : 'Not granted' }}
+                </div>
+              </div>
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="mappingBusy"
+                [class.active-access]="hasMappedAccess(rule.code)"
+                (click)="toggleMappedAccess(rule)"
+              >
+                {{ hasMappedAccess(rule.code) ? 'Revoke Access' : 'Grant Access' }}
+              </button>
+            </div>
+          </div>
+
+          <p class="empty-mapping-state" *ngIf="!mappingLoading && !selectedMappingUserId">
+            Choose a user to view and update their access rules.
+          </p>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>
+
+  <div class="job-running-overlay" *ngIf="jobRunning">
+    <div class="job-running-card">
+      <mat-progress-spinner mode="indeterminate" diameter="42"></mat-progress-spinner>
+      <div class="job-running-title">Running monthly report job</div>
+      <div class="job-running-subtitle">{{ jobRunningMessage }}</div>
+    </div>
+  </div>
 </div>

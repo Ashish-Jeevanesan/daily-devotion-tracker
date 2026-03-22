@@ -13,7 +13,7 @@
         <span>Progress</span>
       </a>
       <a
-        *ngIf="profile()?.role === 'admin'"
+        *ngIf="canViewAdminReports()"
         mat-list-item
         routerLink="/admin/reports"
         (click)="sidenav.close()"
@@ -72,7 +72,7 @@
         </button>
 
         <button
-          *ngIf="profile()?.role === 'admin'"
+          *ngIf="canViewAdminReports()"
           mat-icon-button
           routerLink="/admin/reports"
           aria-label="Admin Reports">
