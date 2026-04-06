@@ -31,6 +31,7 @@ This document summarizes the key updates and enhancements made to the Devotion T
 -   **Mandatory Profile Completion Flow:**
     -   Implemented logic in `auth.service.ts` (`checkProfileAndRedirect` method) to verify profile completeness (checking for `full_name` and `age`) after user login or session retrieval.
     -   Automatically redirects users with incomplete profiles to the `/profile` page.
+    -   Exempted users with `role = 'admin'` from the forced profile-completion redirect so admins can continue into the app even when their profile is incomplete.
     -   Ensures redirection to the home page (`/`) after a successful profile save from the `/profile` page.
     -   Implemented robust checks to prevent infinite redirects by verifying the current URL before navigation in `checkProfileAndRedirect`.
 -   **Circular Dependency Resolution:**
@@ -173,6 +174,7 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Added a "Manage Access" section inside Profile Center for admins who have the `map_user_access` access mapping.
     -   Added inline user-to-access-rule grant/revoke management backed by `profile_access_rules`.
     -   Added report frequency selection in the profile form using `profiles.report_preference` with `WEEKLY` / `MONTHLY`.
+    -   Added browser notification settings in the profile form using `profiles.notification_enabled` and `profiles.notification_timezone` for fixed daily reminder scheduling.
     -   Ensured the report-job option is not shown at all for users without access.
     -   Added a blocking loader overlay and rotating progress copy while the report edge function is running.
     -   Moved the report-job trigger out of the Admin Reports page to keep the report execution flow independent from admin analytics.
@@ -197,3 +199,20 @@ This document summarizes the key updates and enhancements made to the Devotion T
     -   Added explicit `Authorization: Bearer <access_token>` and `apikey` headers so the edge function receives the authenticated caller correctly.
     -   Parsed the JSON job summary response and surfaced it through the app's popup notification system.
     -   Added support for skipping users whose `report_preference` is not yet selected in the edge-function flow.
+
+## 11. Latest Enhancements (Notification Phase 1 Foundation)
+
+-   **Browser Push Foundations:**
+    -   Added Angular service-worker support and a web manifest so the app can register browser push subscriptions.
+    -   Added a dedicated `PushNotificationService` to request browser permission, create `SwPush` subscriptions, and sync them into Supabase.
+    -   Added login-time subscription resync so active browser subscriptions can be re-upserted when a user returns on the same device.
+
+-   **Notification Data Model:**
+    -   Added `profiles.notification_enabled` and `profiles.notification_timezone`.
+    -   Added `push_subscriptions` for per-browser/device storage instead of a single subscription on `profiles`.
+    -   Added `notification_log` for future deduplication and delivery tracking.
+    -   Added RLS policies so users can manage only their own subscriptions and view only their own notification log entries.
+
+-   **Reminder Scheduling Decision:**
+    -   Chose a fixed daily reminder schedule controlled by the application instead of storing a per-user `notification_time`.
+    -   Kept timezone on the profile so reminder sends can still be localized correctly by the backend send function.
