@@ -31,6 +31,7 @@ This document summarizes the key updates and enhancements made to the Devotion T
 -   **Mandatory Profile Completion Flow:**
     -   Implemented logic in `auth.service.ts` (`checkProfileAndRedirect` method) to verify profile completeness (checking for `full_name` and `age`) after user login or session retrieval.
     -   Automatically redirects users with incomplete profiles to the `/profile` page.
+    -   Exempted users with `role = 'admin'` from the forced profile-completion redirect so admins can continue into the app even when their profile is incomplete.
     -   Ensures redirection to the home page (`/`) after a successful profile save from the `/profile` page.
     -   Implemented robust checks to prevent infinite redirects by verifying the current URL before navigation in `checkProfileAndRedirect`.
 -   **Circular Dependency Resolution:**

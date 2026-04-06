@@ -5,7 +5,12 @@ const allowedOrigins = new Set([
   "http://localhost:4200",
   "https://daily-devotion-tracker.vercel.app",
 ]);
-const RUN_USER_REPORT_JOB_ACCESS = "run_user_report_job";
+
+type ReportRange = {
+  start: Date;
+  end: Date;
+  endExclusive: Date;
+};
 
 function getCorsHeaders(origin: string | null) {
   const allowedOrigin = origin && allowedOrigins.has(origin)
@@ -31,15 +36,11 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const brevoApiKey = Deno.env.get("BREVO_API_KEY");
-  const authorizationHeader = req.headers.get("Authorization");
-  const requestApiKey = req.headers.get("apikey");
 
   console.log("[monthly-report] secret presence", {
     hasSupabaseUrl: !!supabaseUrl,
     hasSupabaseServiceRoleKey: !!supabaseServiceRoleKey,
     hasBrevoApiKey: !!brevoApiKey,
-    hasAuthorizationHeader: !!authorizationHeader,
-    hasRequestApiKey: !!requestApiKey,
   });
 
   if (!supabaseUrl || !supabaseServiceRoleKey) {
@@ -56,124 +57,12 @@ serve(async (req) => {
     });
   }
 
-  if (!authorizationHeader?.startsWith("Bearer ")) {
-    console.error("[monthly-report] missing bearer token");
-    return new Response(JSON.stringify({
-      ok: false,
-      message: "Missing authorization token."
-    }), {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  if (!requestApiKey) {
-    console.error("[monthly-report] missing apikey header");
-    return new Response(JSON.stringify({
-      ok: false,
-      message: "Missing project API key."
-    }), {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  const userSupabase = createClient(
-    supabaseUrl,
-    requestApiKey,
-    {
-      global: {
-        headers: {
-          Authorization: authorizationHeader,
-        },
-      },
-    }
-  );
-
-  const { data: authData, error: authError } = await userSupabase.auth.getUser();
-  if (authError || !authData.user) {
-    console.error("[monthly-report] user auth failed", authError);
-    return new Response(JSON.stringify({
-      ok: false,
-      message: "Invalid user session."
-    }), {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  console.log("[monthly-report] authenticated user", {
-    userId: authData.user.id,
-    email: authData.user.email ?? null,
-  });
-
   const supabase = createClient(
     supabaseUrl,
     supabaseServiceRoleKey
   );
 
-  const { data: accessMapping, error: accessError } = await supabase
-    .from("profile_access_rules")
-    .select(`
-      id,
-      access_rule:access_rules!inner (
-        code,
-        is_active
-      )
-    `)
-    .eq("profile_id", authData.user.id)
-    .is("void_fl", null)
-    .eq("access_rules.code", RUN_USER_REPORT_JOB_ACCESS)
-    .eq("access_rules.is_active", true)
-    .limit(1)
-    .maybeSingle();
-
-  if (accessError) {
-    console.error("[monthly-report] access lookup failed", accessError);
-    return new Response(JSON.stringify({
-      ok: false,
-      message: "Unable to verify access."
-    }), {
-      status: 500,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  if (!accessMapping) {
-    console.error("[monthly-report] access denied", {
-      userId: authData.user.id,
-      requiredAccess: RUN_USER_REPORT_JOB_ACCESS,
-    });
-    return new Response(JSON.stringify({
-      ok: false,
-      message: "You do not have access to run this report job."
-    }), {
-      status: 403,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  console.log("[monthly-report] access granted", {
-    userId: authData.user.id,
-    requiredAccess: RUN_USER_REPORT_JOB_ACCESS,
-  });
-
-  const TEST_EMAIL = "ashishjwork09@gmail.com";
+  const TEST_EMAIL = "dailydevotiontrackermail@gmail.com";
   const IS_TEST_MODE = true;
   // 📊 Logging counters
   let totalUsers = 0;
@@ -322,7 +211,7 @@ serve(async (req) => {
       }
 
       // 🔒 TEST MODE (remove later)
-      if (user.email !== "rencewigg@gmail.com") {
+      if (user.email !== "jeevashyla@gmail.com") {
         skippedCount++;
         continue;
       }
@@ -345,7 +234,7 @@ serve(async (req) => {
         console.log("profile--> ",profile);
         const name =  profile?.full_name ||  profile?.username ||  user.email ||  "User";
         console.log("User name for Mail --> "+name);
-        const frequency = profile?.report_preference || "MONTHLY";
+        const frequency = profile?.report_preference || null;
         console.log("frequency--> "+frequency);
 
         const lastSentAt = profile?.last_mail_sent
@@ -358,7 +247,11 @@ serve(async (req) => {
           skippedCount++;
           continue;
         }
-
+        if (frequency == null) {
+          console.log(`Frequency not selected yet hence skipping:  ${user.email}`);
+          skippedCount++;
+          continue;
+        }
         // 📅 Range being set based on the profile frequency.
         let range;
         if (frequency === "WEEKLY") {
@@ -377,10 +270,11 @@ serve(async (req) => {
           .select("id")
           .eq("user_id", user.id)
           .gte("created_at", range.start.toISOString())
-          .lte("created_at", range.end.toISOString());
+          .lt("created_at", range.endExclusive.toISOString());
 
         if (error) throw error;
-
+        console.log('range.start.toISOString() --> ', range.start.toISOString());
+        console.log('range.end.toISOString() --> ', range.end.toISOString());
         if (!devotions || devotions.length === 0) {
           console.log(`⏭ Skipping ${user.email} (no devotions)`);
           skippedCount++;
@@ -393,6 +287,11 @@ serve(async (req) => {
         const percentageNum = (completedDays / totalDays) * 100;
         const percentage = percentageNum.toFixed(1);
         const recipient = IS_TEST_MODE ? TEST_EMAIL : user.email;
+
+        console.log("totalDays--> "+totalDays);
+        console.log("completedDays--> "+completedDays);
+        console.log("percentageNum--> "+percentageNum);
+        console.log("percentage--> "+percentage);
 
         // Replacing the metrics with the data 
         const html = template
@@ -419,6 +318,8 @@ serve(async (req) => {
               email: "ashishjwork09@gmail.com", // ⚠️ must be verified in Brevo
             },
             to: [{ email: recipient }],
+            //cc: [{ email: "devabrundhaeliyaser@gmail.com", name: "Devabrundha E" }],
+            bcc: [{ email: "dailydevotiontrackermail@gmail.com", name: "Audit Mailbox" }],
             subject: subject,
             htmlContent: html,
           }),
@@ -486,13 +387,20 @@ function getLastWeekRange() {
   // Go back to last Saturday
   const lastSaturday = new Date(now);
   lastSaturday.setDate(now.getDate() - (day === 6 ? 7 : day + 1));
+  lastSaturday.setHours(23, 59, 59, 999);
 
   const lastSunday = new Date(lastSaturday);
   lastSunday.setDate(lastSaturday.getDate() - 6);
+  lastSunday.setHours(0, 0, 0, 0);
+
+  const endExclusive = new Date(lastSaturday);
+  endExclusive.setDate(lastSaturday.getDate() + 1);
+  endExclusive.setHours(0, 0, 0, 0);
 
   return {
     start: lastSunday,
     end: lastSaturday,
+    endExclusive,
   };
 };
 // Function to Week range for MONTHLY report 
@@ -500,9 +408,13 @@ function getLastMonthRange() {
   const now = new Date();
 
   const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  start.setHours(0, 0, 0, 0);
   const end = new Date(now.getFullYear(), now.getMonth(), 0);
+  end.setHours(23, 59, 59, 999);
+  const endExclusive = new Date(now.getFullYear(), now.getMonth(),1);
+  endExclusive.setHours(0, 0, 0, 0);
 
-  return { start, end };
+  return { start, end, endExclusive };
 };
 function isSamePeriod(lastSent: Date, now: Date, frequency: string) {
   if (frequency === "WEEKLY") {
@@ -519,20 +431,27 @@ function isSamePeriod(lastSent: Date, now: Date, frequency: string) {
 
   return (
     lastSent >= lastMonthRange.start &&
-    lastSent <= lastMonthRange.end
+    lastSent <= lastMonthRange.endExclusive
   );
 };
-function getLastWeekRangeFromDate(date: Date) {
+function getLastWeekRangeFromDate(date: Date): ReportRange {
   const day = date.getDay();
 
   const lastSaturday = new Date(date);
   lastSaturday.setDate(date.getDate() - (day === 6 ? 7 : day + 1));
+  lastSaturday.setHours(23, 59, 59, 999);
 
   const lastSunday = new Date(lastSaturday);
   lastSunday.setDate(lastSaturday.getDate() - 6);
+  lastSunday.setHours(0, 0, 0, 0);
+
+  const endExclusive = new Date(lastSaturday);
+  endExclusive.setDate(lastSaturday.getDate() + 1);
+  endExclusive.setHours(0, 0, 0, 0);
 
   return {
     start: lastSunday,
     end: lastSaturday,
+    endExclusive,
   };
 }

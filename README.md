@@ -6,6 +6,7 @@ A web application for church members to track their daily devotions, including p
 
 - Email & Password Authentication (Sign Up, Sign In)
 - User Profiles (Name, Age)
+- Incomplete profile auto-redirect applies to members, but admins are exempt
 - Access-rule based feature authorization via `access_rules` and `profile_access_rules`
 - Daily Check-ins for Prayer and Bible Reading
 - Visual Progress Calendar with Daily Status

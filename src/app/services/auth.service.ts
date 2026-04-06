@@ -93,7 +93,9 @@ export class AuthService {
     if (this.currentUser()) {
       const profileService = this.injector.get(ProfileService);
       const profile = await profileService.getProfile();
-      if (!this.isProfileComplete(profile)) {
+      const isAdmin = profile?.role === 'admin';
+
+      if (!isAdmin && !this.isProfileComplete(profile)) {
         if (this.router.url !== '/profile') {
           this.router.navigate(['/profile']);
         }
