@@ -377,7 +377,15 @@ export class ProfileComponent implements OnInit {
 
   @HostListener('window:resize')
   private syncMobileView() {
-    this.isMobileView = window.innerWidth <= 768;
-    this.mobileSectionMenuVisible = this.isMobileView;
+    const nextIsMobileView = window.innerWidth <= 768;
+    const breakpointChanged = nextIsMobileView !== this.isMobileView;
+
+    this.isMobileView = nextIsMobileView;
+
+    if (!breakpointChanged) {
+      return;
+    }
+
+    this.mobileSectionMenuVisible = nextIsMobileView;
   }
 }
