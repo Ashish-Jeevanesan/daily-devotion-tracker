@@ -136,18 +136,16 @@ export class EarlierDevotionsComponent implements OnInit {
   /** Extract verse reference from a devotion note. */
   getVerseReference(notes: string): string {
     const separatorIndex = notes.indexOf(' - ');
-    if (separatorIndex > -1) {
-      return notes.substring(0, separatorIndex);
-    }
-    return '';
+    if (separatorIndex > -1) return notes.substring(0, separatorIndex);
+    const refOnly = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
+    return refOnly.test(notes.trim()) ? notes.trim() : '';
   }
 
   /** Extract the notes content after the verse reference. */
   getNotesContent(notes: string): string {
     const separatorIndex = notes.indexOf(' - ');
-    if (separatorIndex > -1) {
-      return notes.substring(separatorIndex + 3);
-    }
-    return notes;
+    if (separatorIndex > -1) return notes.substring(separatorIndex + 3);
+    const refOnly = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
+    return refOnly.test(notes.trim()) ? '' : notes;
   }
 }

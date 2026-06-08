@@ -1,3 +1,4 @@
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
@@ -14,6 +15,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory,
-    }))
+    })),
+    provideHttpClient(withFetch())
   ]
 };

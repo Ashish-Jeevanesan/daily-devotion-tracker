@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,13 +8,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { Observable, of } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
-import { BibleService } from '../../services/bible.service';
+import { Observable, Subscription, combineLatest, of } from 'rxjs';
+import { catchError, debounceTime, map, startWith, switchMap } from 'rxjs/operators';
+import { BibleService, VersePreview } from '../../services/bible.service';
 import { BibleBook } from '../../data/bible-books';
 import { Devotion, DevotionService } from '../../services/devotion.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
+interface VersePreviewState {
+  status: 'idle' | 'loading' | 'loaded' | 'too-long';
+  reference?: string;
+  verses?: Array<{ verse: number; text: string }>;
+}
 
 @Component({
   selector: 'app-devotion-entry-dialog',
@@ -35,15 +41,18 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrl: './devotion-entry-dialog.component.scss'
 })
 /** Dialog for creating or editing a devotion entry. */
-export class DevotionEntryDialogComponent implements OnInit {
+export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   form: FormGroup;
   bibleBooks: BibleBook[] = [];
   chapters: number[] = [];
   verses: number[] = Array.from({ length: 176 }, (_, i) => i + 1);
   filteredBooks!: Observable<BibleBook[]>;
   chapters$: { [key: number]: Observable<number[]> } = {};
+  verseCounts$: { [key: number]: Observable<number[]> } = {};
   isSaving = false;
 
+  private previewSubscriptions = new Map<FormGroup, Subscription>();
+  private previewStates = new Map<FormGroup, VersePreviewState>();
   private currentDevotion: Devotion | null;
 
   constructor(
@@ -60,25 +69,23 @@ export class DevotionEntryDialogComponent implements OnInit {
     let references: any[] = [];
     const separatorIndex = notes.indexOf(' - ');
 
-    if (separatorIndex > -1) {
-      const referenceString = notes.substring(0, separatorIndex);
-      content = notes.substring(separatorIndex + 3);
-      
-      const refStrings = referenceString.split(',').map(s => s.trim());
-      const refRegex = /([1-3]?\s?[a-zA-Z\s]+)\s(\d+):(\d+)(?:-(\d+))?/;
+    const refRegex = /([1-3]?\s?[a-zA-Z\s]+)\s(\d+):(\d+)(?:-(\d+))?/;
+    const parseRefString = (str: string): any[] => str.split(',').map(s => s.trim()).map(s => {
+      const m = s.match(refRegex);
+      return m ? { book: m[1].trim(), chapter: parseInt(m[2]), verseStart: parseInt(m[3]), verseEnd: m[4] ? parseInt(m[4]) : '' } : null;
+    }).filter(r => r !== null);
 
-      references = refStrings.map(refStr => {
-        const match = refStr.match(refRegex);
-        if (match) {
-          return {
-            book: match[1].trim(),
-            chapter: parseInt(match[2]),
-            verseStart: parseInt(match[3]),
-            verseEnd: match[4] ? parseInt(match[4]) : ''
-          };
-        }
-        return null;
-      }).filter(r => r !== null);
+    if (separatorIndex > -1) {
+      content = notes.substring(separatorIndex + 3);
+      references = parseRefString(notes.substring(0, separatorIndex));
+    } else {
+      // Verse-only save: the stored string is entirely composed of reference(s) with no notes text.
+      // Matches formats like "John 3:16" or "Genesis 3:5-19, Romans 6:23" but not free-form sentences.
+      const refOnlyPattern = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
+      if (refOnlyPattern.test(notes.trim())) {
+        references = parseRefString(notes);
+        content = '';
+      }
     }
 
     this.form = new FormGroup({
@@ -87,8 +94,8 @@ export class DevotionEntryDialogComponent implements OnInit {
           ? references.map(r => this.createReferenceGroup(r))
           : [this.createReferenceGroup()]
       ),
-      notes: new FormControl(content, Validators.required)
-    });
+      notes: new FormControl(content)
+    }, { validators: this.devotionContentValidator });
   }
 
   /** Load Bible data and initialize reference dropdowns. */
@@ -99,10 +106,19 @@ export class DevotionEntryDialogComponent implements OnInit {
 
     this.references.controls.forEach((control, index) => {
       const bookName = control.get('book')?.value;
+      const chapter = control.get('chapter')?.value;
       if (bookName) {
         this.updateChapters(index, bookName);
       }
+      if (bookName && chapter) {
+        this.updateVerseCounts(index, bookName, chapter);
+      }
+      this.watchReferenceForPreview(control as FormGroup);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.previewSubscriptions.forEach(sub => sub.unsubscribe());
   }
 
   /** Build a reference form group and wire book change handling. */
@@ -137,6 +153,11 @@ export class DevotionEntryDialogComponent implements OnInit {
     this.chapters$[index] = this.bibleService.getChapters(bookName);
   }
 
+  /** Load verse list for a selected book + chapter. */
+  updateVerseCounts(index: number, bookName: string, chapter: number) {
+    this.verseCounts$[index] = this.bibleService.getChapterVerses(bookName, chapter);
+  }
+
   /** Accessor for the references form array. */
   get references(): FormArray {
     return this.form.get('references') as FormArray;
@@ -144,13 +165,30 @@ export class DevotionEntryDialogComponent implements OnInit {
 
   /** Add an additional scripture reference entry. */
   addReference(): void {
-    this.references.push(this.createReferenceGroup());
+    const group = this.createReferenceGroup();
+    this.references.push(group);
+    this.watchReferenceForPreview(group);
   }
 
   /** Remove a scripture reference entry. */
   removeReference(index: number): void {
+    const group = this.references.at(index) as FormGroup;
+    this.previewSubscriptions.get(group)?.unsubscribe();
+    this.previewSubscriptions.delete(group);
+    this.previewStates.delete(group);
     this.references.removeAt(index);
     delete this.chapters$[index];
+    delete this.verseCounts$[index];
+  }
+
+  /** Return the verse preview state for a given reference row. */
+  getPreviewState(index: number): VersePreviewState {
+    const group = this.references.at(index) as FormGroup;
+    return this.previewStates.get(group) ?? { status: 'idle' };
+  }
+
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
   }
 
   /** Initialize book autocomplete for the given row. */
@@ -176,6 +214,64 @@ export class DevotionEntryDialogComponent implements OnInit {
       return book ? book.name : '';
   }
 
+  /** Subscribe to a reference row's field changes and update its verse preview state. */
+  private watchReferenceForPreview(group: FormGroup): void {
+    // Reset verse fields and reload verse count whenever the chapter changes.
+    const chapterSub = group.get('chapter')!.valueChanges.subscribe(chapter => {
+      const index = this.references.controls.indexOf(group);
+      if (index === -1) return;
+      group.get('verseStart')?.setValue('');
+      group.get('verseEnd')?.setValue('');
+      if (!chapter) {
+        delete this.verseCounts$[index];
+        return;
+      }
+      const book = group.get('book')?.value;
+      const bookName = typeof book === 'object' && book?.name ? book.name : (book as string || '');
+      if (bookName) this.updateVerseCounts(index, bookName, chapter);
+    });
+
+    const val = (ctrl: string) => group.get(ctrl)!.valueChanges.pipe(startWith(group.get(ctrl)!.value));
+
+    const previewSub = combineLatest([val('book'), val('chapter'), val('verseStart'), val('verseEnd')]).pipe(
+      debounceTime(400),
+      switchMap(([book, chapter, verseStart, verseEnd]) => {
+        const bookName = typeof book === 'object' && book?.name ? book.name : (book as string || '');
+        if (!bookName || !chapter || !verseStart) {
+          return of<VersePreviewState>({ status: 'idle' });
+        }
+        const range = verseEnd && verseEnd !== '' ? Number(verseEnd) - Number(verseStart) : 0;
+        if (range < 0) return of<VersePreviewState>({ status: 'idle' });
+        const isMobile = window.innerWidth < 768;
+        if (isMobile && range > 20) return of<VersePreviewState>({ status: 'too-long' });
+
+        return this.bibleService.getVerseText(bookName, chapter, verseStart, verseEnd || null).pipe(
+          map((result: VersePreview | null) => result
+            ? <VersePreviewState>{ status: 'loaded', reference: result.reference, verses: result.verses }
+            : <VersePreviewState>{ status: 'idle' }
+          ),
+          catchError(() => of<VersePreviewState>({ status: 'idle' })),
+          startWith<VersePreviewState>({ status: 'loading' })
+        );
+      })
+    ).subscribe(state => this.previewStates.set(group, state));
+
+    const combined = new Subscription();
+    combined.add(chapterSub);
+    combined.add(previewSub);
+    this.previewSubscriptions.set(group, combined);
+  }
+
+  /** Require at least one complete verse reference OR non-empty notes. */
+  private devotionContentValidator(group: AbstractControl): ValidationErrors | null {
+    const notes = (group.get('notes')?.value || '').trim();
+    const references = group.get('references') as FormArray;
+    const hasValidRef = references?.controls.some(ctrl =>
+      ctrl.get('book')?.value && ctrl.get('chapter')?.value && ctrl.get('verseStart')?.value
+    );
+    return notes || hasValidRef ? null : { noContent: true };
+  }
+
   /** Close the dialog without saving. */
   onCancel(): void {
     this.dialogRef.close();
@@ -194,7 +290,8 @@ export class DevotionEntryDialogComponent implements OnInit {
       let referenceString = '';
       
       const refs = formValue.references.filter((r: any) => r.book && r.chapter && r.verseStart);
-      
+      const notesText = (formValue.notes || '').trim();
+
       if (refs.length > 0) {
         referenceString = refs.map((r: any) => {
           const bookName = typeof r.book === 'string' ? r.book : r.book.name;
@@ -204,11 +301,11 @@ export class DevotionEntryDialogComponent implements OnInit {
           }
           return ref;
         }).join(', ');
-        
-        referenceString += ' - ';
       }
-      
-      const finalNote = `${referenceString}${formValue.notes}`;
+
+      const finalNote = refs.length > 0 && notesText
+        ? `${referenceString} - ${notesText}`
+        : refs.length > 0 ? referenceString : notesText;
       
       let updatedDevotion: Devotion | null = null;
       if (this.currentDevotion) {

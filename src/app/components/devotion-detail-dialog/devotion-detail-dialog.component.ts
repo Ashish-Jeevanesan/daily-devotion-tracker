@@ -36,10 +36,14 @@ export class DevotionDetailDialogComponent {
     if (data.devotion?.notes) {
       const notes = data.devotion.notes;
       const separatorIndex = notes.indexOf(' - ');
+      const refOnly = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
 
       if (separatorIndex > -1) {
         this.bibleVerse = notes.substring(0, separatorIndex);
         this.devotionNotes = notes.substring(separatorIndex + 3);
+      } else if (refOnly.test(notes.trim())) {
+        this.bibleVerse = notes.trim();
+        this.devotionNotes = null;
       } else {
         this.devotionNotes = notes;
       }

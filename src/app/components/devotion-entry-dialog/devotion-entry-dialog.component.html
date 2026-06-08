@@ -30,8 +30,14 @@
           <mat-form-field appearance="outline" class="number-select">
             <mat-label>V.Start</mat-label>
             <mat-select formControlName="verseStart">
-              @for (verse of verses; track verse) {
-                <mat-option [value]="verse">{{ verse }}</mat-option>
+              @if (verseCounts$[i] | async; as chapterVerses) {
+                @for (verse of chapterVerses; track verse) {
+                  <mat-option [value]="verse">{{ verse }}</mat-option>
+                }
+              } @else {
+                @for (verse of verses; track verse) {
+                  <mat-option [value]="verse">{{ verse }}</mat-option>
+                }
               }
             </mat-select>
           </mat-form-field>
@@ -40,19 +46,55 @@
             <mat-label>V.End</mat-label>
             <mat-select formControlName="verseEnd">
               <mat-option value="">-</mat-option>
-              @for (verse of verses; track verse) {
-                <mat-option [value]="verse">{{ verse }}</mat-option>
+              @if (verseCounts$[i] | async; as chapterVerses) {
+                @for (verse of chapterVerses; track verse) {
+                  <mat-option [value]="verse">{{ verse }}</mat-option>
+                }
+              } @else {
+                @for (verse of verses; track verse) {
+                  <mat-option [value]="verse">{{ verse }}</mat-option>
+                }
               }
             </mat-select>
           </mat-form-field>
         </div>
-        
+
         @if (i > 0) {
           <button mat-icon-button color="warn" (click)="removeReference(i)" matTooltip="Remove reference">
             <mat-icon>delete</mat-icon>
           </button>
         }
       </div>
+
+      @let preview = getPreviewState(i);
+      @if (preview.status !== 'idle') {
+        <div class="verse-preview-card" [class.hint]="preview.status === 'too-long'">
+          @if (preview.status === 'loading') {
+            <div class="verse-status-row">
+              <mat-spinner diameter="14"></mat-spinner>
+              <span>Fetching verse...</span>
+            </div>
+          }
+          @if (preview.status === 'loaded') {
+            <div class="verse-ref-label">
+              <mat-icon>menu_book</mat-icon>
+              {{ preview.reference }} &middot; KJV
+            </div>
+            @for (v of preview.verses; track v.verse) {
+              <div class="verse-line">
+                <span class="verse-number">{{ v.verse }}</span>
+                <span class="verse-text">{{ v.text }}</span>
+              </div>
+            }
+          }
+          @if (preview.status === 'too-long') {
+            <div class="verse-status-row">
+              <mat-icon>info</mat-icon>
+              <span>{{ isMobile ? 'Select 20 or fewer verses to preview on mobile' : 'Select a valid verse range to preview' }}</span>
+            </div>
+          }
+        </div>
+      }
     }
   </div>
 

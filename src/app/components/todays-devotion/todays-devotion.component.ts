@@ -31,13 +31,17 @@ export class TodaysDevotionComponent implements OnInit {
     const notes = this.todaysDevotion()?.notes;
     if (!notes) return '';
     const separatorIndex = notes.indexOf(' - ');
-    return separatorIndex > -1 ? notes.substring(0, separatorIndex) : '';
+    if (separatorIndex > -1) return notes.substring(0, separatorIndex);
+    const refOnly = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
+    return refOnly.test(notes.trim()) ? notes.trim() : '';
   });
   devotionNotes = computed(() => {
     const notes = this.todaysDevotion()?.notes;
     if (!notes) return '';
     const separatorIndex = notes.indexOf(' - ');
-    return separatorIndex > -1 ? notes.substring(separatorIndex + 3) : notes;
+    if (separatorIndex > -1) return notes.substring(separatorIndex + 3);
+    const refOnly = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
+    return refOnly.test(notes.trim()) ? '' : notes;
   });
 
   today = new Date();
