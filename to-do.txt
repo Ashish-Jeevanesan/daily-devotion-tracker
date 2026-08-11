@@ -46,3 +46,13 @@
 12. Void expired/dead push subscriptions on permanent delivery failure.
 13. Add Supabase cron scheduling for reminder execution.
 14. Test on desktop Chrome first, then Android Chrome.
+-- Private Storage & Signed URLs Security Plan (Refactor user_devotions bucket to Private)
+1. Update `user_devotions` bucket setting in Supabase to `public = false` (Private Bucket).
+2. Update storage RLS policies so only image owner (and calendar/reports admin) can generate signed URLs.
+3. Modify `devotions.image_url` database storage model to store relative storage path (`user_id/filename.jpg`) instead of raw public URL.
+4. Add dynamic signed URL resolution method `getSignedImageUrl` in `DevotionService` with time-to-live (e.g. 3600s / 1hr).
+5. Update `DevotionService` fetch methods (`getTodaysDevotion`, `getEarlierDevotions`, `getDevotionsForUser`) to dynamically resolve paths to temporary signed URLs.
+6. Update `AdminReportsService.getUserDevotionNotes` to generate signed URLs for admin note drill-downs.
+7. Add backward compatibility handling for legacy public URLs already stored in database.
+8. Verify image loading across Today's Devotion card, History Timeline, Calendar, and Admin Reports under private bucket rules.
+
