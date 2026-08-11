@@ -98,6 +98,43 @@ h2[mat-dialog-title] {
       color: #5a8cc2;
       margin-bottom: 12px;
     }
+
+    .detail-image-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-top: 12px;
+      cursor: pointer;
+      border-radius: 8px;
+      overflow: hidden;
+
+      .detail-thumb {
+        display: block;
+        max-height: 160px;
+        max-width: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+
+      .expand-badge {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #ffffff;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        mat-icon {
+          font-size: 13px;
+          height: 13px;
+          width: 13px;
+        }
+      }
+    }
   }
 }
 

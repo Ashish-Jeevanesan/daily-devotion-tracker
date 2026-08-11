@@ -32,7 +32,15 @@
             @if (getVerseReference(item.notes)) {
               <p class="bible-verse">{{ getVerseReference(item.notes) }}</p>
             }
-            <p>{{ getNotesContent(item.notes) }}</p>
+            @if (getNotesContent(item.notes)) {
+              <p>{{ getNotesContent(item.notes) }}</p>
+            }
+            @if (item.image_url) {
+              <div class="timeline-image-wrapper" (click)="openImageLightbox(item.image_url)">
+                <img [src]="item.image_url" alt="Devotion photo" class="timeline-thumb" />
+                <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+              </div>
+            }
           </mat-card-content>
         </mat-card>
       }

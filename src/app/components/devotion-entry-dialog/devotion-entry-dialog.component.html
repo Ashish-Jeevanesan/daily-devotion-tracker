@@ -104,8 +104,35 @@
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Devotion Notes</mat-label>
-    <textarea matInput formControlName="notes" rows="10" placeholder="God's love is unconditional..."></textarea>
+    <textarea matInput formControlName="notes" rows="8" placeholder="God's love is unconditional..."></textarea>
   </mat-form-field>
+
+  <!-- Devotion Image Upload Section -->
+  <div class="image-upload-section">
+    <label class="image-upload-label">
+      <mat-icon>photo_camera</mat-icon> Attach Photo (Optional handwritten notes / Bible page)
+    </label>
+    
+    @if (imagePreviewUrl) {
+      <div class="image-preview-container">
+        <img [src]="imagePreviewUrl" alt="Devotion photo preview" class="image-preview" />
+        <button mat-mini-fab color="warn" class="remove-image-btn" (click)="removeSelectedImage()" matTooltip="Remove photo" type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <div class="upload-dropzone" (click)="fileInput.click()">
+        <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" style="display: none;" />
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <span class="upload-text">Click to attach photo of your devotion</span>
+        <span class="upload-hint">Auto-compressed (JPEG, max 5MB input)</span>
+      </div>
+    }
+
+    @if (imageError) {
+      <p class="image-error-text">{{ imageError }}</p>
+    }
+  </div>
 </div>
 <div mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()" [disabled]="isSaving">Cancel</button>

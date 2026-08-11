@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lightbox-dialog.component';
+
 // Define a new interface that extends Devotion
 export interface DevotionTimelineItem extends Devotion {
   isMissedDay: false;
@@ -39,6 +42,7 @@ export interface Encouragement {
     MatIconModule,
     ClipboardModule,
     MatSnackBarModule,
+    MatDialogModule,
     CommonModule
   ],
   templateUrl: './earlier-devotions.component.html',
@@ -69,7 +73,8 @@ export class EarlierDevotionsComponent implements OnInit {
 
   constructor(
     private devotionService: DevotionService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   /** Load earlier devotions and build the timeline. */
@@ -122,6 +127,14 @@ export class EarlierDevotionsComponent implements OnInit {
   /** Pick a random encouragement for missed-day gaps. */
   private getRandomEncouragement(): Encouragement {
     return this.encouragements[Math.floor(Math.random() * this.encouragements.length)];
+  }
+
+  /** Open full-screen lightbox for devotion photo. */
+  openImageLightbox(imageUrl: string): void {
+    if (!imageUrl) return;
+    this.dialog.open(ImageLightboxDialogComponent, {
+      data: { imageUrl, title: 'Devotion Photo' }
+    });
   }
 
   /** Notify user when devotion text is copied. */

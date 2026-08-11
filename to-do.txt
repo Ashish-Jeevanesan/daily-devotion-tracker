@@ -15,6 +15,7 @@
 -- Admin Page needs to be planned and developed. ** Done ** 
 -- Reports must be mailed to all users via Cron Job.
 -- Add notes type window on add devotion.
+-- Add Devotion Photo Upload feature with client-side canvas compression (user_devotions bucket) ** Done **
 -- Access Control Refactor Plan ** Done **
 1. Add master access table `access_rules` to hold all permission codes. ** Done **
 2. Add mapping table `profile_access_rules` to assign rules to users/profiles. ** Done **

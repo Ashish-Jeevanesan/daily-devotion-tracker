@@ -82,6 +82,40 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dob date NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS church_name text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS report_preference text NOT NULL DEFAULT 'MONTHLY';
+ALTER TABLE public.devotions ADD COLUMN IF NOT EXISTS image_url text NULL;
+
+-- Storage bucket & RLS policies for 'user_devotions'
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('user_devotions', 'user_devotions', true)
+ON CONFLICT (id) DO NOTHING;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Public Read user_devotions'
+  ) THEN
+    CREATE POLICY "Public Read user_devotions" ON storage.objects FOR SELECT USING (bucket_id = 'user_devotions');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Users Upload Own user_devotions'
+  ) THEN
+    CREATE POLICY "Users Upload Own user_devotions" ON storage.objects FOR INSERT WITH CHECK (
+      bucket_id = 'user_devotions' AND auth.uid()::text = (storage.foldername(name))[1]
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Users Delete Own user_devotions'
+  ) THEN
+    CREATE POLICY "Users Delete Own user_devotions" ON storage.objects FOR DELETE USING (
+      bucket_id = 'user_devotions' AND auth.uid()::text = (storage.foldername(name))[1]
+    );
+  END IF;
+END $$;
 
 -- Weekly devotion report for admins
 CREATE OR REPLACE FUNCTION public.weekly_devotion_report(

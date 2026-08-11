@@ -50,6 +50,12 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   chapters$: { [key: number]: Observable<number[]> } = {};
   verseCounts$: { [key: number]: Observable<number[]> } = {};
   isSaving = false;
+  selectedFile: File | null = null;
+  imagePreviewUrl: string | null = null;
+  existingImageUrl: string | null = null;
+  removeImageRequested = false;
+  isUploadingImage = false;
+  imageError: string | null = null;
 
   private previewSubscriptions = new Map<FormGroup, Subscription>();
   private previewStates = new Map<FormGroup, VersePreviewState>();
@@ -63,6 +69,8 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     this.currentDevotion = data.devotion;
+    this.existingImageUrl = this.currentDevotion?.image_url || null;
+    this.imagePreviewUrl = this.existingImageUrl;
     const notes = this.currentDevotion?.notes || '';
     
     let content = notes;
@@ -96,6 +104,38 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
       ),
       notes: new FormControl(content)
     }, { validators: this.devotionContentValidator });
+  }
+
+  /** Handle photo file selection and validation. */
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    this.imageError = null;
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (!validTypes.includes(file.type.toLowerCase())) {
+      this.imageError = 'Please select a valid image (.jpg, .png, .webp).';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.imageError = 'Image size must be under 5MB.';
+      return;
+    }
+
+    this.selectedFile = file;
+    this.removeImageRequested = false;
+    this.imagePreviewUrl = URL.createObjectURL(file);
+  }
+
+  /** Remove attached image before saving. */
+  removeSelectedImage(): void {
+    this.selectedFile = null;
+    this.imagePreviewUrl = null;
+    this.removeImageRequested = true;
+    this.imageError = null;
   }
 
   /** Load Bible data and initialize reference dropdowns. */
@@ -262,15 +302,16 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
     this.previewSubscriptions.set(group, combined);
   }
 
-  /** Require at least one complete verse reference OR non-empty notes. */
-  private devotionContentValidator(group: AbstractControl): ValidationErrors | null {
+  /** Require at least one complete verse reference, non-empty notes, or attached photo. */
+  private devotionContentValidator = (group: AbstractControl): ValidationErrors | null => {
     const notes = (group.get('notes')?.value || '').trim();
     const references = group.get('references') as FormArray;
     const hasValidRef = references?.controls.some(ctrl =>
       ctrl.get('book')?.value && ctrl.get('chapter')?.value && ctrl.get('verseStart')?.value
     );
-    return notes || hasValidRef ? null : { noContent: true };
-  }
+    const hasImage = !!this.imagePreviewUrl;
+    return notes || hasValidRef || hasImage ? null : { noContent: true };
+  };
 
   /** Close the dialog without saving. */
   onCancel(): void {
@@ -286,6 +327,31 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
     this.isSaving = true;
 
     try {
+      let finalImageUrl: string | null | undefined = this.existingImageUrl;
+
+      if (this.selectedFile) {
+        this.isUploadingImage = true;
+        const uploadedUrl = await this.devotionService.uploadDevotionImage(this.selectedFile);
+        if (!uploadedUrl) {
+          this.snackBar.open('Failed to upload image. Please try again.', 'Close', {
+            duration: 5000,
+            panelClass: 'error-snackbar'
+          });
+          this.isSaving = false;
+          this.isUploadingImage = false;
+          return;
+        }
+        if (this.existingImageUrl && this.existingImageUrl !== uploadedUrl) {
+          await this.devotionService.deleteDevotionImage(this.existingImageUrl);
+        }
+        finalImageUrl = uploadedUrl;
+      } else if (this.removeImageRequested) {
+        if (this.existingImageUrl) {
+          await this.devotionService.deleteDevotionImage(this.existingImageUrl);
+        }
+        finalImageUrl = null;
+      }
+
       const formValue = this.form.value;
       let referenceString = '';
       
@@ -309,9 +375,9 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
       
       let updatedDevotion: Devotion | null = null;
       if (this.currentDevotion) {
-        updatedDevotion = await this.devotionService.updateDevotion(this.currentDevotion.id, finalNote);
+        updatedDevotion = await this.devotionService.updateDevotion(this.currentDevotion.id, finalNote, finalImageUrl);
       } else {
-        updatedDevotion = await this.devotionService.addDevotion(finalNote);
+        updatedDevotion = await this.devotionService.addDevotion(finalNote, finalImageUrl);
       }
       
       this.snackBar.open('Devotion saved successfully!', 'Close', {
@@ -328,6 +394,7 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
       });
     } finally {
       this.isSaving = false;
+      this.isUploadingImage = false;
     }
   }
 }

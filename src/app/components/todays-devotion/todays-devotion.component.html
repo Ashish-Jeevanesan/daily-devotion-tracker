@@ -21,7 +21,15 @@
           @if(bibleVerse()) {
             <p class="bible-verse">{{ bibleVerse() }}</p>
           }
-          <p>{{ devotionNotes() }}</p>
+          @if(devotionNotes()) {
+            <p>{{ devotionNotes() }}</p>
+          }
+          @if(todaysDevotion()?.image_url) {
+            <div class="devotion-image-wrapper" (click)="openImageLightbox(todaysDevotion()!.image_url!)">
+              <img [src]="todaysDevotion()?.image_url" alt="Today's devotion photo" class="devotion-thumb" />
+              <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+            </div>
+          }
         </div>
       } @else {
         <div class="add-button-container">

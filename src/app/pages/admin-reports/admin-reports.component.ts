@@ -12,10 +12,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 import * as XLSX from 'xlsx';
 import { AdminReportsService, UserDevotionNote } from '../../services/admin-reports.service';
 import { Profile, ProfileService } from '../../services/profile.service';
+import { ImageLightboxDialogComponent } from '../../components/image-lightbox-dialog/image-lightbox-dialog.component';
 
 interface ReportRow {
   userId: string;
@@ -28,6 +30,7 @@ type ReportRange = 'daily' | 'weekly' | 'monthly';
 
 @Component({
   selector: 'app-admin-reports',
+  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
@@ -42,6 +45,7 @@ type ReportRange = 'daily' | 'weekly' | 'monthly';
     MatSnackBarModule,
     MatIconModule,
     MatButtonModule,
+    MatDialogModule,
     NgxChartsModule
   ],
   templateUrl: './admin-reports.component.html',
@@ -83,8 +87,17 @@ export class AdminReportsComponent implements OnInit {
   constructor(
     private adminReportsService: AdminReportsService,
     private profileService: ProfileService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
+
+  /** Open full-screen lightbox for user's devotion photo. */
+  openImageLightbox(imageUrl: string): void {
+    if (!imageUrl) return;
+    this.dialog.open(ImageLightboxDialogComponent, {
+      data: { imageUrl, title: `${this.selectedRowUserName}'s Devotion Photo` }
+    });
+  }
 
   /** Initialize default range and load initial data. */
   ngOnInit() {

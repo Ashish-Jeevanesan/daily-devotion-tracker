@@ -155,6 +155,10 @@
         <div class="note-item" *ngFor="let note of selectedUserNotes">
           <div class="note-date">{{ note.created_at | date:'MMM d, y, h:mm a' }}</div>
           <div class="note-text">{{ note.notes || 'No note text provided.' }}</div>
+          <div class="admin-image-wrapper" *ngIf="note.image_url" (click)="openImageLightbox(note.image_url)">
+            <img [src]="note.image_url" alt="Devotion photo" class="admin-note-thumb" />
+            <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+          </div>
         </div>
       </div>
     </div>

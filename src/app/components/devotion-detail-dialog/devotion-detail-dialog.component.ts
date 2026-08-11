@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Devotion } from '../../services/devotion.service';
@@ -8,6 +7,7 @@ import { CheckIn } from '../../services/check-in.service';
 import { MatIconModule } from '@angular/material/icon';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lightbox-dialog.component';
 
 @Component({
   selector: 'app-devotion-detail-dialog',
@@ -31,7 +31,8 @@ export class DevotionDetailDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<DevotionDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { devotion: Devotion | undefined, checkIn: CheckIn | undefined, date: Date },
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     if (data.devotion?.notes) {
       const notes = data.devotion.notes;
@@ -48,6 +49,14 @@ export class DevotionDetailDialogComponent {
         this.devotionNotes = notes;
       }
     }
+  }
+
+  /** Open full-screen lightbox for devotion photo. */
+  openImageLightbox(imageUrl: string): void {
+    if (!imageUrl) return;
+    this.dialog.open(ImageLightboxDialogComponent, {
+      data: { imageUrl, title: 'Devotion Photo' }
+    });
   }
 
   /** Close the details dialog. */

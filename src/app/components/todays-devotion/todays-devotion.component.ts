@@ -8,9 +8,11 @@ import { DevotionEntryDialogComponent } from '../devotion-entry-dialog/devotion-
 import { MatIconModule } from '@angular/material/icon';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lightbox-dialog.component';
 
 @Component({
   selector: 'app-todays-devotion',
+  standalone: true,
   imports: [
     MatCardModule,
     MatButtonModule,
@@ -61,6 +63,14 @@ export class TodaysDevotionComponent implements OnInit {
       this.devotionUpdated.emit(devotion);
     }).finally(() => {
       this.loading = false;
+    });
+  }
+
+  /** Open full-screen lightbox for devotion photo. */
+  openImageLightbox(imageUrl: string): void {
+    if (!imageUrl) return;
+    this.dialog.open(ImageLightboxDialogComponent, {
+      data: { imageUrl, title: "Today's Devotion Photo" }
     });
   }
 

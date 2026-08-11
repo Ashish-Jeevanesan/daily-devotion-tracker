@@ -35,7 +35,15 @@
         @if (bibleVerse) {
           <p class="bible-verse">{{ bibleVerse }}</p>
         }
-        <p>{{ devotionNotes }}</p>
+        @if (devotionNotes) {
+          <p>{{ devotionNotes }}</p>
+        }
+        @if (data.devotion.image_url) {
+          <div class="detail-image-wrapper" (click)="openImageLightbox(data.devotion.image_url)">
+            <img [src]="data.devotion.image_url" alt="Devotion photo" class="detail-thumb" />
+            <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+          </div>
+        }
       </div>
     </div>
   } @else {

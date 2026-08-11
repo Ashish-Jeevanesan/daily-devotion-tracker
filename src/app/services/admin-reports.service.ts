@@ -11,6 +11,7 @@ export interface UserDevotionNote {
   id: string;
   created_at: string;
   notes: string | null;
+  image_url?: string | null;
 }
 
 @Injectable({
@@ -40,7 +41,7 @@ export class AdminReportsService {
   async getUserDevotionNotes(userId: string, rangeStart: Date, rangeEnd: Date): Promise<UserDevotionNote[]> {
     const { data, error } = await this.supabaseService.supabase
       .from('devotions')
-      .select('id, created_at, notes')
+      .select('id, created_at, notes, image_url')
       .eq('user_id', userId)
       .is('void_fl', null)
       .gte('created_at', rangeStart.toISOString())
