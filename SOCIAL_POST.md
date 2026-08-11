@@ -1,51 +1,53 @@
-# Social Media Update Post
+# Social Media Update Post — Devotion Photo Upload Feature
 
 ## Option A — Short & Warm (WhatsApp / Church Group)
 
-> We've just updated the **Devotion Tracker** app! 📖
+> We've just added an exciting new feature to **Devotion Tracker**! 📸📖
 >
-> Here's what's new:
+> **✨ Snap & Attach Photos of Your Devotion Notes**
+> Do you write your daily thoughts or sermon notes in a physical journal or bible margin? Now you can attach a photo of your handwritten notes or Bible page directly to your daily devotion entry!
 >
-> **✨ See the verse as you log it**
-> Select a scripture and the verse text appears right in the app — no need to open your Bible separately. Scroll through whole passages before saving. 
-> For now we have just implemented KJV version and we are working on Indian Language Bible translation supports too. Will keep you all posted on update.
+> **🔍 Full-Screen Photo Viewer**
+> Tap on any photo thumbnail in your Today's Devotion card, History Timeline, or Progress Calendar to open a crisp full-screen lightbox view and read your journal notes anytime.
 >
-> **✅ Drop-downs that make sense**
-> Verse selectors now show only the actual verses in that chapter, so no more guessing where a short chapter ends.
+> **⚡ Fast & Data-Friendly**
+> Photos are compressed automatically right on your phone before uploading, so it loads instantly without consuming heavy mobile data.
 >
-> **🐛 Bug-Fix: Verse-only entries now save and re-open correctly**
-> If you log a scripture without adding notes, it will display highlighted in blue (as a proper reference) and open ready to edit — just like entries with notes.
+> Try uploading your journal photo today! As always, keep building that daily habit of drawing near to God. 🙏
 >
-> Open the app and give it a try. As always, reach out if anything looks off. 🙏
+> 🌐 Access it here: https://daily-devotion-tracker.vercel.app/
 
 ---
 
 ## Option B — Slightly More Formal (Email Newsletter / Notice Board)
 
-> **Devotion Tracker — App Update | June 2026**
+> **Devotion Tracker — App Update | August 2026**
 >
-> A new update to the Devotion Tracker is now live. Here's a summary of what changed:
+> We are pleased to announce a major enhancement to the Devotion Tracker platform. Here is what is new in the latest update:
 >
-> **New: Inline Verse Preview**
-> When you select a Bible reference in your devotion entry, the King James Version text will appear below the selector as a preview — numbered verse by verse and fully scrollable. This makes it easier to confirm you have the right passage before saving.
+> **New Feature: Journal & Bible Photo Attachments**
+> Members can now upload photos of physical journal pages, handwritten reflections, or highlighted scripture margins alongside their daily check-ins and notes.
 >
-> **New: Accurate Verse Range Dropdowns**
-> The "Verse Start" and "Verse End" dropdowns now reflect the actual number of verses in the chapter you selected, rather than a fixed list. Short chapters like Psalm 117 will only show 2 options; longer ones like Psalm 119 will show all 176.
+> **New Feature: Interactive Lightbox Photo Viewer**
+> Clicking any photo attachment anywhere in the application (including Today's Devotion, Past Devotion Timeline, Calendar View, and Admin Community Reports) opens a high-resolution full-screen viewer for easy reading.
 >
-> **Fixed: Saving Scripture Without Notes**
-> Previously, logging a devotion with only a Bible reference (no personal notes) would cause the reference to appear as plain text and fail to pre-fill the dropdowns when editing. This has been corrected — verse-only entries now display and edit correctly.
+> **Optimized Performance & Privacy**
+> Uploaded images undergo client-side image compression prior to transfer, ensuring minimal data usage and fast loading times on mobile networks. Uploaded photos are securely stored and tied strictly to your personal account.
 >
-> No action is required from you. Simply open the app and continue your daily devotion. May God continue to bless your time in His Word.
+> No action is required. Open the app to start capturing your daily devotion moments.
 
 ---
 
 ## Option C — Instagram / Story Caption (Minimal)
 
-> 📖 Devotion Tracker just got better.
+> 📸 Snap it. Log it. Reflect.
 >
-> → See the verse text as you log it
-> → Verse dropdowns match the actual chapter
-> → Bug fix: verse-only entries now display correctly
+> New in Devotion Tracker:
+> → Attach photos of your handwritten journal or Bible page 📖
+> → Tap to view & zoom in full screen 🔍
+> → Fast, data-friendly auto-compression ⚡
 >
-> Open the app. Keep going. 🙏
-> #DevotionTracker #DailyDevotion #FaithApp #ChurchTech
+> Keep growing daily. ✨
+> https://daily-devotion-tracker.vercel.app/
+>
+> #DevotionTracker #DailyDevotion #FaithApp #Journaling #BibleStudy #ChurchTech
