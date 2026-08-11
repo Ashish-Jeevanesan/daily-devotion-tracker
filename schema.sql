@@ -87,7 +87,7 @@ ALTER TABLE public.devotions ADD COLUMN IF NOT EXISTS image_url text NULL;
 -- Storage bucket & RLS policies for 'user_devotions'
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('user_devotions', 'user_devotions', true)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET public = true;
 
 DO $$
 BEGIN
