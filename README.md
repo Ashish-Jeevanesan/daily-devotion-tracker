@@ -10,8 +10,10 @@ A web application for church members to track their daily devotions, including p
 - Access-rule based feature authorization via `access_rules` and `profile_access_rules`
 - Daily Check-ins for Prayer and Bible Reading
 - Visual Progress Calendar with Daily Status
-- Detailed Devotion Note Entry
-- History of Past Devotions
+- Detailed Devotion Note Entry with live scripture preview
+- Selectable Bible translations per language (English: KJV / WEB / ASV; Hindi / Tamil / Odia versions) sourced from [wldeh/bible-api](https://github.com/wldeh/bible-api)
+- Canonical, language-accurate verse text (home verse and encouragements use real Bible-translation wording)
+- History of Past Devotions with incremental "Show more" loading
 - Profile Center with mobile-friendly section navigation
 - Profile report frequency selection (`WEEKLY` / `MONTHLY`) stored in `profiles.report_preference`
 - Profile notification settings for browser reminders (`notification_enabled`, timezone)
@@ -30,12 +32,22 @@ A web application for church members to track their daily devotions, including p
 
 - **Frontend:** Angular 19, Angular Material (M3), ngx-translate (i18n), angular-calendar, ngx-charts
 - **Backend:** Supabase (Authentication & PostgreSQL Database)
+- **Scripture:** [wldeh/bible-api](https://github.com/wldeh/bible-api) (public-domain / open-license translations) served via the jsDelivr CDN
 
 ## Internationalization
 
 The application supports multiple languages, with UI strings localized and managed inside JSON files located in `public/i18n/<lang>.json` (`en`, `hi`, `or`, `ta`).
 - The default/fallback language is **English**.
 - Each user's language preference is persisted in `profiles.language` on Supabase, and is applied automatically upon login.
+
+## Bible Versions
+
+Scripture text is fetched on demand from [wldeh/bible-api](https://github.com/wldeh/bible-api) through the jsDelivr CDN (no API key required).
+
+- The version registry lives in `src/app/data/bible-versions.ts`; localized book-folder maps for non-English versions live in `src/app/data/bible-version-books.ts`.
+- **English** offers King James Version (KJV), World English Bible (WEB), and American Standard Version (ASV), chosen from a dropdown in the verse-preview card. NKJV and ESV are not offered because they are not open-licensed.
+- **Hindi, Tamil, and Odia** each use their respective open translation (IRV Hindi, Tamil Contemporary, IRV Odia); additional per-language versions can be added to the registry once their book-folder maps are verified.
+- Only public-domain / open-license translations are available through this source.
 
 ## Getting Started
 
