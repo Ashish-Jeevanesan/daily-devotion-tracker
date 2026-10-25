@@ -82,6 +82,13 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dob date NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS church_name text NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS report_preference text NOT NULL DEFAULT 'MONTHLY';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS language text NOT NULL DEFAULT 'en';
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profiles_language_check') THEN
+    ALTER TABLE public.profiles ADD CONSTRAINT profiles_language_check CHECK (language IN ('en','hi','or','ta'));
+  END IF;
+END $$;
 ALTER TABLE public.devotions ADD COLUMN IF NOT EXISTS image_url text NULL;
 
 -- Storage bucket & RLS policies for 'user_devotions'

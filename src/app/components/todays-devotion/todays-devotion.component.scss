@@ -13,6 +13,35 @@ mat-card-header {
   min-height: 150px;
 }
 
+.compact-empty-state {
+  min-height: 120px;
+  padding: 16px;
+  
+  .empty-icon {
+    font-size: 32px;
+    height: 32px;
+    width: 32px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .touch-target-button {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 22px;
+  }
+}
+
 .devotion-display {
   p {
     white-space: pre-wrap;

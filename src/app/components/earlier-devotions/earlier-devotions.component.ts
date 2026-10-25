@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { Devotion, DevotionService } from '../../services/devotion.service';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -9,6 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lightbox-dialog.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Define a new interface that extends Devotion
 export interface DevotionTimelineItem extends Devotion {
@@ -35,6 +36,7 @@ export interface Encouragement {
 
 @Component({
   selector: 'app-earlier-devotions',
+  standalone: true,
   imports: [
     MatCardModule,
     DatePipe,
@@ -43,7 +45,8 @@ export interface Encouragement {
     ClipboardModule,
     MatSnackBarModule,
     MatDialogModule,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './earlier-devotions.component.html',
   styleUrls: ['./earlier-devotions.component.scss']
@@ -51,6 +54,17 @@ export interface Encouragement {
 /** Timeline of previous devotions with gaps highlighted as missed days. */
 export class EarlierDevotionsComponent implements OnInit {
   timeline = signal<TimelineItem[]>([]);
+
+  /** Progressive rendering: show a page of timeline items at a time. */
+  private readonly pageSize = 10;
+  visibleCount = signal(this.pageSize);
+  visibleTimeline = computed(() => this.timeline().slice(0, this.visibleCount()));
+  hasMore = computed(() => this.timeline().length > this.visibleCount());
+
+  /** Reveal the next page of earlier devotions. */
+  showMore(): void {
+    this.visibleCount.update(count => count + this.pageSize);
+  }
 
   private encouragements: Encouragement[] = [
     {
@@ -74,7 +88,8 @@ export class EarlierDevotionsComponent implements OnInit {
   constructor(
     private devotionService: DevotionService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private translate: TranslateService
   ) {}
 
   /** Load earlier devotions and build the timeline. */
@@ -126,21 +141,25 @@ export class EarlierDevotionsComponent implements OnInit {
 
   /** Pick a random encouragement for missed-day gaps. */
   private getRandomEncouragement(): Encouragement {
-    return this.encouragements[Math.floor(Math.random() * this.encouragements.length)];
+    const encouragementKey = `earlierDevotions.encouragements.${Math.floor(Math.random() * 4)}`;
+    return {
+      message: this.translate.instant(`${encouragementKey}.message`),
+      verse: this.translate.instant(`${encouragementKey}.verse`)
+    };
   }
 
   /** Open full-screen lightbox for devotion photo. */
   openImageLightbox(imageUrl: string): void {
     if (!imageUrl) return;
     this.dialog.open(ImageLightboxDialogComponent, {
-      data: { imageUrl, title: 'Devotion Photo' }
+      data: { imageUrl, title: this.translate.instant('earlierDevotions.photoTitle') }
     });
   }
 
   /** Notify user when devotion text is copied. */
   copyDevotion(notes: string): void {
     if (notes) {
-      this.snackBar.open('Devotion copied to clipboard!', 'Close', {
+      this.snackBar.open(this.translate.instant('todaysDevotion.copied'), this.translate.instant('common.close'), {
         duration: 3000
       });
     }

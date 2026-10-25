@@ -7,14 +7,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { Observable, Subscription, combineLatest, of } from 'rxjs';
+import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { MatOptionSelectionChange } from '@angular/material/core';
+import { Observable, Subscription, combineLatest, of, BehaviorSubject } from 'rxjs';
 import { catchError, debounceTime, map, startWith, switchMap } from 'rxjs/operators';
 import { BibleService, VersePreview } from '../../services/bible.service';
 import { BibleBook } from '../../data/bible-books';
 import { Devotion, DevotionService } from '../../services/devotion.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BibleTranslationService } from '../../data/bible-translation.service';
+import { LanguageService } from '../../services/language.service';
+import { BibleVersion, versionsForLang, defaultVersionForLang } from '../../data/bible-versions';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 interface VersePreviewState {
   status: 'idle' | 'loading' | 'loaded' | 'too-long';
@@ -24,6 +32,7 @@ interface VersePreviewState {
 
 @Component({
   selector: 'app-devotion-entry-dialog',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -35,7 +44,11 @@ interface VersePreviewState {
     MatIconModule,
     MatAutocompleteModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslateModule,
+    MatTooltipModule,
+    MatToolbarModule,
+    TextFieldModule
   ],
   templateUrl: './devotion-entry-dialog.component.html',
   styleUrl: './devotion-entry-dialog.component.scss'
@@ -46,7 +59,7 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   bibleBooks: BibleBook[] = [];
   chapters: number[] = [];
   verses: number[] = Array.from({ length: 176 }, (_, i) => i + 1);
-  filteredBooks!: Observable<BibleBook[]>;
+  filteredBooks$: Observable<BibleBook[]>[] = [];
   chapters$: { [key: number]: Observable<number[]> } = {};
   verseCounts$: { [key: number]: Observable<number[]> } = {};
   isSaving = false;
@@ -57,6 +70,10 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   isUploadingImage = false;
   imageError: string | null = null;
 
+  availableVersions: BibleVersion[] = [];
+  selectedVersionId = 'en-kjv';
+  private versionChange$ = new BehaviorSubject<string>('en-kjv');
+
   private previewSubscriptions = new Map<FormGroup, Subscription>();
   private previewStates = new Map<FormGroup, VersePreviewState>();
   private currentDevotion: Devotion | null;
@@ -66,11 +83,19 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: { devotion: Devotion | null },
     private bibleService: BibleService,
     private devotionService: DevotionService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private translate: TranslateService,
+    public bibleTranslationService: BibleTranslationService,
+    private languageService: LanguageService
   ) {
     this.currentDevotion = data.devotion;
     this.existingImageUrl = this.currentDevotion?.image_url || null;
     this.imagePreviewUrl = this.existingImageUrl;
+
+    const lang = this.languageService.getCurrentLang();
+    this.availableVersions = versionsForLang(lang);
+    this.selectedVersionId = defaultVersionForLang(lang);
+    this.versionChange$.next(this.selectedVersionId);
     const notes = this.currentDevotion?.notes || '';
     
     let content = notes;
@@ -87,8 +112,6 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
       content = notes.substring(separatorIndex + 3);
       references = parseRefString(notes.substring(0, separatorIndex));
     } else {
-      // Verse-only save: the stored string is entirely composed of reference(s) with no notes text.
-      // Matches formats like "John 3:16" or "Genesis 3:5-19, Romans 6:23" but not free-form sentences.
       const refOnlyPattern = /^(?:[1-3]?\s?[a-zA-Z]+(?:\s[a-zA-Z]+)*\s\d+:\d+(?:-\d+)?(?:,\s*)?)+$/;
       if (refOnlyPattern.test(notes.trim())) {
         references = parseRefString(notes);
@@ -116,12 +139,12 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
 
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     if (!validTypes.includes(file.type.toLowerCase())) {
-      this.imageError = 'Please select a valid image (.jpg, .png, .webp).';
+      this.imageError = this.translate.instant('devotionEntry.imageTypeError');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.imageError = 'Image size must be under 5MB.';
+      this.imageError = this.translate.instant('devotionEntry.imageSizeError');
       return;
     }
 
@@ -140,20 +163,29 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
 
   /** Load Bible data and initialize reference dropdowns. */
   ngOnInit() {
-    this.bibleService.getBooks().subscribe(books => {
-      this.bibleBooks = books;
+    // Guard against accidental data loss: intercept backdrop/Escape close.
+    this.dialogRef.disableClose = true;
+    this.dialogRef.backdropClick().subscribe(() => this.onCancel());
+    this.dialogRef.keydownEvents().subscribe(event => {
+      if (event.key === 'Escape') {
+        this.onCancel();
+      }
     });
 
-    this.references.controls.forEach((control, index) => {
-      const bookName = control.get('book')?.value;
-      const chapter = control.get('chapter')?.value;
-      if (bookName) {
-        this.updateChapters(index, bookName);
-      }
-      if (bookName && chapter) {
-        this.updateVerseCounts(index, bookName, chapter);
-      }
-      this.watchReferenceForPreview(control as FormGroup);
+    this.bibleService.getBooks().subscribe(books => {
+      this.bibleBooks = books;
+      this.references.controls.forEach((control, index) => {
+        const bookName = control.get('book')?.value;
+        const chapter = control.get('chapter')?.value;
+        if (bookName) {
+          this.updateChapters(index, bookName);
+        }
+        if (bookName && chapter) {
+          this.updateVerseCounts(index, bookName, chapter);
+        }
+        this.setupBookFilter(index);
+        this.watchReferenceForPreview(control as FormGroup);
+      });
     });
   }
 
@@ -207,6 +239,8 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   addReference(): void {
     const group = this.createReferenceGroup();
     this.references.push(group);
+    const newIndex = this.references.length - 1;
+    this.setupBookFilter(newIndex);
     this.watchReferenceForPreview(group);
   }
 
@@ -228,13 +262,24 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   }
 
   get isMobile(): boolean {
-    return window.innerWidth < 768;
+    return window.innerWidth <= 600;
   }
 
-  /** Initialize book autocomplete for the given row. */
-  onBookFocus(index: number) {
-    this.filteredBooks = this.references.at(index).get('book')!.valueChanges.pipe(
-      startWith(''),
+  /** Short abbreviation of the currently-selected Bible version (e.g. "KJV"). */
+  get selectedVersionAbbrev(): string {
+    return this.availableVersions.find(v => v.id === this.selectedVersionId)?.abbrev || '';
+  }
+
+  /** Switch the Bible version and refresh all open verse previews. */
+  onVersionChange(versionId: string): void {
+    this.selectedVersionId = versionId;
+    this.versionChange$.next(versionId);
+  }
+
+  private setupBookFilter(index: number) {
+    const ctrl = this.references.at(index).get('book')!;
+    this.filteredBooks$[index] = ctrl.valueChanges.pipe(
+      startWith(ctrl.value || ''),
       map(value => {
         const name = typeof value === 'string' ? value : value?.name;
         return name ? this._filterBooks(name) : this.bibleBooks.slice();
@@ -245,13 +290,30 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
   /** Filter Bible books for autocomplete. */
   private _filterBooks(value: string): BibleBook[] {
     const filterValue = value.toLowerCase();
-    return this.bibleBooks.filter(book => book.name.toLowerCase().includes(filterValue));
+    return this.bibleBooks.filter(book => book.name.toLowerCase().includes(filterValue) || this.bibleTranslationService.getTranslatedBookName(book.name).toLowerCase().includes(filterValue));
   }
   
-  /** Format selected book value for display. */
-  displayBook(book: BibleBook | string): string {
+  /**
+   * Format the selected book for display in the input.
+   * Arrow function so `this` stays bound to the component when Angular Material invokes
+   * it via [displayWith] (a plain method would lose `this` and fail on bibleTranslationService).
+   */
+  displayBook = (book: BibleBook | string): string => {
       if (typeof book === 'string') return book;
-      return book ? book.name : '';
+      return book ? this.bibleTranslationService.getTranslatedBookName(book.name) : '';
+  };
+
+  /**
+   * Commit a book selection manually.
+   * In this @for + async-pipe autocomplete setup the trigger's built-in selection
+   * handling doesn't fire (the option-selection stream doesn't reach the trigger), so
+   * we listen to each option's own onSelectionChange, set the control value from it, and
+   * close the panel on the next tick.
+   */
+  onBookOptionSelected(event: MatOptionSelectionChange, index: number, book: BibleBook, trigger: MatAutocompleteTrigger): void {
+    if (!event.isUserInput) return;
+    this.references.at(index).get('book')!.setValue(book);
+    setTimeout(() => trigger.closePanel());
   }
 
   /** Subscribe to a reference row's field changes and update its verse preview state. */
@@ -273,19 +335,19 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
 
     const val = (ctrl: string) => group.get(ctrl)!.valueChanges.pipe(startWith(group.get(ctrl)!.value));
 
-    const previewSub = combineLatest([val('book'), val('chapter'), val('verseStart'), val('verseEnd')]).pipe(
+    const previewSub = combineLatest([val('book'), val('chapter'), val('verseStart'), val('verseEnd'), this.versionChange$]).pipe(
       debounceTime(400),
-      switchMap(([book, chapter, verseStart, verseEnd]) => {
+      switchMap(([book, chapter, verseStart, verseEnd, versionId]) => {
         const bookName = typeof book === 'object' && book?.name ? book.name : (book as string || '');
         if (!bookName || !chapter || !verseStart) {
           return of<VersePreviewState>({ status: 'idle' });
         }
         const range = verseEnd && verseEnd !== '' ? Number(verseEnd) - Number(verseStart) : 0;
         if (range < 0) return of<VersePreviewState>({ status: 'idle' });
-        const isMobile = window.innerWidth < 768;
+        const isMobile = window.innerWidth <= 600;
         if (isMobile && range > 20) return of<VersePreviewState>({ status: 'too-long' });
 
-        return this.bibleService.getVerseText(bookName, chapter, verseStart, verseEnd || null).pipe(
+        return this.bibleService.getVerseText(bookName, chapter, verseStart, verseEnd || null, versionId as string).pipe(
           map((result: VersePreview | null) => result
             ? <VersePreviewState>{ status: 'loaded', reference: result.reference, verses: result.verses }
             : <VersePreviewState>{ status: 'idle' }
@@ -313,8 +375,16 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
     return notes || hasValidRef || hasImage ? null : { noContent: true };
   };
 
-  /** Close the dialog without saving. */
+  /** Whether the form has unsaved edits (notes/references dirty or image changed). */
+  private hasUnsavedChanges(): boolean {
+    return this.form.dirty || !!this.selectedFile || this.removeImageRequested;
+  }
+
+  /** Close the dialog without saving, confirming first if there are unsaved changes. */
   onCancel(): void {
+    if (this.hasUnsavedChanges() && !window.confirm(this.translate.instant('devotionEntry.discardConfirm'))) {
+      return;
+    }
     this.dialogRef.close();
   }
 
@@ -333,7 +403,7 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
         this.isUploadingImage = true;
         const uploadedUrl = await this.devotionService.uploadDevotionImage(this.selectedFile);
         if (!uploadedUrl) {
-          this.snackBar.open('Failed to upload image. Please try again.', 'Close', {
+          this.snackBar.open(this.translate.instant('devotionEntry.uploadError'), this.translate.instant('common.close'), {
             duration: 5000,
             panelClass: 'error-snackbar'
           });
@@ -380,7 +450,7 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
         updatedDevotion = await this.devotionService.addDevotion(finalNote, finalImageUrl);
       }
       
-      this.snackBar.open('Devotion saved successfully!', 'Close', {
+      this.snackBar.open(this.translate.instant('devotionEntry.saveSuccess'), this.translate.instant('common.close'), {
         duration: 3000,
         panelClass: 'success-snackbar'
       });
@@ -388,7 +458,7 @@ export class DevotionEntryDialogComponent implements OnInit, OnDestroy {
 
     } catch (error) {
       console.error('Error saving devotion', error);
-      this.snackBar.open('Something went wrong. Please try again.', 'Close', {
+      this.snackBar.open(this.translate.instant('devotionEntry.saveError'), this.translate.instant('common.close'), {
         duration: 5000,
         panelClass: 'error-snackbar'
       });

@@ -1,5 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -18,6 +19,7 @@ import * as XLSX from 'xlsx';
 import { AdminReportsService, UserDevotionNote } from '../../services/admin-reports.service';
 import { Profile, ProfileService } from '../../services/profile.service';
 import { ImageLightboxDialogComponent } from '../../components/image-lightbox-dialog/image-lightbox-dialog.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface ReportRow {
   userId: string;
@@ -46,13 +48,14 @@ type ReportRange = 'daily' | 'weekly' | 'monthly';
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
-    NgxChartsModule
+    NgxChartsModule,
+    TranslateModule
   ],
   templateUrl: './admin-reports.component.html',
   styleUrl: './admin-reports.component.scss'
 })
 /** Admin-only reporting dashboard with filters, KPIs, chart, and export. */
-export class AdminReportsComponent implements OnInit {
+export class AdminReportsComponent implements OnInit, OnDestroy {
   @ViewChild('notesPanel') notesPanel?: ElementRef<HTMLElement>;
 
   profiles: Profile[] = [];
@@ -84,11 +87,14 @@ export class AdminReportsComponent implements OnInit {
     domain: ['#2F6B5A', '#8AA398', '#C9D6CF']
   };
 
+  private langChangeSub?: Subscription;
+
   constructor(
     private adminReportsService: AdminReportsService,
     private profileService: ProfileService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private translate: TranslateService
   ) {}
 
   /** Open full-screen lightbox for user's devotion photo. */
@@ -104,6 +110,15 @@ export class AdminReportsComponent implements OnInit {
     this.setRange(this.selectedDate);
     this.loadProfiles();
     this.loadReport();
+    this.langChangeSub = this.translate.onLangChange.subscribe(() => {
+      this.updateDerivedData();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.langChangeSub) {
+      this.langChangeSub.unsubscribe();
+    }
   }
 
   /** Fetch all user profiles for the filter dropdown. */
@@ -142,7 +157,7 @@ export class AdminReportsComponent implements OnInit {
       this.topConsistency = null;
       this.averageDays = 0;
       this.activeUsers = 0;
-      this.snackBar.open('Failed to load reports. Please try again.', 'Close', {
+      this.snackBar.open(this.translate.instant('admin.loadReportsError'), this.translate.instant('common.close'), {
         duration: 4000,
         panelClass: 'error-snackbar'
       });
@@ -195,7 +210,7 @@ export class AdminReportsComponent implements OnInit {
       );
     } catch (error) {
       this.clearSelectedNotes();
-      this.snackBar.open('Failed to load devotion notes for this user.', 'Close', {
+      this.snackBar.open(this.translate.instant('admin.loadNotesError'), this.translate.instant('common.close'), {
         duration: 4000,
         panelClass: 'error-snackbar'
       });
@@ -306,9 +321,9 @@ export class AdminReportsComponent implements OnInit {
     this.activeUsers = activeUsers;
     this.topConsistency = top;
     this.distributionData = [
-      { name: '0–2 days', value: counts.low },
-      { name: '3–5 days', value: counts.mid },
-      { name: '6–7 days', value: counts.high }
+      { name: this.translate.instant('admin.distributionLow'), value: counts.low },
+      { name: this.translate.instant('admin.distributionMid'), value: counts.mid },
+      { name: this.translate.instant('admin.distributionHigh'), value: counts.high }
     ];
   }
 

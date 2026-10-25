@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lightbox-dialog.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-todays-devotion',
@@ -20,7 +21,8 @@ import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lig
     MatDialogModule,
     MatIconModule,
     ClipboardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslateModule
   ],
   templateUrl: './todays-devotion.component.html',
   styleUrl: './todays-devotion.component.scss'
@@ -52,7 +54,8 @@ export class TodaysDevotionComponent implements OnInit {
   constructor(
     private devotionService: DevotionService,
     public dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private translate: TranslateService
   ) {}
 
   /** Load today's devotion and emit changes to parent. */
@@ -70,19 +73,25 @@ export class TodaysDevotionComponent implements OnInit {
   openImageLightbox(imageUrl: string): void {
     if (!imageUrl) return;
     this.dialog.open(ImageLightboxDialogComponent, {
-      data: { imageUrl, title: "Today's Devotion Photo" }
+      data: { imageUrl, title: this.translate.instant('todaysDevotion.photoTitle') }
     });
   }
 
   /** Open the entry dialog to create or edit today's devotion. */
   openDevotionDialog(): void {
     const currentDevotion = this.todaysDevotion();
-    
-    const dialogRef = this.dialog.open(DevotionEntryDialogComponent, {
-      width: '80vw',
-      maxWidth: '900px',
+    const isMobile = window.innerWidth <= 600;
+
+    const config = {
+      width: isMobile ? '100%' : '80vw',
+      maxWidth: isMobile ? '100vw' : '900px',
+      height: isMobile ? '100%' : 'auto',
+      panelClass: isMobile ? 'mobile-fullscreen' : '',
+      autoFocus: 'dialog',
       data: { devotion: currentDevotion }
-    });
+    };
+    (config as any).ariaModal = true;
+    const dialogRef = this.dialog.open(DevotionEntryDialogComponent, config);
 
     dialogRef.afterClosed().subscribe((updatedDevotion: Devotion | undefined) => {
       if (updatedDevotion) {
@@ -92,12 +101,12 @@ export class TodaysDevotionComponent implements OnInit {
     });
   }
 
-  /** Notify user when devotion text is copied. */
+  /** Show snackbar confirmation when devotion notes are copied. */
   copyDevotion(): void {
     const devotion = this.todaysDevotion();
     if (devotion?.notes) {
       // Logic handled by cdkCopyToClipboard directive, but we can show a snackbar
-      this.snackBar.open('Devotion copied to clipboard!', 'Close', {
+      this.snackBar.open(this.translate.instant('todaysDevotion.copied'), this.translate.instant('common.close'), {
         duration: 3000
       });
     }

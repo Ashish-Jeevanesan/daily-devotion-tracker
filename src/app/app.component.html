@@ -1,44 +1,5 @@
 <mat-sidenav-container class="app-container">
 
-  <!-- ===== Mobile / Side Menu ===== -->
-  <mat-sidenav #sidenav mode="over" position="end">
-    <mat-nav-list>
-
-      <a mat-list-item routerLink="/profile" (click)="sidenav.close()">
-        <mat-icon>account_circle</mat-icon>
-        <span>Profile</span>
-      </a>
-      <a mat-list-item routerLink="/progress" (click)="sidenav.close()">
-        <mat-icon>calendar_today</mat-icon>
-        <span>Progress</span>
-      </a>
-      <a
-        *ngIf="canViewAdminReports()"
-        mat-list-item
-        routerLink="/admin/reports"
-        (click)="sidenav.close()"
-      >
-        <mat-icon>admin_panel_settings</mat-icon>
-        <span>Admin Reports</span>
-      </a>
-      <a mat-list-item (click)="signOut(); sidenav.close()">
-        <mat-icon>exit_to_app</mat-icon>
-        <span>Sign Out</span>
-      </a>
-
-      <mat-divider></mat-divider>
-
-      <mat-list-item>
-        <mat-slide-toggle
-          [checked]="themeService.isDark()"
-          (change)="themeService.toggleTheme()">
-          Dark mode
-        </mat-slide-toggle>
-      </mat-list-item>
-
-    </mat-nav-list>
-  </mat-sidenav>
-
   <!-- ===== Main Content ===== -->
   <mat-sidenav-content>
 
@@ -46,92 +7,120 @@
     <mat-toolbar class="app-toolbar" color="primary">
 
       <!-- App title -->
-      <span class="app-title" routerLink="/">
-        {{ title }}
-      </span>
+      <a routerLink="/" class="brand-link" [attr.aria-label]="'app.title' | translate">
+        <img src="favicon.ico" alt="Devotion Tracker logo" class="brand-logo">
+        <span class="app-title">
+          {{ 'app.title' | translate }}
+        </span>
+      </a>
 
       <span class="spacer"></span>
 
       <!-- Desktop actions -->
-      <div class="desktop-only" *ngIf="isLoggedIn()">
+      <div class="desktop-only">
+        <button mat-icon-button [matMenuTriggerFor]="langMenu" [attr.aria-label]="'common.language' | translate" [matTooltip]="'common.language' | translate">
+          <mat-icon>language</mat-icon>
+        </button>
+        <mat-menu #langMenu="matMenu">
+          <button mat-menu-item *ngFor="let lang of languageService.supportedLangs" (click)="onLanguageChange(lang)">
+            <mat-icon *ngIf="languageService.getCurrentLang() === lang">check</mat-icon>
+            <span>{{ languageService.nativeLangLabels[lang] }}</span>
+          </button>
+        </mat-menu>
 
         <button
           mat-icon-button
           (click)="themeService.toggleTheme()"
-          aria-label="Toggle theme">
+          [attr.aria-label]="'Toggle theme'"
+          [matTooltip]="'common.darkMode' | translate">
           <mat-icon>
             {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
           </mat-icon>
         </button>
 
-        <button
-          mat-icon-button
-          routerLink="/progress"
-          aria-label="Progress">
-          <mat-icon>calendar_today</mat-icon>
-        </button>
+        <ng-container *ngIf="isLoggedIn()">
+          <button
+            mat-icon-button
+            routerLink="/progress"
+            [attr.aria-label]="'nav.progress' | translate"
+            [matTooltip]="'nav.progress' | translate">
+            <mat-icon>calendar_today</mat-icon>
+          </button>
 
-        <button
-          *ngIf="canViewAdminReports()"
-          mat-icon-button
-          routerLink="/admin/reports"
-          aria-label="Admin Reports">
-          <mat-icon>admin_panel_settings</mat-icon>
-        </button>
+          <button
+            *ngIf="canViewAdminReports()"
+            mat-icon-button
+            routerLink="/admin/reports"
+            [attr.aria-label]="'nav.adminReports' | translate"
+            [matTooltip]="'nav.adminReports' | translate">
+            <mat-icon>admin_panel_settings</mat-icon>
+          </button>
 
-        <button
-          mat-icon-button
-          routerLink="/profile"
-          aria-label="User Profile">
-          <mat-icon>account_circle</mat-icon>
-        </button>
+          <button
+            mat-icon-button
+            routerLink="/profile"
+            [attr.aria-label]="'nav.profile' | translate"
+            [matTooltip]="'nav.profile' | translate">
+            <mat-icon>account_circle</mat-icon>
+          </button>
 
-        <button mat-button (click)="signOut()">
-          Sign out
-        </button>
-
+          <button
+            mat-icon-button
+            (click)="signOut()"
+            [attr.aria-label]="'nav.signOut' | translate"
+            [matTooltip]="'nav.signOut' | translate">
+            <mat-icon>exit_to_app</mat-icon>
+          </button>
+        </ng-container>
       </div>
 
-      <!-- Mobile menu button -->
-      <button
-        mat-icon-button
-        class="mobile-only"
-        (click)="sidenav.toggle()"
-        aria-label="Menu">
-        <mat-icon>menu</mat-icon>
-      </button>
-
+      <!-- Mobile kebab menu -->
+      <div class="mobile-only">
+        <button mat-icon-button [matMenuTriggerFor]="mobileKebabMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #mobileKebabMenu="matMenu">
+          <button mat-menu-item (click)="themeService.toggleTheme()">
+            <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            <span>{{ 'common.darkMode' | translate }}</span>
+          </button>
+          <button mat-menu-item [matMenuTriggerFor]="langMenu">
+            <mat-icon>language</mat-icon>
+            <span>{{ 'common.language' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="signOut()">
+            <mat-icon>exit_to_app</mat-icon>
+            <span>{{ 'nav.signOut' | translate }}</span>
+          </button>
+        </mat-menu>
+      </div>
     </mat-toolbar>
 
     <!-- Page Content -->
     <main class="content">
       <router-outlet></router-outlet>
     </main>
-
-    <footer class="app-footer">
-      <div class="footer-left">
-        <span class="footer-text">
-          © {{ currentYear }} · Built for our church ✝️ ·
-        </span>
-      </div>
-      <a
-          class="footer-link"
-          href="mailto:ashishjwork09@gmail.com?subject=Daily%20Devotion%20Tracker%20-%20Contact%20Developer"
-          aria-label="Contact developer"
-        >
-          Contact Developer
-        </a>
-    
-      <!-- <a
-        class="footer-link"
-        href="mailto:ashishjwork09@gmail.com?subject=Daily%20Devotion%20Tracker%20-%20Feedback"
-        aria-label="Send feedback to developer"
-      >
-        Feedback / Issues
-      </a> -->
-    </footer>
-
   </mat-sidenav-content>
+
 </mat-sidenav-container>
+
+<mat-toolbar class="bottom-nav-bar mobile-only">
+  <a routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+    <mat-icon>home</mat-icon>
+    <span>{{ 'nav.home' | translate }}</span>
+  </a>
+  <a routerLink="/progress" routerLinkActive="active-link" class="nav-item">
+    <mat-icon>calendar_today</mat-icon>
+    <span>{{ 'nav.progress' | translate }}</span>
+  </a>
+  <a routerLink="/profile" routerLinkActive="active-link" class="nav-item">
+    <mat-icon>account_circle</mat-icon>
+    <span>{{ 'nav.profile' | translate }}</span>
+  </a>
+  <a *ngIf="canViewAdminReports()" routerLink="/admin/reports" routerLinkActive="active-link" class="nav-item">
+    <mat-icon>admin_panel_settings</mat-icon>
+    <span>{{ 'nav.adminReports' | translate }}</span>
+  </a>
+</mat-toolbar>
 
 <app-notification-outlet></app-notification-outlet>

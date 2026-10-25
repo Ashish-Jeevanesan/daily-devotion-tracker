@@ -3,6 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-image-lightbox-dialog',
@@ -11,23 +13,25 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    TranslateModule,
+    MatTooltipModule
   ],
   template: `
     <div class="lightbox-container">
       <div class="lightbox-header">
-        <span class="lightbox-title">{{ data.title || 'Devotion Photo' }}</span>
+        <span class="lightbox-title">{{ data.title || ('imageLightbox.defaultTitle' | translate) }}</span>
         <div class="lightbox-actions">
-          <a [href]="data.imageUrl" target="_blank" download class="mat-icon-button" mat-icon-button matTooltip="Open full size">
+          <a [href]="data.imageUrl" target="_blank" download class="mat-icon-button" mat-icon-button [matTooltip]="'imageLightbox.openFullSize' | translate">
             <mat-icon>open_in_new</mat-icon>
           </a>
-          <button mat-icon-button (click)="dialogRef.close()" matTooltip="Close">
+          <button mat-icon-button (click)="dialogRef.close()" [matTooltip]="'common.close' | translate">
             <mat-icon>close</mat-icon>
           </button>
         </div>
       </div>
       <div class="lightbox-body">
-        <img [src]="data.imageUrl" [alt]="data.title || 'Devotion Photo'" class="lightbox-image" />
+        <img [src]="data.imageUrl" [alt]="data.title || ('imageLightbox.defaultTitle' | translate)" class="lightbox-image" />
       </div>
     </div>
   `,

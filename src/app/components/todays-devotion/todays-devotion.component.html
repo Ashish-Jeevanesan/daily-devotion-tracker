@@ -1,11 +1,11 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Today's Devotion Notes</mat-card-title>
+    <mat-card-title>{{ 'todaysDevotion.title' | translate }}</mat-card-title>
     @if(todaysDevotion()) {
-      <button mat-icon-button [cdkCopyToClipboard]="todaysDevotion()?.notes || ''" (click)="copyDevotion()" aria-label="Copy devotion notes">
+      <button mat-icon-button [cdkCopyToClipboard]="todaysDevotion()?.notes || ''" (click)="copyDevotion()" [attr.aria-label]="'todaysDevotion.copy' | translate">
         <mat-icon>content_copy</mat-icon>
       </button>
-      <button mat-icon-button (click)="openDevotionDialog()" aria-label="Edit devotion notes">
+      <button mat-icon-button (click)="openDevotionDialog()" [attr.aria-label]="'todaysDevotion.edit' | translate">
         <mat-icon>edit</mat-icon>
       </button>
     }
@@ -27,15 +27,16 @@
           @if(todaysDevotion()?.image_url) {
             <div class="devotion-image-wrapper" (click)="openImageLightbox(todaysDevotion()!.image_url!)">
               <img [src]="todaysDevotion()?.image_url" alt="Today's devotion photo" class="devotion-thumb" />
-              <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+              <span class="expand-badge"><mat-icon>zoom_in</mat-icon> {{ 'common.clickToExpand' | translate }}</span>
             </div>
           }
         </div>
       } @else {
-        <div class="add-button-container">
-          <p>You haven't added your devotion notes for today.</p>
-          <button mat-raised-button color="primary" (click)="openDevotionDialog()">
-            Add Devotion Notes
+        <div class="add-button-container compact-empty-state">
+          <mat-icon class="empty-icon">menu_book</mat-icon>
+          <p class="empty-text">{{ 'todaysDevotion.empty' | translate }}</p>
+          <button mat-raised-button color="primary" class="touch-target-button" (click)="openDevotionDialog()">
+            {{ 'todaysDevotion.addNotes' | translate }}
           </button>
         </div>
       }

@@ -1,25 +1,30 @@
 @use '@angular/material' as mat;
-
 @import "../node_modules/angular-calendar/css/angular-calendar.css";
 
-/* You can add global styles to this file, and also import other style files */
 @include mat.core();
 
-/* Define themes (NO palettes in v17+) */
 $light-theme: mat.define-theme((
   color: (
     theme-type: light,
+    primary: mat.$blue-palette,     // Matches our blue favicon theme
+    tertiary: mat.$orange-palette,  // warm gold accent family
   ),
+  typography: (
+    brand-family: 'Lora, Cormorant Garamond, serif',   // headings
+    plain-family: 'Inter, system-ui, sans-serif',        // body
+  ),
+  density: ( scale: 0 ),
 ));
 
 $dark-theme: mat.define-theme((
   color: (
     theme-type: dark,
+    primary: mat.$blue-palette,
+    tertiary: mat.$orange-palette,
   ),
 ));
 
-/* Apply themes via body class */
-body.light-theme {
+body {
   @include mat.all-component-themes($light-theme);
 }
 
@@ -27,15 +32,11 @@ body.dark-theme {
   @include mat.all-component-themes($dark-theme);
 }
 
-/* Visual proof (important for debugging) */
-body.light-theme {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-body.dark-theme {
-  background-color: #121212;
-  color: #ffffff;
+/* Reserve the scrollbar gutter permanently so opening a mat-select/dialog (which
+   locks body scroll via .cdk-global-scrollblock and forces overflow-y:scroll)
+   doesn't add a scrollbar and shift the whole viewport horizontally. */
+html {
+  scrollbar-gutter: stable;
 }
 
 /* ===== Custom Snackbar Styles ===== */
@@ -54,106 +55,93 @@ body.dark-theme {
 /* ===== Base Layout ===== */
 
 :root {
-  --primary-color: #5c6bc0;
-  --bg-color: #f5f5f5;
-  --text-color: #333333;
-  --text-secondary: #555555;
-  --text-muted: #888888;
-  --card-bg: #ffffff;
-  --border-color: #e0e0e0;
-  --background-alt: #eeeeee;
-}
-
-body.light-theme {
-  --primary-color: #5c6bc0;
-  --bg-color: #f5f5f5;
-  --text-color: #333333;
-  --text-secondary: #555555;
-  --text-muted: #888888;
-  --card-bg: #ffffff;
-  --border-color: #e0e0e0;
-  --background-alt: #eeeeee;
+  --primary-color: #2F62E6;
+  --accent-color: #C9A15A;
+  --bg-color: #FAF6EF;
+  --text-color: #37322C;
+  --text-primary: var(--text-color);
+  --text-secondary: #6A625A;
+  --text-muted: #9B9188;
+  --card-bg: #FFFFFF;
+  --border-color: #EAE1D4;
+  --background-alt: #ECE6DE;
 }
 
 body.dark-theme {
-  --primary-color: #7986cb;
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --text-secondary: #aaaaaa;
-  --text-muted: #666666;
-  --card-bg: #1e1e1e;
-  --border-color: #333333;
-  --background-alt: #2c2c2c;
+  --primary-color: #6BA0F5;
+  --accent-color: #D8B978;
+  --bg-color: #1E1B18;
+  --text-color: #ECE6DE;
+  --text-primary: var(--text-color);
+  --text-secondary: #B4ABA0;
+  --text-muted: #9B9188;
+  --card-bg: #26221E;
+  --border-color: #3A342E;
+  --background-alt: #3A342E;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  font-family: 'Inter', system-ui, sans-serif;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+h1, h2, h3, h4, .app-title {
+  font-family: 'Cormorant Garamond', serif;
+}
+
 mat-card {
-  color: var(--text-color) !important;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 mat-form-field {
   .mat-mdc-text-field-wrapper {
-    background-color: var(--bg-color) !important;
+    background-color: var(--bg-color);
   }
   .mat-mdc-form-field-flex {
-    background-color: var(--bg-color) !important;
+    background-color: var(--bg-color);
   }
   .mat-mdc-floating-label {
-    color: var(--text-color) !important;
+    color: var(--text-color);
   }
   .mat-mdc-input-element {
-    color: var(--text-color) !important;
+    color: var(--text-color);
   }
   .mat-mdc-form-field-outline-color {
-    color: var(--border-color) !important;
+    color: var(--border-color);
   }
   .mat-mdc-form-field-focus-outline-color {
-    color: var(--primary-color) !important;
+    color: var(--primary-color);
   }
 }
 
 .mat-mdc-tab-body-content {
-  background-color: var(--card-bg) !important;
+  background-color: var(--card-bg);
 }
 
 .mat-mdc-tab-list {
-  background-color: var(--card-bg) !important;
+  background-color: var(--card-bg);
 }
 
 .mat-mdc-tab .mdc-tab__text-label {
-  color: var(--text-color) !important;
+  color: var(--text-color);
 }
 
 .mat-mdc-tab.mat-mdc-tab-active {
   .mdc-tab__text-label {
-    color: var(--primary-color) !important;
+    color: var(--primary-color);
   }
 }
-
 .mat-mdc-button.mat-primary {
   --mdc-text-button-label-text-color: var(--primary-color);
   --mat-mdc-button-persistent-ripple-color: var(--primary-color);
 }
 
-body.light-theme mat-toolbar {
-  background: #ffffff;
-  color: #222;
-  border-bottom: 1px solid #e0e0e0;
-}
-
 mat-toolbar {
-  background: linear-gradient(
-    135deg,
-    #3f51b5,
-    #5c6bc0
-  );
+  background: linear-gradient(135deg, #4F90F5 0%, #2A57D8 100%);
   color: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
@@ -164,8 +152,7 @@ mat-toolbar span {
 }
 
 mat-toolbar .mat-button, mat-toolbar .mat-icon-button {
-  font-family: 'Lora', serif !important;
-  text-shadow: 1px 1px 0.5px black, -1px -1px 0.5px black, 1px -1px 0.5px black, -1px 1px 0.5px black;
+  font-family: 'Lora', serif;
 }
 
 
@@ -180,19 +167,23 @@ mat-toolbar .mat-button, mat-toolbar .mat-icon-button {
   margin: 0 10px;
 }
 
-[mat-button], [mat-raised-button], [mat-icon-button] {
-  transition: all 0.2s ease-in-out;
-  border-radius: 20px !important;
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-outlined-button {
+  border-radius: 20px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-[mat-button]:hover, [mat-raised-button]:hover, [mat-icon-button]:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+.mat-mdc-button:hover, .mat-mdc-raised-button:hover, .mat-mdc-outlined-button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
-[mat-button]:active, [mat-raised-button]:active, [mat-icon-button]:active {
-  transform: scale(0.95);
+.mat-mdc-button:active, .mat-mdc-raised-button:active, .mat-mdc-outlined-button:active {
+  transform: translateY(0);
   box-shadow: none;
+}
+
+.mat-mdc-icon-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 mat-toolbar .mobile-only {
@@ -233,4 +224,36 @@ mat-sidenav {
 .app-title {
   font-weight: 600;
   letter-spacing: 0.3px;
+}
+
+/* ===== MDC Overrides for Warm Devotional Theme ===== */
+.mat-mdc-radio-button.mat-primary.mat-mdc-radio-checked .mdc-radio__native-control:enabled:checked+.mdc-radio__background .mdc-radio__outer-circle {
+  border-color: var(--primary-color);
+}
+.mat-mdc-radio-button.mat-primary.mat-mdc-radio-checked .mdc-radio__native-control:enabled:checked+.mdc-radio__background .mdc-radio__inner-circle {
+  background-color: var(--primary-color);
+}
+.mat-primary .mat-pseudo-checkbox-checked, .mat-primary .mat-pseudo-checkbox-indeterminate,
+.mat-accent .mat-pseudo-checkbox-checked, .mat-accent .mat-pseudo-checkbox-indeterminate {
+  background: var(--primary-color);
+}
+.mat-mdc-slide-toggle.mat-primary .mdc-switch__shadow, .mat-mdc-slide-toggle.mat-primary .mdc-switch__handle-track, .mat-mdc-slide-toggle.mat-primary .mdc-switch__handle {
+  background-color: var(--primary-color);
+}
+.mat-mdc-slide-toggle.mat-primary .mdc-switch.mdc-switch--selected:enabled .mdc-switch__track::after {
+  background-color: var(--primary-color);
+}
+
+.mat-mdc-radio-button {
+  --mdc-radio-selected-icon-color: var(--primary-color);
+  --mdc-radio-selected-hover-icon-color: var(--primary-color);
+  --mdc-radio-selected-focus-icon-color: var(--primary-color);
+  --mat-radio-checked-ripple-color: var(--primary-color);
+}
+
+/* Rounded corners for desktop dialogs; mobile dialogs are full-screen (square). */
+@media (min-width: 601px) {
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-shape: 16px;
+  }
 }

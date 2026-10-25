@@ -20,13 +20,22 @@ A web application for church members to track their daily devotions, including p
 - Progress calendar user-switching gated by `calender_admin_view`
 - Supabase Edge Function integration for monthly report execution
 - Angular service worker + per-browser push subscription registration for notification Phase 1
-- Dark Mode Support
+- Multilanguage support — English, Hindi (हिन्दी), Odia (ଓଡ଼ିଆ), Tamil (தமிழ்) — with a per-user language preference stored in `profiles.language`
+- In-app language switcher (globe menu on desktop, overflow menu on mobile)
+- Mobile-optimized UI — bottom navigation, floating add button, full-screen devotion entry, segmented daily check-ins
+- Favicon-based blue brand theme with light & dark mode
 - Secure Backend with Supabase
 
 ## Tech Stack
 
-- **Frontend:** Angular, Angular Material
+- **Frontend:** Angular 19, Angular Material (M3), ngx-translate (i18n), angular-calendar, ngx-charts
 - **Backend:** Supabase (Authentication & PostgreSQL Database)
+
+## Internationalization
+
+The application supports multiple languages, with UI strings localized and managed inside JSON files located in `public/i18n/<lang>.json` (`en`, `hi`, `or`, `ta`).
+- The default/fallback language is **English**.
+- Each user's language preference is persisted in `profiles.language` on Supabase, and is applied automatically upon login.
 
 ## Getting Started
 

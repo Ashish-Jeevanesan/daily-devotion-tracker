@@ -4,6 +4,7 @@ import { BibleBook } from '../data/bible-books';
 import { Observable, from, of } from 'rxjs';
 import { SupabaseService } from './supabase.service';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { resolveBookFolder } from '../data/bible-version-books';
 
 export interface VersePreview {
   reference: string;
@@ -128,26 +129,45 @@ export class BibleService {
     });
   }
 
-  /** Fetch a verse or short range from bible-api.com (KJV). Results are cached. */
-  getVerseText(bookName: string, chapter: number, verseStart: number, verseEnd: number | null): Observable<VersePreview | null> {
-    const refPath = verseEnd && verseEnd > verseStart
-      ? `${bookName.replace(/\s+/g, '+')}+${chapter}:${verseStart}-${verseEnd}`
-      : `${bookName.replace(/\s+/g, '+')}+${chapter}:${verseStart}`;
+  /** Fetch a verse or short range from wldeh/bible-api for the given version. Cached per version+reference. */
+  getVerseText(bookName: string, chapter: number, verseStart: number, verseEnd: number | null, versionId: string = 'en-kjv'): Observable<VersePreview | null> {
+    const isRange = verseEnd != null && verseEnd > verseStart;
+    const reference = isRange ? `${bookName} ${chapter}:${verseStart}-${verseEnd}` : `${bookName} ${chapter}:${verseStart}`;
+    const cacheKey = `${versionId}:${reference}`;
 
-    if (this.verseCache.has(refPath)) {
-      return of(this.verseCache.get(refPath)!);
+    if (this.verseCache.has(cacheKey)) {
+      return of(this.verseCache.get(cacheKey)!);
     }
 
-    return this.http.get<{ reference: string; verses: Array<{ verse: number; text: string }> }>(`https://bible-api.com/${refPath}?translation=kjv`).pipe(
+    const folder = resolveBookFolder(bookName, versionId);
+    const url = `https://cdn.jsdelivr.net/gh/wldeh/bible-api/bibles/${versionId}/books/${encodeURIComponent(folder)}/chapters/${chapter}.json`;
+    const end = isRange ? verseEnd! : verseStart;
+
+    return this.http.get<{ data: Array<{ verse: string; text: string }> }>(url).pipe(
       map(res => {
-        const result: VersePreview = {
-          reference: res.reference,
-          verses: res.verses.map(v => ({ verse: v.verse, text: v.text.trim() }))
-        };
-        this.verseCache.set(refPath, result);
+        const seen = new Set<number>();
+        const verses = (res.data || [])
+          .map(v => ({ verse: Number(v.verse), text: this.cleanVerseText(v.text) }))
+          .filter(v => v.verse >= verseStart && v.verse <= end)
+          .filter(v => (seen.has(v.verse) ? false : (seen.add(v.verse), true)));
+        if (verses.length === 0) return null;
+        const result: VersePreview = { reference, verses };
+        this.verseCache.set(cacheKey, result);
         return result;
       }),
       catchError(() => of(null))
     );
+  }
+
+  /** Strip wldeh formatting artifacts: leading pilcrow and trailing translator footnotes.
+   *  Guarded so real verse text is never truncated (inline footnotes keep their note text). */
+  private cleanVerseText(text: string): string {
+    let t = (text || '').replace(/^\s*¶\s*/, '').trim();
+    const m = t.match(/\s*\d{1,3}[:.]\d{1,3}\s+[\s\S]*$/u);
+    if (m && m.index !== undefined && m[0].length < t.length * 0.5) {
+      t = t.slice(0, m.index).trim();
+    }
+    t = t.replace(/\s*\d{1,3}[:.]\d{1,3}\s*/g, ' ');
+    return t.replace(/\s{2,}/g, ' ').replace(/\s+([.,;:।])/g, '$1').trim();
   }
 }

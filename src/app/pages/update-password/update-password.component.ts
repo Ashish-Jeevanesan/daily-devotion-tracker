@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { NotificationService } from '../../services/notification.service';
 import { CommonModule } from '@angular/common';
 
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-update-password',
   standalone: true,
@@ -20,7 +22,8 @@ import { CommonModule } from '@angular/common';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './update-password.component.html',
   styleUrl: './update-password.component.scss'
@@ -35,7 +38,8 @@ export class UpdatePasswordComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private translate: TranslateService
   ) {
     this.updatePasswordForm = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -53,7 +57,7 @@ export class UpdatePasswordComponent {
       this.loading = true;
       try {
         await this.authService.updatePassword(this.updatePasswordForm.value.password);
-        this.notificationService.show('Password updated successfully. Please sign in.', 'success');
+        this.notificationService.show(this.translate.instant('updatePassword.success'), 'success');
         this.router.navigate(['/login']);
       } catch (error: any) {
         this.notificationService.show(error.message, 'error');

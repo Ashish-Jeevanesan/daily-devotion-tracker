@@ -1,146 +1,191 @@
-<h1 mat-dialog-title>Add Your Devotion Notes</h1>
-<div mat-dialog-content [formGroup]="form">
-  <p>What did you read and reflect on from the bible today?</p>
+<div class="dialog-wrapper">
+  <!-- Top App Bar for Mobile -->
+  <mat-toolbar class="mobile-toolbar mobile-only" color="primary">
+    <button mat-icon-button (click)="onCancel()" [disabled]="isSaving" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+    <span class="mobile-title">{{ (data.devotion ? 'todaysDevotion.edit' : 'devotionEntry.title') | translate }}</span>
+  </mat-toolbar>
+
+  <h1 mat-dialog-title class="desktop-only">{{ 'devotionEntry.title' | translate }}</h1>
   
-  <div formArrayName="references">
-    @for (ref of references.controls; track ref; let i = $index) {
-      <div [formGroupName]="i" class="reference-row">
-        <div class="bible-selector">
-          <mat-form-field appearance="outline" class="book-select">
-            <mat-label>Book</mat-label>
-            <input type="text" matInput formControlName="book" [matAutocomplete]="auto" (focus)="onBookFocus(i)">
-            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayBook">
-              @for (book of filteredBooks | async; track book.id) {
-                <mat-option [value]="book">{{ book.name }}</mat-option>
+  <div mat-dialog-content [formGroup]="form" class="dialog-content-scroll">
+    <p class="desktop-only">{{ 'devotionEntry.subtitle' | translate }}</p>
+    
+    <div formArrayName="references">
+      @for (ref of references.controls; track ref; let i = $index) {
+        <div [formGroupName]="i" class="reference-row">
+          <div class="bible-selector">
+            <div class="book-row">
+              <mat-form-field appearance="outline" class="book-select">
+                <mat-label>{{ 'devotionEntry.book' | translate }}</mat-label>
+                <input type="text" matInput formControlName="book" [matAutocomplete]="auto" #bookTrigger="matAutocompleteTrigger">
+                  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayBook" [hideSingleSelectionIndicator]="true">
+                    @for (book of filteredBooks$[i] | async; track book.id) {
+                      <mat-option [value]="book" (onSelectionChange)="onBookOptionSelected($event, i, book, bookTrigger)">{{ bibleTranslationService.getTranslatedBookName(book.name) }}</mat-option>
+                    }
+                  </mat-autocomplete>
+              </mat-form-field>
+              
+              @if (i > 0) {
+                <button mat-icon-button color="warn" (click)="removeReference(i)" [matTooltip]="'devotionEntry.removeReference' | translate" class="delete-ref-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
               }
-            </mat-autocomplete>
-          </mat-form-field>
+            </div>
 
-          <mat-form-field appearance="outline" class="number-select">
-            <mat-label>Ch</mat-label>
-            <mat-select formControlName="chapter">
-              @if(chapters$[i] | async; as bookChapters) {
-                 @for (chapter of bookChapters; track chapter) {
-                  <mat-option [value]="chapter">{{ chapter }}</mat-option>
-                }
-              }
-            </mat-select>
-          </mat-form-field>
+            <div class="number-row">
+              <mat-form-field appearance="outline" class="number-select">
+                <mat-label>{{ 'devotionEntry.chapter' | translate }}</mat-label>
+                <mat-select formControlName="chapter" [aria-label]="'devotionEntry.chapterAria' | translate">
+                  @if(chapters$[i] | async; as bookChapters) {
+                     @for (chapter of bookChapters; track chapter) {
+                      <mat-option [value]="chapter">{{ chapter }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
 
-          <mat-form-field appearance="outline" class="number-select">
-            <mat-label>V.Start</mat-label>
-            <mat-select formControlName="verseStart">
-              @if (verseCounts$[i] | async; as chapterVerses) {
-                @for (verse of chapterVerses; track verse) {
-                  <mat-option [value]="verse">{{ verse }}</mat-option>
-                }
-              } @else {
-                @for (verse of verses; track verse) {
-                  <mat-option [value]="verse">{{ verse }}</mat-option>
-                }
-              }
-            </mat-select>
-          </mat-form-field>
+              <mat-form-field appearance="outline" class="number-select">
+                <mat-label>{{ 'devotionEntry.verseStart' | translate }}</mat-label>
+                <mat-select formControlName="verseStart" [aria-label]="'devotionEntry.verseStartAria' | translate">
+                  @if (verseCounts$[i] | async; as chapterVerses) {
+                    @for (verse of chapterVerses; track verse) {
+                      <mat-option [value]="verse">{{ verse }}</mat-option>
+                    }
+                  } @else {
+                    @for (verse of verses; track verse) {
+                      <mat-option [value]="verse">{{ verse }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
 
-          <mat-form-field appearance="outline" class="number-select">
-            <mat-label>V.End</mat-label>
-            <mat-select formControlName="verseEnd">
-              <mat-option value="">-</mat-option>
-              @if (verseCounts$[i] | async; as chapterVerses) {
-                @for (verse of chapterVerses; track verse) {
-                  <mat-option [value]="verse">{{ verse }}</mat-option>
-                }
-              } @else {
-                @for (verse of verses; track verse) {
-                  <mat-option [value]="verse">{{ verse }}</mat-option>
-                }
-              }
-            </mat-select>
-          </mat-form-field>
+              <mat-form-field appearance="outline" class="number-select">
+                <mat-label>{{ 'devotionEntry.verseEnd' | translate }}</mat-label>
+                <mat-select formControlName="verseEnd" [aria-label]="'devotionEntry.verseEndAria' | translate">
+                  <mat-option value="">-</mat-option>
+                  @if (verseCounts$[i] | async; as chapterVerses) {
+                    @for (verse of chapterVerses; track verse) {
+                      <mat-option [value]="verse">{{ verse }}</mat-option>
+                    }
+                  } @else {
+                    @for (verse of verses; track verse) {
+                      <mat-option [value]="verse">{{ verse }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
 
-        @if (i > 0) {
-          <button mat-icon-button color="warn" (click)="removeReference(i)" matTooltip="Remove reference">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </div>
-
-      @let preview = getPreviewState(i);
-      @if (preview.status !== 'idle') {
-        <div class="verse-preview-card" [class.hint]="preview.status === 'too-long'">
-          @if (preview.status === 'loading') {
-            <div class="verse-status-row">
-              <mat-spinner diameter="14"></mat-spinner>
-              <span>Fetching verse...</span>
-            </div>
-          }
-          @if (preview.status === 'loaded') {
-            <div class="verse-ref-label">
-              <mat-icon>menu_book</mat-icon>
-              {{ preview.reference }} &middot; KJV
-            </div>
-            @for (v of preview.verses; track v.verse) {
-              <div class="verse-line">
-                <span class="verse-number">{{ v.verse }}</span>
-                <span class="verse-text">{{ v.text }}</span>
+        @let preview = getPreviewState(i);
+        @if (preview.status !== 'idle') {
+          <div class="verse-preview-card" [class.hint]="preview.status === 'too-long'">
+            @if (preview.status === 'loading') {
+              <div class="verse-status-row">
+                <mat-spinner diameter="14"></mat-spinner>
+                <span>{{ 'devotionEntry.fetchingVerse' | translate }}</span>
               </div>
             }
-          }
-          @if (preview.status === 'too-long') {
-            <div class="verse-status-row">
-              <mat-icon>info</mat-icon>
-              <span>{{ isMobile ? 'Select 20 or fewer verses to preview on mobile' : 'Select a valid verse range to preview' }}</span>
-            </div>
-          }
+            @if (preview.status === 'loaded') {
+              <div class="verse-ref-label">
+                <mat-icon>menu_book</mat-icon>
+                <span class="verse-ref-text">{{ preview.reference }}</span>
+                <span class="verse-ref-sep">&middot;</span>
+                @if (availableVersions.length > 1) {
+                  <mat-select class="version-select" [value]="selectedVersionId" (selectionChange)="onVersionChange($event.value)" [aria-label]="'devotionEntry.version' | translate">
+                    @for (v of availableVersions; track v.id) {
+                      <mat-option [value]="v.id">{{ v.abbrev }}</mat-option>
+                    }
+                  </mat-select>
+                } @else {
+                  <span class="verse-version-badge">{{ selectedVersionAbbrev }}</span>
+                }
+              </div>
+              @for (v of preview.verses; track v.verse) {
+                <div class="verse-line">
+                  <span class="verse-number">{{ v.verse }}</span>
+                  <span class="verse-text">{{ v.text }}</span>
+                </div>
+              }
+            }
+            @if (preview.status === 'too-long') {
+              <div class="verse-status-row">
+                <mat-icon>info</mat-icon>
+                <span>{{ isMobile ? ('devotionEntry.tooLongMobile' | translate) : ('devotionEntry.tooLongDesktop' | translate) }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <button mat-button color="primary" (click)="addReference()" class="add-btn">
+      <mat-icon>add</mat-icon> {{ 'devotionEntry.addVerse' | translate }}
+    </button>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'devotionEntry.notes' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" cdkTextareaAutosize [cdkAutosizeMinRows]="isMobile ? 10 : 4" [cdkAutosizeMaxRows]="isMobile ? 18 : 12" [placeholder]="'devotionEntry.notesPlaceholder' | translate"></textarea>
+    </mat-form-field>
+
+    <!-- Devotion Image Upload Section -->
+    <div class="image-upload-section">
+      <label class="image-upload-label">
+        <mat-icon>photo_camera</mat-icon> {{ 'devotionEntry.attachPhoto' | translate }}
+      </label>
+      
+      @if (imagePreviewUrl) {
+        <div class="image-preview-container">
+          <img [src]="imagePreviewUrl" alt="Devotion photo preview" class="image-preview" />
+          <button mat-mini-fab color="warn" class="remove-image-btn" (click)="removeSelectedImage()" [matTooltip]="'devotionEntry.removePhoto' | translate" type="button">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="media-upload-row">
+          <div class="upload-dropzone mobile-only" (click)="cameraInput.click()">
+            <input #cameraInput type="file" accept="image/*" capture="environment" (change)="onFileSelected($event)" style="display: none;" />
+            <mat-icon class="upload-icon">photo_camera</mat-icon>
+            <span class="upload-text">{{ 'devotionEntry.takePhoto' | translate }}</span>
+          </div>
+
+          <div class="upload-dropzone" (click)="fileInput.click()">
+            <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" style="display: none;" />
+            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+            <span class="upload-text">{{ 'devotionEntry.chooseFromGallery' | translate }}</span>
+            <span class="upload-hint desktop-only">{{ 'devotionEntry.autoCompressed' | translate }}</span>
+          </div>
         </div>
       }
-    }
+
+      @if (imageError) {
+        <p class="image-error-text">{{ imageError }}</p>
+      }
+    </div>
   </div>
 
-  <button mat-button color="primary" (click)="addReference()" class="add-btn">
-    <mat-icon>add</mat-icon> Add Verse
-  </button>
-
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Devotion Notes</mat-label>
-    <textarea matInput formControlName="notes" rows="8" placeholder="God's love is unconditional..."></textarea>
-  </mat-form-field>
-
-  <!-- Devotion Image Upload Section -->
-  <div class="image-upload-section">
-    <label class="image-upload-label">
-      <mat-icon>photo_camera</mat-icon> Attach Photo (Optional handwritten notes / Bible page)
-    </label>
-    
-    @if (imagePreviewUrl) {
-      <div class="image-preview-container">
-        <img [src]="imagePreviewUrl" alt="Devotion photo preview" class="image-preview" />
-        <button mat-mini-fab color="warn" class="remove-image-btn" (click)="removeSelectedImage()" matTooltip="Remove photo" type="button">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-    } @else {
-      <div class="upload-dropzone" (click)="fileInput.click()">
-        <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" style="display: none;" />
-        <mat-icon class="upload-icon">cloud_upload</mat-icon>
-        <span class="upload-text">Click to attach photo of your devotion</span>
-        <span class="upload-hint">Auto-compressed (JPEG, max 5MB input)</span>
-      </div>
-    }
-
-    @if (imageError) {
-      <p class="image-error-text">{{ imageError }}</p>
-    }
+  <div mat-dialog-actions align="end" class="desktop-only">
+    <button mat-button (click)="onCancel()" [disabled]="isSaving">{{ 'common.cancel' | translate }}</button>
+    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid || isSaving">
+      @if (isSaving) {
+        <mat-spinner diameter="24" color="accent"></mat-spinner>
+      } @else {
+        {{ 'common.save' | translate }}
+      }
+    </button>
   </div>
-</div>
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()" [disabled]="isSaving">Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid || isSaving">
-    @if (isSaving) {
-      <mat-spinner diameter="24" color="accent"></mat-spinner>
-    } @else {
-      Save
-    }
-  </button>
+
+  <!-- Sticky Save Button for Mobile Pinned at Bottom -->
+  <div class="mobile-sticky-save mobile-only">
+    <button mat-raised-button color="primary" class="full-width-button" (click)="onSave()" [disabled]="form.invalid || isSaving">
+      @if (isSaving) {
+        <mat-spinner diameter="24" color="accent"></mat-spinner>
+      } @else {
+        {{ 'common.save' | translate }}
+      }
+    </button>
+  </div>
 </div>

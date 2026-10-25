@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface Notification {
   message: string;
@@ -14,13 +15,15 @@ export class NotificationService {
   private notificationSubject = new Subject<Notification | null>();
   notification$ = this.notificationSubject.asObservable();
 
+  constructor(private translate: TranslateService) {}
+
   /** Emit a notification message with a type. */
   show(message: string | null | undefined, type: 'success' | 'error') {
     const normalizedMessage = (message ?? '').toString().trim();
     const fallbackMessage =
       type === 'success'
-        ? 'Action completed successfully.'
-        : 'Something went wrong. Please try again.';
+        ? this.translate.instant('common.successFallback')
+        : this.translate.instant('common.errorFallback');
 
     this.notificationSubject.next({
       message: normalizedMessage || fallbackMessage,

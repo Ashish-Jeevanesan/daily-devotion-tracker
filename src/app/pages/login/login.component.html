@@ -1,4 +1,8 @@
 <div class="login-container">
+  <div class="branded-header">
+    <h1 class="app-title">{{ 'app.title' | translate }}</h1>
+    <p class="app-subtitle">{{ 'login.subtitle' | translate }}</p>
+  </div>
   <mat-card>
     <mat-card-content>
       @if(loading) {
@@ -8,42 +12,42 @@
       }
       <div [style.visibility]="loading ? 'hidden' : 'visible'">
         <mat-tab-group>
-          <mat-tab label="Sign In">
+          <mat-tab [label]="'login.signIn' | translate">
             <form [formGroup]="signInForm" (ngSubmit)="signIn()">
               <fieldset [disabled]="loading">
-                <mat-form-field appearance="fill">
-                  <mat-label>Email</mat-label>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'login.email' | translate }}</mat-label>
                   <input matInput formControlName="email" type="email">
                 </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Password</mat-label>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'login.password' | translate }}</mat-label>
                   <input matInput formControlName="password" [type]="hideSignInPassword ? 'password' : 'text'">
                   <button mat-icon-button matSuffix (click)="togglePasswordVisibility('signIn')" type="button">
                     <mat-icon>{{hideSignInPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                   </button>
                 </mat-form-field>
-                <button mat-raised-button color="primary" type="submit" [disabled]="signInForm.invalid || loading">Sign In</button>
+                <button mat-raised-button color="primary" type="submit" class="full-width-button" [disabled]="signInForm.invalid || loading">{{ 'login.signIn' | translate }}</button>
                 <div class="forgot-password-container">
-                    <button mat-button type="button" (click)="forgotPassword()" [disabled]="loading">Forgot Password?</button>
+                    <button mat-button type="button" (click)="forgotPassword()" [disabled]="loading">{{ 'login.forgotPassword' | translate }}</button>
                 </div>
               </fieldset>
             </form>
           </mat-tab>
-          <mat-tab label="Sign Up">
+          <mat-tab [label]="'login.signUp' | translate">
             <form [formGroup]="signUpForm" (ngSubmit)="signUp()">
               <fieldset [disabled]="loading">
-                <mat-form-field appearance="fill">
-                  <mat-label>Email</mat-label>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'login.email' | translate }}</mat-label>
                   <input matInput formControlName="email" type="email">
                 </mat-form-field>
-                <mat-form-field appearance="fill">
-                  <mat-label>Password</mat-label>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'login.password' | translate }}</mat-label>
                   <input matInput formControlName="password" [type]="hideSignUpPassword ? 'password' : 'text'">
                   <button mat-icon-button matSuffix (click)="togglePasswordVisibility('signUp')" type="button">
                     <mat-icon>{{hideSignUpPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                   </button>
                 </mat-form-field>
-                <button mat-raised-button color="primary" type="submit" [disabled]="signUpForm.invalid || loading">Sign Up</button>
+                <button mat-raised-button color="primary" type="submit" class="full-width-button" [disabled]="signUpForm.invalid || loading">{{ 'login.signUp' | translate }}</button>
               </fieldset>
             </form>
           </mat-tab>

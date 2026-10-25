@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 import { CalendarModule, CalendarMonthViewDay } from 'angular-calendar';
 import { CheckIn, CheckInService } from '../../services/check-in.service';
 import { Devotion, DevotionService } from '../../services/devotion.service';
@@ -14,6 +14,12 @@ import { AuthService } from '../../services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageService } from '../../services/language.service';
+import localeEn from '@angular/common/locales/en';
+import localeHi from '@angular/common/locales/hi';
+import localeOr from '@angular/common/locales/or';
+import localeTa from '@angular/common/locales/ta';
 
 @Component({
   selector: 'app-progress',
@@ -24,7 +30,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatDialogModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslateModule
   ],
   templateUrl: './progress.component.html',
   styleUrls: ['./progress.component.scss']
@@ -40,14 +47,24 @@ export class ProgressComponent implements OnInit {
   selectedUserId: string | null = null;
   loadingCalendar = false;
 
+  get locale(): string {
+    return this.languageService.getCurrentLang();
+  }
+
   constructor(
     private accessService: AccessService,
     private checkInService: CheckInService,
     private devotionService: DevotionService,
     private dialog: MatDialog,
     private profileService: ProfileService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private languageService: LanguageService
+  ) {
+    registerLocaleData(localeEn);
+    registerLocaleData(localeHi);
+    registerLocaleData(localeOr);
+    registerLocaleData(localeTa);
+  }
 
   /** Load role/profile context and calendar data. */
   async ngOnInit() {

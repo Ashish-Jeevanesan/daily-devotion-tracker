@@ -1,7 +1,7 @@
 <div class="profile-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Profile Center</mat-card-title>
+      <mat-card-title>{{ 'profile.title' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if(loading) {
@@ -25,7 +25,7 @@
               (click)="setActiveSection(section.id)"
             >
               <mat-icon>{{ section.icon }}</mat-icon>
-              {{ section.label }}
+              {{ section.label | translate }}
             </button>
           </ng-container>
         </div>
@@ -39,7 +39,7 @@
             (click)="setActiveSection('profile')"
           >
             <mat-icon>account_circle</mat-icon>
-            <span>Profile Details</span>
+            <span>{{ 'profile.title' | translate }}</span>
           </button>
 
           <button
@@ -50,7 +50,7 @@
             (click)="setActiveSection('report-job')"
           >
             <mat-icon>play_circle</mat-icon>
-            <span>Report Job</span>
+            <span>{{ 'profile.runReportJob' | translate }}</span>
           </button>
 
           <button
@@ -61,50 +61,50 @@
             (click)="setActiveSection('manage-access')"
           >
             <mat-icon>admin_panel_settings</mat-icon>
-            <span>Manage Access</span>
+            <span>{{ 'profile.manageAccess' | translate }}</span>
           </button>
         </div>
 
         <div class="mobile-section-header" *ngIf="isMobileView && !mobileSectionMenuVisible">
           <button mat-button type="button" class="mobile-back-button" (click)="showMobileSectionMenu()">
             <mat-icon>arrow_back</mat-icon>
-            Back
+            {{ 'common.back' | translate }}
           </button>
         </div>
 
         <div *ngIf="activeSection === 'profile' && (!isMobileView || !mobileSectionMenuVisible)" class="section-panel">
-          <p>Please complete your profile.</p>
+          <p>{{ 'profile.completePrompt' | translate }}</p>
           <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
             <fieldset [disabled]="loading">
-              <mat-form-field appearance="fill">
-                <mat-label>Username</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.username' | translate }}</mat-label>
                 <input matInput formControlName="username">
               </mat-form-field>
       
-              <mat-form-field appearance="fill">
-                <mat-label>Full Name</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.fullName' | translate }}</mat-label>
                 <input matInput formControlName="full_name">
               </mat-form-field>
       
-              <mat-form-field appearance="fill">
-                <mat-label>Date of Birth</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.dob' | translate }}</mat-label>
                 <input matInput [matDatepicker]="dobPicker" formControlName="dob">
                 <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
                 <mat-datepicker #dobPicker></mat-datepicker>
               </mat-form-field>
 
-              <mat-form-field appearance="fill">
-                <mat-label>Age</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.age' | translate }}</mat-label>
                 <input matInput formControlName="age" type="number" readonly>
               </mat-form-field>
 
-              <mat-form-field appearance="fill">
-                <mat-label>Phone Number</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.phone' | translate }}</mat-label>
                 <input matInput formControlName="phone_number" type="tel">
               </mat-form-field>
 
-              <mat-form-field appearance="fill">
-                <mat-label>Church</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.church' | translate }}</mat-label>
                 <input
                   matInput
                   formControlName="church_name"
@@ -117,8 +117,8 @@
                 </mat-autocomplete>
               </mat-form-field>
 
-              <mat-form-field appearance="fill">
-                <mat-label>Report Frequency</mat-label>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'profile.reportFrequency' | translate }}</mat-label>
                 <mat-select formControlName="report_preference">
                   <mat-option *ngFor="let preference of reportPreferences" [value]="preference">
                     {{ preference }}
@@ -126,8 +126,17 @@
                 </mat-select>
               </mat-form-field>
       
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'common.language' | translate }}</mat-label>
+                <mat-select [value]="languageService.getCurrentLang()" (selectionChange)="onLanguageChange($event.value)">
+                  <mat-option *ngFor="let lang of languageService.supportedLangs" [value]="lang">
+                    {{ languageService.nativeLangLabels[lang] }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
               <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || loading">
-                Save Profile
+                {{ 'profile.save' | translate }}
               </button>
             </fieldset>
           </form>
@@ -136,20 +145,20 @@
         <div *ngIf="activeSection === 'report-job' && canRunUserReportJob && (!isMobileView || !mobileSectionMenuVisible)" class="section-panel report-job-panel">
           <div class="report-job-header">
             <div>
-              <h3>Run Report Job</h3>
-              <p>Start the monthly report edge function from here without going through the admin reports page.</p>
+              <h3>{{ 'profile.runReportJob' | translate }}</h3>
+              <p>{{ 'profile.runReportJobDescription' | translate }}</p>
             </div>
             <mat-icon class="report-job-icon">assessment</mat-icon>
           </div>
 
           <div class="report-job-summary">
-            <div class="summary-label">Job window</div>
-            <div class="summary-value">Current month</div>
+            <div class="summary-label">{{ 'profile.jobWindow' | translate }}</div>
+            <div class="summary-value">{{ 'profile.currentMonth' | translate }}</div>
           </div>
 
           <div class="report-job-summary">
-            <div class="summary-label">Access status</div>
-            <div class="summary-value">{{ canRunUserReportJob ? 'Enabled for your account' : 'Not enabled' }}</div>
+            <div class="summary-label">{{ 'profile.accessStatus' | translate }}</div>
+            <div class="summary-value">{{ canRunUserReportJob ? ('profile.enabled' | translate) : ('profile.notEnabled' | translate) }}</div>
           </div>
 
           <button
@@ -167,7 +176,7 @@
               class="job-button-spinner"
             ></mat-progress-spinner>
             <mat-icon *ngIf="!jobRunning">play_arrow</mat-icon>
-            {{ jobRunning ? 'Running Report Job...' : 'Run Report Job' }}
+            {{ jobRunning ? ('profile.runningJob' | translate) : ('profile.runReportJob' | translate) }}
           </button>
 
         </div>
@@ -175,20 +184,20 @@
         <div *ngIf="activeSection === 'manage-access' && canMapUserAccess && (!isMobileView || !mobileSectionMenuVisible)" class="section-panel manage-access-panel">
           <div class="report-job-header">
             <div>
-              <h3>Manage User Access</h3>
-              <p>Select a user and map them to the available access rules.</p>
+              <h3>{{ 'profile.manageAccess' | translate }}</h3>
+              <p>{{ 'profile.manageAccessDescription' | translate }}</p>
             </div>
             <mat-icon class="report-job-icon">manage_accounts</mat-icon>
           </div>
 
-          <mat-form-field appearance="fill">
-            <mat-label>User</mat-label>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.user' | translate }}</mat-label>
             <mat-select
               [value]="selectedMappingUserId"
               (selectionChange)="onMappingUserChange($event.value)"
               [disabled]="mappingBusy || mappingLoading"
             >
-              <mat-option [value]="null">Select a user</mat-option>
+              <mat-option [value]="null">{{ 'profile.selectUser' | translate }}</mat-option>
               <mat-option *ngFor="let profile of mappingProfiles" [value]="profile.id">
                 {{ profile.full_name || profile.username || profile.id }}
               </mat-option>
@@ -204,12 +213,12 @@
               <div class="access-rule-copy">
                 <div class="access-rule-name">{{ rule.name }}</div>
                 <div class="access-rule-code">{{ rule.code }}</div>
-                <div class="access-rule-description">{{ rule.description || 'No description provided.' }}</div>
+                <div class="access-rule-description">{{ rule.description || ('profile.noDescription' | translate) }}</div>
                 <div
                   class="access-rule-status"
                   [class.granted]="hasMappedAccess(rule.code)"
                 >
-                  {{ hasMappedAccess(rule.code) ? 'Granted' : 'Not granted' }}
+                  {{ hasMappedAccess(rule.code) ? ('profile.granted' | translate) : ('profile.notGranted' | translate) }}
                 </div>
               </div>
               <button
@@ -219,13 +228,13 @@
                 [class.active-access]="hasMappedAccess(rule.code)"
                 (click)="toggleMappedAccess(rule)"
               >
-                {{ hasMappedAccess(rule.code) ? 'Revoke Access' : 'Grant Access' }}
+                {{ hasMappedAccess(rule.code) ? ('profile.revokeAccess' | translate) : ('profile.grantAccess' | translate) }}
               </button>
             </div>
           </div>
 
           <p class="empty-mapping-state" *ngIf="!mappingLoading && !selectedMappingUserId">
-            Choose a user to view and update their access rules.
+            {{ 'profile.chooseUser' | translate }}
           </p>
         </div>
       </div>
@@ -235,8 +244,9 @@
   <div class="job-running-overlay" *ngIf="jobRunning">
     <div class="job-running-card">
       <mat-progress-spinner mode="indeterminate" diameter="42"></mat-progress-spinner>
-      <div class="job-running-title">Running monthly report job</div>
-      <div class="job-running-subtitle">{{ jobRunningMessage }}</div>
+      <div class="job-running-title">{{ 'profile.runningMonthlyJob' | translate }}</div>
+      <div class="job-running-subtitle">{{ jobRunningMessage | translate }}</div>
     </div>
   </div>
 </div>
+

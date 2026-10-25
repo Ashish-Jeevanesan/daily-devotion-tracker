@@ -3,6 +3,11 @@
   flex-direction: column;
   gap: 20px;
   animation: fadeIn 0.4s ease-in;
+  max-width: 800px;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 16px;
+  box-sizing: border-box;
 }
 
 /* ===== Welcome Section ===== */
@@ -29,8 +34,10 @@
 
 /* ===== Check-in Card ===== */
 .check-in-card {
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border: 1px solid var(--border-color);
+  padding-top: 24px;
 }
 
 mat-card-title {
@@ -39,26 +46,47 @@ mat-card-title {
   margin-bottom: 8px;
 }
 
-/* ===== Questions ===== */
 .question {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .question p {
   margin: 0;
   font-weight: 500;
+  font-size: 1rem;
   max-width: 420px;
 }
 
-mat-radio-group {
+.segmented-toggle {
   display: flex;
-  justify-content: center;
-  gap: 16px;
+  width: 100%;
+  max-width: 320px;
+  height: 44px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-alt);
+
+  mat-button-toggle {
+    flex: 1;
+    height: 100%;
+    line-height: 42px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 0;
+
+    &.mat-button-toggle-checked {
+      background-color: var(--primary-color);
+      color: white;
+    }
+  }
 }
 
 /* ===== Sections ===== */
@@ -100,7 +128,7 @@ mat-radio-group {
 
 
 /* ===== Dark mode polish ===== */
-:host-context(body.dark) {
+:host-context(body.dark-theme) {
   .subtitle {
     opacity: 0.7;
   }
@@ -142,12 +170,17 @@ mat-card-title {
   font-weight: 600;
   margin-bottom: 16px;
 }
-mat-card-title::after {
-  content: '';
-  display: block;
-  margin: 10px auto 0;
-  width: 40px;
-  height: 2px;
-  background-color: var(--border-color);
-  opacity: 0.5;
+/* ===== Mobile Floating Action Button (FAB) ===== */
+.mobile-fab {
+  position: fixed;
+  bottom: 72px; // Sits above the 56px bottom nav bar
+  right: 16px;
+  z-index: 99;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 601px) {
+  .mobile-only {
+    display: none !important;
+  }
 }

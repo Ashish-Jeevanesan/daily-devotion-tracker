@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,10 +14,17 @@ import { CommonModule } from '@angular/common';
 import { ACCESS_CODES } from './services/access-codes';
 import { AccessService } from './services/access.service';
 import { Profile, ProfileService } from './services/profile.service';
+import { LanguageService } from './services/language.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule, NotificationOutletComponent, MatSlideToggleModule, MatSidenavModule, MatListModule, CommonModule],
+  standalone: true,
+  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule, MatButtonModule, NotificationOutletComponent, MatSlideToggleModule, MatSidenavModule, MatListModule, CommonModule, TranslateModule, MatFormFieldModule, MatSelectModule, MatMenuModule, MatTooltipModule, RouterLinkActive],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -35,6 +42,7 @@ export class AppComponent implements OnInit{
 
   constructor(
     public readonly themeService: ThemeService,
+    public readonly languageService: LanguageService,
     public readonly supabaseService: SupabaseService
   ) {
     effect(() => {
@@ -46,6 +54,9 @@ export class AppComponent implements OnInit{
       }
       this.profileService.getProfile().then(profile => {
         this.profile.set(profile);
+        if (profile?.language) {
+          this.languageService.setLanguage(profile.language);
+        }
       });
       this.accessService.hasAccess(ACCESS_CODES.ADMIN_REPORTS, true).then(hasAccess => {
         this.canViewAdminReports.set(hasAccess);
@@ -56,8 +67,16 @@ export class AppComponent implements OnInit{
   /** Initialize theme and keep profile state in sync with auth changes. */
   ngOnInit(): void {
     this.themeService.initTheme();
+    this.languageService.initLanguage();
   }
   
+  onLanguageChange(lang: string) {
+    this.languageService.setLanguage(lang);
+    if (this.isLoggedIn()) {
+      this.profileService.updateLanguage(lang);
+    }
+  }
+
   /** Sign out the user and redirect to login. */
   async signOut() {
     await this.authService.signOut();

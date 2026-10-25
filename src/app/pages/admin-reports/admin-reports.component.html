@@ -2,34 +2,34 @@
   <mat-card>
     <div class="header">
       <div>
-        <h2>Admin Reports</h2>
+        <h2>{{ 'admin.title' | translate }}</h2>
         <div class="week-range">
-          Range: {{ weekStart | date:'MMM d, y' }} – {{ weekEndDisplay | date:'MMM d, y' }}
+          {{ 'admin.range' | translate }}: {{ weekStart | date:'MMM d, y' }} – {{ weekEndDisplay | date:'MMM d, y' }}
         </div>
       </div>
       <div class="header-actions">
         <button mat-stroked-button color="primary" (click)="exportToExcel()" [disabled]="rows.length === 0 || loading">
           <mat-icon>download</mat-icon>
-          Export Excel
+          {{ 'admin.exportExcel' | translate }}
         </button>
       </div>
     </div>
 
     <div class="filters">
       <mat-form-field appearance="outline">
-        <mat-label>Range</mat-label>
+        <mat-label>{{ 'admin.range' | translate }}</mat-label>
         <mat-select
           [value]="selectedRange"
           (selectionChange)="onRangeChange($event.value)"
         >
-          <mat-option value="daily">Daily</mat-option>
-          <mat-option value="weekly">Weekly</mat-option>
-          <mat-option value="monthly">Monthly</mat-option>
+          <mat-option value="daily">{{ 'admin.daily' | translate }}</mat-option>
+          <mat-option value="weekly">{{ 'admin.weekly' | translate }}</mat-option>
+          <mat-option value="monthly">{{ 'admin.monthly' | translate }}</mat-option>
         </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Date</mat-label>
+        <mat-label>{{ 'admin.date' | translate }}</mat-label>
         <input
           matInput
           [matDatepicker]="picker"
@@ -41,12 +41,12 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>User</mat-label>
+        <mat-label>{{ 'admin.user' | translate }}</mat-label>
         <mat-select
           [value]="selectedUserId"
           (selectionChange)="onUserFilterChange($event.value)"
         >
-          <mat-option [value]="null">All users</mat-option>
+          <mat-option [value]="null">{{ 'admin.allUsers' | translate }}</mat-option>
           <mat-option *ngFor="let profile of profiles" [value]="profile.id">
             {{ profile.full_name || profile.username || profile.id }}
           </mat-option>
@@ -56,20 +56,20 @@
 
     <div class="kpi-grid" *ngIf="!loading">
       <mat-card class="kpi-card">
-        <div class="kpi-title">Active Users</div>
+        <div class="kpi-title">{{ 'admin.activeUsers' | translate }}</div>
         <div class="kpi-value">{{ activeUsers }}</div>
-        <div class="kpi-subtitle">Users with at least 1 devotion</div>
+        <div class="kpi-subtitle">{{ 'admin.activeUsersSubtitle' | translate }}</div>
       </mat-card>
       <mat-card class="kpi-card">
-        <div class="kpi-title">Average Days</div>
+        <div class="kpi-title">{{ 'admin.averageDays' | translate }}</div>
         <div class="kpi-value">{{ averageDays }}</div>
-        <div class="kpi-subtitle">Per user in range</div>
+        <div class="kpi-subtitle">{{ 'admin.averageDaysSubtitle' | translate }}</div>
       </mat-card>
       <mat-card class="kpi-card">
-        <div class="kpi-title">Top Consistency</div>
+        <div class="kpi-title">{{ 'admin.topConsistency' | translate }}</div>
         <div class="kpi-value">{{ topConsistency?.name || '—' }}</div>
         <div class="kpi-subtitle">
-          {{ topConsistency?.devotionDays ?? 0 }} days
+          {{ topConsistency?.devotionDays ?? 0 }} {{ 'admin.days' | translate }}
         </div>
       </mat-card>
     </div>
@@ -77,8 +77,8 @@
     <div class="chart-card" *ngIf="!loading && rows.length > 0">
       <div class="chart-header">
         <div>
-          <div class="chart-title">Engagement Distribution</div>
-          <div class="chart-subtitle">Users grouped by devotion frequency</div>
+          <div class="chart-title">{{ 'admin.engagementDistribution' | translate }}</div>
+          <div class="chart-subtitle">{{ 'admin.engagementDistributionSubtitle' | translate }}</div>
         </div>
       </div>
       <ngx-charts-bar-vertical
@@ -99,23 +99,23 @@
     </div>
 
     <div class="empty-state" *ngIf="!loading && rows.length === 0">
-      No devotion records for this range.
+      {{ 'admin.noRecords' | translate }}
     </div>
 
     <div class="table-container" *ngIf="!loading && rows.length > 0">
       <table mat-table [dataSource]="rows" class="mat-elevation-z1">
         <ng-container matColumnDef="user">
-          <th mat-header-cell *matHeaderCellDef>User Name</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.userName' | translate }}</th>
           <td mat-cell *matCellDef="let row">{{ row.name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="devotionDays">
-          <th mat-header-cell *matHeaderCellDef>Devotion Days</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.devotionDays' | translate }}</th>
           <td mat-cell *matCellDef="let row">{{ row.devotionDays }}</td>
         </ng-container>
 
         <ng-container matColumnDef="percentage">
-          <th mat-header-cell *matHeaderCellDef>Percentage</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.percentage' | translate }}</th>
           <td mat-cell *matCellDef="let row">
             <div class="percentage-cell">
               <span>{{ row.percentage }}%</span>
@@ -137,7 +137,7 @@
 
     <div #notesPanel class="notes-panel" *ngIf="selectedRowUserId">
       <div class="notes-header">
-        <h3>{{ selectedRowUserName }}'s Devotion Notes</h3>
+        <h3>{{ 'admin.userNotesTitle' | translate: { name: selectedRowUserName } }}</h3>
         <div class="week-range">
           {{ weekStart | date:'MMM d, y' }} - {{ weekEndDisplay | date:'MMM d, y' }}
         </div>
@@ -148,19 +148,20 @@
       </div>
 
       <div class="empty-state" *ngIf="!notesLoading && selectedUserNotes.length === 0">
-        No devotion notes found for this user in the selected range.
+        {{ 'admin.noNotesFound' | translate }}
       </div>
 
       <div class="notes-list" *ngIf="!notesLoading && selectedUserNotes.length > 0">
         <div class="note-item" *ngFor="let note of selectedUserNotes">
           <div class="note-date">{{ note.created_at | date:'MMM d, y, h:mm a' }}</div>
-          <div class="note-text">{{ note.notes || 'No note text provided.' }}</div>
+          <div class="note-text">{{ note.notes || ('profile.noDescription' | translate) }}</div>
           <div class="admin-image-wrapper" *ngIf="note.image_url" (click)="openImageLightbox(note.image_url)">
             <img [src]="note.image_url" alt="Devotion photo" class="admin-note-thumb" />
-            <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+            <span class="expand-badge"><mat-icon>zoom_in</mat-icon> {{ 'common.clickToExpand' | translate }}</span>
           </div>
         </div>
       </div>
     </div>
   </mat-card>
 </div>
+

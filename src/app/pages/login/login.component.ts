@@ -8,14 +8,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon'; // Added for password visibility toggle
-import { NotificationService } from '../../services/notification.service'; // Re-added NotificationService import
+import { MatIconModule } from '@angular/material/icon';
+import { NotificationService } from '../../services/notification.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ForgotPasswordDialogComponent } from '../../components/forgot-password-dialog/forgot-password-dialog.component';
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatTabsModule,
     MatCardModule,
@@ -24,7 +28,8 @@ import { ForgotPasswordDialogComponent } from '../../components/forgot-password-
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    TranslateModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -43,7 +48,8 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private translate: TranslateService
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -90,9 +96,9 @@ export class LoginComponent {
   private getSignInErrorMessage(message: string | undefined): string {
     const normalizedMessage = (message ?? '').toLowerCase();
     if (normalizedMessage.includes('invalid login credentials')) {
-      return 'Invalid credentials. If you do not have an account, please sign up first.';
+      return this.translate.instant('login.invalidCredentials');
     }
-    return message?.trim() || 'Unable to sign in right now. Please try again.';
+    return message?.trim() || this.translate.instant('login.signInError');
   }
 
   /** Create a new account and prompt email verification. */
@@ -102,7 +108,7 @@ export class LoginComponent {
       this.loading = true;
       try {
         await this.authService.signUp(this.signUpForm.value.email, this.signUpForm.value.password);
-        this.notificationService.show('Sign up successful! Please check your email for verification.', 'success');
+        this.notificationService.show(this.translate.instant('login.signUpSuccess'), 'success');
       } catch (error: any) {
         this.errorMessage = error.message;
         this.notificationService.show(error.message, 'error');
@@ -124,14 +130,14 @@ export class LoginComponent {
         try {
           await this.authService.resetPassword(email);
           this.notificationService.show(
-            'If an account exists for this email, a password reset link has been sent.',
+            this.translate.instant('login.passwordResetSuccess'),
             'success'
           );
         } catch (error: any) {
           const message =
             typeof error?.message === 'string' && error.message.trim().length > 0
               ? error.message
-              : 'Unable to send password reset link right now. Please try again.';
+              : this.translate.instant('login.passwordResetError');
           this.notificationService.show(message, 'error');
         } finally {
           this.loading = false;

@@ -14,6 +14,7 @@ export interface Profile {
   report_preference?: 'WEEKLY' | 'MONTHLY';
   username?: string;
   role?: 'admin' | 'member';
+  language?: string;
 }
 
 @Injectable({
@@ -27,6 +28,21 @@ export class ProfileService {
     private supabaseService: SupabaseService,
     private authService: AuthService
   ) { }
+
+  /** Update just the language for the current user. */
+  async updateLanguage(language: string): Promise<void> {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    const { error } = await this.supabaseService.supabase
+      .from('profiles')
+      .update({ language })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error updating language:', error);
+    }
+  }
 
   /** Fetch the current user's profile. */
   async getProfile(): Promise<Profile | null> {

@@ -19,11 +19,14 @@ import { AccessManagementService } from '../../services/access-management.servic
 import { NotificationService } from '../../services/notification.service';
 import { Profile } from '../../services/profile.service';
 import { UserReportJobResponse, UserReportJobService } from '../../services/user-report-job.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../../services/language.service';
 
 type ProfileSection = 'profile' | 'report-job' | 'manage-access';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -36,7 +39,8 @@ type ProfileSection = 'profile' | 'report-job' | 'manage-access';
     MatCardModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslateModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
@@ -44,15 +48,15 @@ type ProfileSection = 'profile' | 'report-job' | 'manage-access';
 /** Profile form for collecting user details after sign-in. */
 export class ProfileComponent implements OnInit {
   readonly sections: { id: ProfileSection; label: string; icon: string }[] = [
-    { id: 'profile', label: 'Profile Details', icon: 'account_circle' },
-    { id: 'report-job', label: 'Report Job', icon: 'play_circle' },
-    { id: 'manage-access', label: 'Manage Access', icon: 'admin_panel_settings' }
+    { id: 'profile', label: 'profile.title', icon: 'account_circle' },
+    { id: 'report-job', label: 'profile.runReportJob', icon: 'play_circle' },
+    { id: 'manage-access', label: 'profile.manageAccess', icon: 'admin_panel_settings' }
   ];
   readonly jobStatusMessages = [
-    'Preparing report request...',
-    'Fetching eligible users...',
-    'Sending emails...',
-    'Finalizing report summary...'
+    'profile.jobPreparing',
+    'profile.jobFetching',
+    'profile.jobSending',
+    'profile.jobFinalizing'
   ];
   readonly reportPreferences: Array<'WEEKLY' | 'MONTHLY'> = ['WEEKLY', 'MONTHLY'];
 
@@ -83,7 +87,9 @@ export class ProfileComponent implements OnInit {
     private notificationService: NotificationService,
     private profileService: ProfileService,
     private router: Router,
-    private userReportJobService: UserReportJobService
+    private userReportJobService: UserReportJobService,
+    private translate: TranslateService,
+    public languageService: LanguageService
   ) {
     this.profileForm = this.fb.group({
       full_name: ['', Validators.required],
@@ -92,7 +98,8 @@ export class ProfileComponent implements OnInit {
       phone_number: ['', Validators.required],
       church_name: ['', Validators.required],
       report_preference: ['MONTHLY', Validators.required],
-      username: ['']
+      username: [''],
+      language: ['en']
     });
 
     this.profileForm.get('dob')?.valueChanges.subscribe(value => {
@@ -105,6 +112,12 @@ export class ProfileComponent implements OnInit {
     this.profileForm.get('church_name')?.valueChanges.subscribe(value => {
       this.loadChurchSuggestions(typeof value === 'string' ? value : '');
     });
+  }
+
+  onLanguageChange(lang: string) {
+    this.languageService.setLanguage(lang);
+    this.profileService.updateLanguage(lang);
+    this.profileForm.patchValue({ language: lang });
   }
 
   /** Load existing profile data into the form. */
@@ -202,7 +215,7 @@ export class ProfileComponent implements OnInit {
     } catch (error) {
       const message = error instanceof Error
         ? error.message
-        : 'Failed to start the user report job. Please try again.';
+        : this.translate.instant('profile.runReportJobError');
 
       this.notificationService.show(message, 'error');
     } finally {
@@ -244,17 +257,17 @@ export class ProfileComponent implements OnInit {
     try {
       if (this.hasMappedAccess(rule.code)) {
         await this.accessManagementService.revokeAccess(this.selectedMappingUserId, rule.id);
-        this.notificationService.show(`Removed ${rule.name} access.`, 'success');
+        this.notificationService.show(this.translate.instant('profile.revokeAccessSuccess', { ruleName: rule.name }), 'success');
       } else {
         await this.accessManagementService.grantAccess(this.selectedMappingUserId, rule.id);
-        this.notificationService.show(`Granted ${rule.name} access.`, 'success');
+        this.notificationService.show(this.translate.instant('profile.grantAccessSuccess', { ruleName: rule.name }), 'success');
       }
 
       await this.loadSelectedUserMappings();
     } catch (error) {
       const message = error instanceof Error
         ? error.message
-        : 'Unable to update user access.';
+        : this.translate.instant('profile.updateAccessError');
       this.notificationService.show(message, 'error');
     } finally {
       this.mappingBusy = false;
@@ -332,17 +345,17 @@ export class ProfileComponent implements OnInit {
     const summary = result.summary;
     if (!summary) {
       return result.ok === false
-        ? 'The report job finished with an error.'
-        : 'The monthly report job completed successfully.';
+        ? this.translate.instant('profile.jobError')
+        : this.translate.instant('profile.jobSuccess');
     }
 
     return [
-      result.ok === false ? 'Monthly report job finished with errors.' : 'Monthly report job completed successfully.',
-      `Total users: ${summary.totalUsers ?? 0}`,
-      `Processed users: ${summary.processedUsers ?? 0}`,
-      `Sent count: ${summary.sentCount ?? 0}`,
-      `Skipped count: ${summary.skippedCount ?? 0}`,
-      `Error count: ${summary.errorCount ?? 0}`
+      result.ok === false ? this.translate.instant('profile.jobFinishedWithErrors') : this.translate.instant('profile.jobSuccess'),
+      `${this.translate.instant('profile.totalUsers')}: ${summary.totalUsers ?? 0}`,
+      `${this.translate.instant('profile.processedUsers')}: ${summary.processedUsers ?? 0}`,
+      `${this.translate.instant('profile.sentCount')}: ${summary.sentCount ?? 0}`,
+      `${this.translate.instant('profile.skippedCount')}: ${summary.skippedCount ?? 0}`,
+      `${this.translate.instant('profile.errorCount')}: ${summary.errorCount ?? 0}`
     ].join('\n');
   }
 

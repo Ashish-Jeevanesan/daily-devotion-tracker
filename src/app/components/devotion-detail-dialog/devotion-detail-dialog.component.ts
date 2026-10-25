@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lightbox-dialog.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-devotion-detail-dialog',
@@ -18,7 +20,9 @@ import { ImageLightboxDialogComponent } from '../image-lightbox-dialog/image-lig
     MatButtonModule,
     MatIconModule,
     ClipboardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslateModule,
+    MatTooltipModule
   ],
   templateUrl: './devotion-detail-dialog.component.html',
   styleUrls: ['./devotion-detail-dialog.component.scss']
@@ -32,7 +36,8 @@ export class DevotionDetailDialogComponent {
     public dialogRef: MatDialogRef<DevotionDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { devotion: Devotion | undefined, checkIn: CheckIn | undefined, date: Date },
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private translate: TranslateService
   ) {
     if (data.devotion?.notes) {
       const notes = data.devotion.notes;
@@ -55,7 +60,7 @@ export class DevotionDetailDialogComponent {
   openImageLightbox(imageUrl: string): void {
     if (!imageUrl) return;
     this.dialog.open(ImageLightboxDialogComponent, {
-      data: { imageUrl, title: 'Devotion Photo' }
+      data: { imageUrl, title: this.translate.instant('devotionDetail.photoTitle') }
     });
   }
 
@@ -67,7 +72,7 @@ export class DevotionDetailDialogComponent {
   /** Notify user when devotion text is copied. */
   copyDevotion(): void {
     if (this.data.devotion?.notes) {
-      this.snackBar.open('Devotion copied to clipboard!', 'Close', {
+      this.snackBar.open(this.translate.instant('todaysDevotion.copied'), this.translate.instant('common.close'), {
         duration: 3000
       });
     }

@@ -1,12 +1,12 @@
 <div class="calendar-container">
   <div class="admin-user-filter" *ngIf="isAdmin">
     <mat-form-field appearance="outline">
-      <mat-label>User</mat-label>
+      <mat-label>{{ 'admin.user' | translate }}</mat-label>
       <mat-select
         [value]="selectedUserId"
         (selectionChange)="onUserSelectionChange($event.value)"
       >
-        <mat-option [value]="null">My data</mat-option>
+        <mat-option [value]="null">{{ 'progress.myData' | translate }}</mat-option>
         <mat-option *ngFor="let profile of profiles" [value]="profile.id">
           {{ profile.full_name || profile.username || profile.id }}
         </mat-option>
@@ -15,18 +15,18 @@
   </div>
 
   <div class="calendar-controls">
-    <button class="nav-button" type="button" (click)="changeMonth(-1)" aria-label="Previous month">
+    <button class="nav-button" type="button" (click)="changeMonth(-1)" [attr.aria-label]="'Previous month' | translate">
       ◀
     </button>
-    <div class="month-label">{{ viewDate | date:'MMMM y' }}</div>
-    <button class="nav-button" type="button" (click)="changeMonth(1)" aria-label="Next month">
+    <div class="month-label">{{ viewDate | date:'MMMM y':locale }}</div>
+    <button class="nav-button" type="button" (click)="changeMonth(1)" [attr.aria-label]="'Next month' | translate">
       ▶
     </button>
   </div>
 
   <div class="calendar-loading" *ngIf="loadingCalendar">
     <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-    <div class="loading-text">Loading calendar data...</div>
+    <div class="loading-text">{{ 'progress.loading' | translate }}</div>
   </div>
 
   <mwl-calendar-month-view
@@ -36,12 +36,13 @@
     [cellTemplate]="customCellTemplate"
     (beforeViewRender)="beforeMonthViewRender($event)"
     (dayClicked)="dayClicked($event.day)"
+    [locale]="locale"
   >
   </mwl-calendar-month-view>
 
   <ng-template #customCellTemplate let-day="day" let-locale="locale">
     <div class="cal-cell-top">
-      <span class="cal-day-number">{{ day.date | date:'d' }}</span>
+      <span class="cal-day-number">{{ day.date | date:'d':locale }}</span>
     </div>
     
     @if (!day.meta?.isFuture) {
@@ -50,18 +51,18 @@
         <div class="desktop-details">
           @if (day.meta?.checkIn) {
             <div class="status-item" [class.done]="day.meta.checkIn.prayed">
-              Prayed: {{ day.meta.checkIn.prayed ? 'Yes' : 'No' }}
+              {{ 'progress.prayed' | translate }}: {{ day.meta.checkIn.prayed ? ('common.yes' | translate) : ('common.no' | translate) }}
             </div>
             <div class="status-item" [class.done]="day.meta.checkIn.read_bible">
-              Bible: {{ day.meta.checkIn.read_bible ? 'Yes' : 'No' }}
+              {{ 'progress.bible' | translate }}: {{ day.meta.checkIn.read_bible ? ('common.yes' | translate) : ('common.no' | translate) }}
             </div>
             @if (day.meta?.devotion) {
               <div class="has-notes">
-                <span class="note-icon">📝</span> Notes
+                <span class="note-icon">📝</span> {{ 'progress.notes' | translate }}
               </div>
             }
           } @else {
-            <div class="status-item missed-label">Missed</div>
+            <div class="status-item missed-label">{{ 'progress.missed' | translate }}</div>
           }
         </div>
 
@@ -69,14 +70,14 @@
         <div class="mobile-details">
           @if (day.meta?.checkIn) {
             <div class="icons-row">
-              @if (day.meta.checkIn.prayed) { <span class="icon" title="Prayed">🙏</span> }
-              @if (day.meta.checkIn.read_bible) { <span class="icon" title="Read Bible">📖</span> }
+              @if (day.meta.checkIn.prayed) { <span class="icon" [title]="'progress.prayed' | translate">🙏</span> }
+              @if (day.meta.checkIn.read_bible) { <span class="icon" [title]="'progress.bible' | translate">📖</span> }
             </div>
           } @else {
              <span class="icon missed-icon">❌</span>
           }
           @if (day.meta?.devotion) {
-            <div class="note-indicator" title="Has Notes">📝</div>
+            <div class="note-indicator" [title]="'progress.notes' | translate">📝</div>
           }
         </div>
       </div>
@@ -86,15 +87,15 @@
   <div class="calendar-legend" *ngIf="!loadingCalendar">
     <div class="legend-item">
       <span class="legend-color both"></span>
-      <span>Both Completed</span>
+      <span>{{ 'progress.bothCompleted' | translate }}</span>
     </div>
     <div class="legend-item">
       <span class="legend-color one"></span>
-      <span>Partial Completed</span>
+      <span>{{ 'progress.partialCompleted' | translate }}</span>
     </div>
     <div class="legend-item">
       <span class="legend-color missed"></span>
-      <span>Missed</span>
+      <span>{{ 'progress.missed' | translate }}</span>
     </div>
   </div>
 </div>

@@ -37,14 +37,15 @@ export class DevotionService {
       .is('void_fl', null)
       .gte('created_at', today.toISOString())
       .lt('created_at', tomorrow.toISOString())
-      .maybeSingle();
+      .order('created_at', { ascending: false })
+      .limit(1);
 
     if (error) {
       console.error('Error fetching today\'s devotion:', error);
       return null;
     }
 
-    return data;
+    return data && data.length > 0 ? data[0] : null;
   }
 
   /** Fetch all devotions before today in descending order. */
@@ -75,6 +76,12 @@ export class DevotionService {
   async addDevotion(notes: string, imageUrl?: string | null): Promise<Devotion | null> {
     const user = this.authService.currentUser();
     if (!user) return null;
+
+    // Enforce one devotion per day: update today's entry if it already exists.
+    const existing = await this.getTodaysDevotion();
+    if (existing) {
+      return this.updateDevotion(existing.id, notes, imageUrl);
+    }
 
     const insertData: { user_id: string; notes: string; image_url?: string | null } = {
       user_id: user.id,

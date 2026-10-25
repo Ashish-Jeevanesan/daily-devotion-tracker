@@ -5,20 +5,20 @@
   <div class="status-summary">
     @if (data.checkIn) {
       <div class="status-row">
-        <span class="status-label">Prayed:</span>
+        <span class="status-label">{{ 'progress.prayed' | translate }}:</span>
         <span class="status-value" [class.yes]="data.checkIn.prayed" [class.no]="!data.checkIn.prayed">
-          {{ data.checkIn.prayed ? 'Yes' : 'No' }}
+          {{ data.checkIn.prayed ? ('common.yes' | translate) : ('common.no' | translate) }}
         </span>
       </div>
       <div class="status-row">
-        <span class="status-label">Read Bible:</span>
+        <span class="status-label">{{ 'progress.bible' | translate }}:</span>
         <span class="status-value" [class.yes]="data.checkIn.read_bible" [class.no]="!data.checkIn.read_bible">
-          {{ data.checkIn.read_bible ? 'Yes' : 'No' }}
+          {{ data.checkIn.read_bible ? ('common.yes' | translate) : ('common.no' | translate) }}
         </span>
       </div>
     } @else {
       <div class="status-row missed">
-        <span>No check-in record for this day.</span>
+        <span>{{ 'devotionDetail.noCheckIn' | translate }}</span>
       </div>
     }
   </div>
@@ -26,8 +26,8 @@
   @if (data.devotion) {
     <div class="notes-section">
       <div class="notes-header">
-        <h3>My Notes</h3>
-        <button mat-icon-button [cdkCopyToClipboard]="data.devotion.notes" (click)="copyDevotion()" aria-label="Copy devotion notes" matTooltip="Copy to clipboard">
+        <h3>{{ 'devotionDetail.myNotes' | translate }}</h3>
+        <button mat-icon-button [cdkCopyToClipboard]="data.devotion.notes" (click)="copyDevotion()" [attr.aria-label]="'todaysDevotion.copy' | translate" [matTooltip]="'todaysDevotion.copy' | translate">
           <mat-icon>content_copy</mat-icon>
         </button>
       </div>
@@ -41,17 +41,17 @@
         @if (data.devotion.image_url) {
           <div class="detail-image-wrapper" (click)="openImageLightbox(data.devotion.image_url)">
             <img [src]="data.devotion.image_url" alt="Devotion photo" class="detail-thumb" />
-            <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+            <span class="expand-badge"><mat-icon>zoom_in</mat-icon> {{ 'common.clickToExpand' | translate }}</span>
           </div>
         }
       </div>
     </div>
   } @else {
     <div class="no-notes">
-      <p>No notes recorded for this day.</p>
+      <p>{{ 'devotionDetail.noNotes' | translate }}</p>
     </div>
   }
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onClose()">Close</button>
+  <button mat-button (click)="onClose()">{{ 'common.close' | translate }}</button>
 </mat-dialog-actions>

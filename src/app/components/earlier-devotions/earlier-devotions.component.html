@@ -1,15 +1,15 @@
-<h2>Earlier Devotions</h2>
+<h2>{{ 'earlierDevotions.title' | translate }}</h2>
 
 @if (timeline().length > 0) {
   <div class="devotion-list">
-    @for (item of timeline(); track item) {
+    @for (item of visibleTimeline(); track item) {
       @if (item.isMissedDay) {
         <mat-card class="missed-day-card">
           <mat-card-content>
             <p class="missed-day-message">{{ item.encouragement.message }}</p>
             <p class="missed-day-verse">{{ item.encouragement.verse }}</p>
             <p class="missed-day-duration">
-              {{ item.missedDays }} day{{ item.missedDays > 1 ? 's' : '' }} missed
+              {{ (item.missedDays > 1 ? 'earlierDevotions.daysMissed_other' : 'earlierDevotions.daysMissed_one') | translate: { count: item.missedDays } }}
               @if (item.missedDays > 1) {
                 ({{ item.startDate | date: 'MMM d' }} - {{ item.endDate | date: 'MMM d' }})
               } @else {
@@ -23,7 +23,7 @@
           <mat-card-header>
             <mat-card-title>
               {{ item.created_at | date: 'longDate' }}
-              <button mat-icon-button [cdkCopyToClipboard]="item.notes" (click)="copyDevotion(item.notes)" aria-label="Copy devotion notes">
+              <button mat-icon-button [cdkCopyToClipboard]="item.notes" (click)="copyDevotion(item.notes)" [attr.aria-label]="'todaysDevotion.copy' | translate">
                 <mat-icon>content_copy</mat-icon>
               </button>
             </mat-card-title>
@@ -38,7 +38,7 @@
             @if (item.image_url) {
               <div class="timeline-image-wrapper" (click)="openImageLightbox(item.image_url)">
                 <img [src]="item.image_url" alt="Devotion photo" class="timeline-thumb" />
-                <span class="expand-badge"><mat-icon>zoom_in</mat-icon> Click to expand</span>
+                <span class="expand-badge"><mat-icon>zoom_in</mat-icon> {{ 'common.clickToExpand' | translate }}</span>
               </div>
             }
           </mat-card-content>
@@ -46,6 +46,13 @@
       }
     }
   </div>
+  @if (hasMore()) {
+    <div class="show-more-row">
+      <button mat-stroked-button color="primary" (click)="showMore()">
+        {{ 'earlierDevotions.showMore' | translate }}
+      </button>
+    </div>
+  }
 } @else {
-  <p>No earlier devotions found.</p>
+  <p>{{ 'earlierDevotions.empty' | translate }}</p>
 }

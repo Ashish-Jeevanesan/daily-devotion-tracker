@@ -2,34 +2,31 @@
   <!-- Welcome Header -->
   <section class="welcome-section">
     <h1>
-      Welcome,
-      <span class="name">
-        {{ profile()?.full_name || "friend" }}
-      </span>
+      {{ 'home.welcome' | translate: { name: profile()?.full_name || ('home.friend' | translate) } }}
     </h1>
-    <p class="verse">“Be still, and know that I am God.” – Psalm 46:10</p>
-    <p class="subtitle">Let’s record your devotion for today 🙏</p>
+    <p class="verse">“{{ 'home.verse' | translate }}” {{ 'home.verseRef' | translate }}</p>
+    <p class="subtitle">{{ 'home.recordPrompt' | translate }}</p>
   </section>
 
   <!-- Daily Check-in -->
   <mat-card class="check-in-card">
-    <mat-card-title>Daily Check-in</mat-card-title>
+    <mat-card-title>{{ 'home.dailyCheckin' | translate }}</mat-card-title>
 
     <mat-card-content [formGroup]="checkInForm">
       <div class="question">
-        <p>Did you pray today?</p>
-        <mat-radio-group formControlName="prayed">
-          <mat-radio-button [value]="true">Yes</mat-radio-button>
-          <mat-radio-button [value]="false">No</mat-radio-button>
-        </mat-radio-group>
+        <p>{{ 'home.prayedToday' | translate }}</p>
+        <mat-button-toggle-group formControlName="prayed" class="segmented-toggle">
+          <mat-button-toggle [value]="true">{{ 'common.yes' | translate }}</mat-button-toggle>
+          <mat-button-toggle [value]="false">{{ 'common.no' | translate }}</mat-button-toggle>
+        </mat-button-toggle-group>
       </div>
 
       <div class="question">
-        <p>Did you read the Bible today?</p>
-        <mat-radio-group formControlName="read_bible">
-          <mat-radio-button [value]="true">Yes</mat-radio-button>
-          <mat-radio-button [value]="false">No</mat-radio-button>
-        </mat-radio-group>
+        <p>{{ 'home.readBibleToday' | translate }}</p>
+        <mat-button-toggle-group formControlName="read_bible" class="segmented-toggle">
+          <mat-button-toggle [value]="true">{{ 'common.yes' | translate }}</mat-button-toggle>
+          <mat-button-toggle [value]="false">{{ 'common.no' | translate }}</mat-button-toggle>
+        </mat-button-toggle-group>
       </div>
     </mat-card-content>
   </mat-card>
@@ -48,4 +45,10 @@
   <section class="earlier-section">
     <app-earlier-devotions></app-earlier-devotions>
   </section>
+
+  <!-- Mobile Sticky Floating Action Button (FAB) -->
+  <button mat-fab color="accent" class="mobile-fab mobile-only" (click)="openAddDevotionDialog()" aria-label="Add devotion">
+    <mat-icon>add</mat-icon>
+  </button>
 </div>
+
